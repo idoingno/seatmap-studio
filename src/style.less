@@ -1,0 +1,169 @@
+@prefixCls: clickpaas-customize-component-1691398243116;
+@shakeY: ~"@{prefixCls}-shakeY";
+
+
+@keyframes @shakeY {
+
+  from,
+  to {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    -webkit-transform: translate3d(0, -15px, 0);
+    transform: translate3d(0, -15px, 0);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    -webkit-transform: translate3d(0, 15px, 0);
+    transform: translate3d(0, 15px, 0);
+  }
+}
+
+// .@{prefixCls} {
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   flex-direction: column;
+
+//   input {
+//     text-align: center;
+//   }
+
+//   img {
+//     width: 350px;
+//     animation: @shakeY 15s infinite;
+//   }
+// }
+
+// .x6-graph.x6-graph-pannable {
+//   margin-left: 200px;
+
+// }
+
+.react-x6-graph {
+  // div.x6-graph {
+  //   left: 200px;
+  // }
+
+  .x6-graph-svg-viewport {
+    .x6-graph-svg-stage {
+
+      // g[data-shape*="chair-node"] {
+      //   transition: all ease .5s;
+      // }
+      g.x6-transition {
+        transition: all ease .5s;
+      }
+    }
+  }
+}
+
+// .f-modal {
+//   max-width: 100vw;
+//   max-height: 100vh;
+//   height: 100vh;
+//   background-color: #ffffff;
+//   top: 0;
+//   pointer-events: auto;
+//   position: static;
+//   padding-bottom: 0;
+// }
+
+.spin-wrap {
+  // width: 100vw;
+  height: 100vh;
+  // display: flex;
+  // justify-content: center;
+  // align-items: center;
+  background-color: rgba(0, 0, 0, .3);
+}
+
+.ant-message {
+  z-index: 100000009 !important;
+}
+
+.ant-modal-root {
+  .ant-modal-confirm-btns {
+    text-align: center;
+    justify-content: space-evenly;
+    display: flex;
+  }
+}
+
+.modal-wrap {
+  .ant-modal {
+    top: 50px;
+
+    .ant-modal-body {
+      max-height: 64vh;
+      overflow: auto;
+
+      .ant-form-item {
+        // margin-bottom: 0;
+        text-align: center;
+      }
+
+      .upload-file {
+        .ant-upload-list-item {
+          margin-top: 0;
+        }
+      }
+    }
+  }
+
+
+
+
+  .ant-radio-group {
+    width: 100%;
+  }
+
+  .ant-spin-container {
+    .ant-row {
+
+      // margin: 0;
+      grid-row-gap: 10px;
+      text-align: center;
+
+      .ant-radio-button-wrapper {
+        // display: inline-table;
+        width: 300px;
+        height: 300px;
+      }
+
+      .ant-list-item {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .list-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 300px;
+    padding: 20px 0;
+
+    img {
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
+    }
+  }
+}
+
+.ant-card-body {
+  display: flex;
+  flex-direction: column;
+}

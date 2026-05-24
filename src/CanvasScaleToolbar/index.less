@@ -1,0 +1,44 @@
+// @import (once) '~@antv/x6-react-components/es/toolbar/style/index.less';
+
+
+.canvas-toolbar {
+    position: absolute;
+    z-index: 99;
+    display: flex;
+    background: #fff;
+    right: unset;
+    // left: unset;
+    width: 32px;
+    height: auto;
+    border: 1px solid rgba(0, 0, 0, .04);
+    border-radius: 4px;
+    box-shadow: 0 0 20px rgb(0 0 0/1%);
+    bottom: 20px;
+    left: 20px;
+
+    &-group {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        height: auto;
+        flex-direction: column;
+        padding: 8px 0;
+
+        .canvas-toolbar-item {
+            margin: 0;
+            padding: 4px 8px;
+            color: #595959;
+            background-color: transparent;
+            border: 0;
+            border-radius: 2px;
+            outline: none;
+            box-shadow: none;
+            cursor: pointer;
+
+            &:hover {
+                background: #e0e0e0;
+                color: #262626;
+            }
+        }
+    }
+}

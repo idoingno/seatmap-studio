@@ -1,0 +1,99 @@
+.container-header {
+    height: 48px;
+    background-color: #fff;
+    display: flex;
+    padding: 0 24px;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    user-select: none;
+
+    img {
+        width: 24px;
+        height: 24px
+    }
+
+    .left {
+        margin-left: 8px;
+        display: flex;
+        align-items: center;
+
+        .text {
+            font-size: 16px;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.65);
+            user-select: none;
+        }
+
+        .save-status {
+            font-size: 16px;
+            color: #00B578;
+            margin-left: 100px;
+            display: flex;
+            align-items: center;
+
+            &-text {
+                margin-left: 8px;
+                font-size: 14px;
+                color: rgba(0, 0, 0, 0.65);
+            }
+        }
+
+    }
+
+    .middle,
+    .right {
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.65);
+
+        div {
+            display: flex;
+            align-items: center;
+            margin-right: 32px;
+            cursor: pointer;
+
+            img {
+                margin-right: 8px;
+            }
+        }
+
+    }
+
+    .middle {
+        div:last-child {
+            margin-right: 0;
+        }
+    }
+
+    .right {
+        cursor: pointer;
+        color: #94785B;
+
+        div:last-child {
+            margin-right: 0;
+        }
+    }
+}
+
+#download_img {
+    position: absolute;
+    // z-index: 0;
+    left: 0;
+    top: 0;
+    display: flex;
+    z-index: -9999999;
+    align-items: center;
+    padding: 30px;
+
+    #color_img {
+        margin-right: 15px;
+    }
+}
+
+// .clearConfirm {
+//     .ant-modal-confirm-btns {
+//         text-align: center;
+//     }
+// }

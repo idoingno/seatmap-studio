@@ -1,0 +1,12 @@
+export const ADD_SEAT = "ADD_SEAT";
+export const ADDS_SEAT = "ADDS_SEAT";
+export const DEL_SEAT = "DEL_SEAT";
+export const EMPTY_SEAT = "EMPTY_SEAT";
+// export const INCREMENT = "INCREMENT";
+// export const DECREMENT = "DECREMENT";
+export const SHOW_LOADING = "SHOW_LOADING";
+export const SHOW_FULL_SCREEN_LOADING = "SHOW_FULL_SCREEN_LOADING";
+export const SHOW_TIME = "SHOW_TIME";
+export const ADD_DRAG = "ADD_DRAG";
+export const SHOW_CIRCLE_UPDATE = "SHOW_CIRCLE_UPDATE";
+export const IS_LOAD = "IS_LOAD";
