@@ -21,13 +21,11 @@ const LayoutClearForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?
   const [value, setValue] = useState();
 
   const onChange = (e: any) => {
-    console.log("radio checked", e.target.value);
     setValue(e.target.value);
   };
 
   const onSubmit = async (values: any) => {
     props.beforeSubmit?.(values);
-    console.log(values);
     store.dispatch(emptyAction());
 
     const graph = getGraph();
@@ -44,8 +42,6 @@ const LayoutClearForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?
       //     id: item.attrs.xnode.key,
       //   };
       // });
-      // console.log(personNodeArr);
-
       // if (personNodeArr.length > 0) {
       // 全部人员删除
       const nodeParams = delPersonnel([], sessionId, false);
@@ -87,8 +83,6 @@ const LayoutClearForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?
           nodeType: node.data.nodeType,
           visible: true,
         };
-
-        console.log("button-xnode-------->", node);
 
         node.removeAttrByPath("xnode");
       });

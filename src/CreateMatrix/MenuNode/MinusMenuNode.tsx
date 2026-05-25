@@ -24,7 +24,6 @@ export const MinusMenuNode = memo(() => {
   useEventListener(
     "click",
     async () => {
-      console.log("删除最上 1 行");
       // 获取场次Id
       const sessionId = Session.getDataId;
 
@@ -32,8 +31,6 @@ export const MinusMenuNode = memo(() => {
 
       // 获取所有节点
       const nodes = graph.getNodes();
-      console.log("获取所有节点----------->", nodes);
-
       const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
 
       // 获取所有行
@@ -93,8 +90,6 @@ export const MinusMenuNode = memo(() => {
           !ite.data.idt.includes("corridorColumnSpace")
         );
       });
-      console.log("filterNode", filterNode);
-
       for (let i = 0; i < filterNode.length; i++) {
         const element = filterNode[i];
         let { x, y } = element.getPosition();
@@ -120,8 +115,6 @@ export const MinusMenuNode = memo(() => {
       });
 
       // const nodesss = graph.getNodes();
-      // console.log("获取所有节点----------->", nodesss);
-
       // 更新图形组 父节点
       const graphicsParams = updateGraphics(parent, sessionId);
       await handleCpApi({ params: graphicsParams, code: "seat" }, true);
@@ -151,7 +144,6 @@ export const MinusMenuNode = memo(() => {
   useEventListener(
     "click",
     async () => {
-      console.log("删除最下 1 行");
       // 获取场次Id
       const sessionId = Session.getDataId;
 
@@ -159,8 +151,6 @@ export const MinusMenuNode = memo(() => {
 
       // 获取所有节点
       const nodes = graph.getNodes();
-      console.log("获取所有节点----------->", nodes);
-
       const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
 
       // 获取所有行
@@ -233,8 +223,6 @@ export const MinusMenuNode = memo(() => {
       });
 
       // const nodesss = graph.getNodes();
-      // console.log("获取所有节点----------->", nodesss);
-
       // 更新图形组 父节点
       const graphicsParams = updateGraphics(parent, sessionId);
       await handleCpApi({ params: graphicsParams, code: "seat" }, true);
@@ -264,7 +252,6 @@ export const MinusMenuNode = memo(() => {
   useEventListener(
     "click",
     async () => {
-      console.log("删除最左 1 行");
       // 获取场次Id
       const sessionId = Session.getDataId;
 
@@ -274,8 +261,6 @@ export const MinusMenuNode = memo(() => {
 
       // 获取所有节点
       const nodes = graph.getNodes();
-      console.log("获取所有节点----------->", nodes);
-
       const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
 
       // 获取所有列
@@ -335,7 +320,6 @@ export const MinusMenuNode = memo(() => {
           !ite.data.idt.includes("aisleRowSpace")
         );
       });
-      console.log("filterNode", filterNode);
       for (let i = 0; i < filterNode.length; i++) {
         const element = filterNode[i];
         let { x, y } = element.getPosition();
@@ -348,7 +332,6 @@ export const MinusMenuNode = memo(() => {
           // element.setProp({ label: `${Number(idArr[1])}` });
           element.setData({ idx: element.data.idx - 1, idt: `matrixColumnBottomNum-${Number(idArr[1]) - 1}` });
         } else if (element.data.nodeType === "matrixChair") {
-          console.log("idArr", idArr);
           element.setData({ idx: element.data.idx - 1, idt: `${idArr[0]}-${Number(idArr[1]) - 1}` });
         } else if (element.data.nodeType === "corridorColumnSpace") {
           element.setData({ idx: element.data.idx - 1, idt: `corridorColumnSpace-${Number(idArr[1]) - 1}` });
@@ -364,8 +347,6 @@ export const MinusMenuNode = memo(() => {
       parent.setData({ columns: columns - 1 });
 
       // const nodesss = graph.getNodes();
-      // console.log("获取所有节点----------->", JSON.stringify(nodesss));
-
       // 更新图形组 父节点
       const graphicsParams = updateGraphics(parent, sessionId);
       await handleCpApi({ params: graphicsParams, code: "seat" }, true);
@@ -395,7 +376,6 @@ export const MinusMenuNode = memo(() => {
   useEventListener(
     "click",
     async () => {
-      console.log("删除最右 1 行");
       // 获取场次Id
       const sessionId = Session.getDataId;
 
@@ -405,8 +385,6 @@ export const MinusMenuNode = memo(() => {
 
       // 获取所有节点
       const nodes = graph.getNodes();
-      console.log("获取所有节点----------->", nodes);
-
       const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
       // 获取所有列
       const columns = parent.data.columns;

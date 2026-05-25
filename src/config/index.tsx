@@ -43,7 +43,6 @@ export const mousewheel = {
 };
 
 export const interacting = (cellView: CellView) => {
-  // console.log(cellView);
   if (cellView.cell.getData() != undefined && cellView.cell.getData().disableMove) {
     return { nodeMovable: false };
   }

@@ -22,7 +22,6 @@ import { base64ToFile, sortCompareFn3 } from "../utils/util";
 import domtoimage from "dom-to-image";
 import { getHasPersonSeatImg } from "../utils/oss";
 import { useGetState, useUpdateEffect } from "ahooks";
-import ExcelJs from "exceljs";
 import useFormModal from "../Components/useFormModal";
 import LayoutClearForm from "../Components/useFormModal/LayoutClearForm";
 import UploadFileForm from "../Components/useFormModal/UploadFileForm";
@@ -99,8 +98,6 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
     currentValue = selectLoading;
 
     if (previousValue !== currentValue) {
-      console.log("Some deep nested property changed from", previousValue, "to", currentValue);
-
       setLoading(currentValue);
     }
     // });
@@ -119,7 +116,6 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
     currentValue = selectTime;
 
     if (previousValue !== currentValue) {
-      console.log("Some deep nested property changed from", previousValue, "to", currentValue);
       setTime(currentValue);
     }
     // });
@@ -172,8 +168,6 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
   const downloadImg = async (oper: string) => {
     const cpForm = CPForm.getForm;
 
-    console.log("同步获取cpForm", cpForm);
-
     const v_name = cpForm["K2582458"].text;
 
     // 获取场次Id
@@ -186,7 +180,6 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
 
     // 获取ossKey 并上传图片
     const mapUrl = await getHasPersonSeatImg(`${v_name}-场地座位图.png`, imgFile);
-    console.log(mapUrl);
     if (oper !== "download") {
       // setVenueMapUrl(mapUrl);
       // setMapUrl(mapUrl);
@@ -225,8 +218,6 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
   const exportToExcel = async () => {
     const cpForm = CPForm.getForm;
 
-    console.log("同步获取cpForm", cpForm);
-
     const v_name = cpForm["K2582458"].text;
     const v_time_s = cpForm["K2460125"].value;
     const v_time_e = cpForm["K2460124"].value;
@@ -245,7 +236,7 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
       message.warning("请先创建一个布局，再下载 Excel 模板");
       return;
     }
-    console.log("当前画布内是什么节点", container);
+    const { default: ExcelJs } = await import("exceljs");
 
     let rowArr = [];
 
@@ -372,7 +363,6 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
       // 获取表格数据部分，定义其样式
       for (let j = 0; j < table.table.rows.length; j++) {
         let rowCell = sheet.getCell(`${AlphabeticSerialNumber[i]}${j + 6}`);
-        console.log("rowCell", rowCell);
         rowCell.font = { size: 12 };
         rowCell.alignment = { wrapText: true, vertical: "middle" };
 
@@ -433,7 +423,6 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
 
   //       const row_5: any = sheet.getRow(5);
   //       sheet.eachRow((row: any, idx: any) => {
-  //         console.log("===============", row, idx);
   //         if (row.values && idx > 5) {
   //           let arr = [];
   //           for (let i = 1; i < row._cells.length; i++) {
@@ -452,8 +441,6 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
   //         }
   //       });
   //       // 这里 imputData 就是 Sheet1中的内容了
-  //       console.log(imputData);
-
   //       const uploadArr = imputData.filter((item: { name: string; idt: string; seat: string }) => item.name !== "");
 
   //       const params = {

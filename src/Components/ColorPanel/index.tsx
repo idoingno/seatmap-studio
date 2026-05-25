@@ -85,8 +85,6 @@ const ColorPanel: React.FC<ColorPanelProps> = ({ setColorObj }) => {
           s_color: 'A',
         });
 
-        console.log(newNodes, sessionId)
-
         // 更新区域
         const nodeParams = updateNodeRegion(newNodes, sessionId);
         await handleCpApi({ params: nodeParams, code: "seat" }, true);

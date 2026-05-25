@@ -108,7 +108,6 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
     if (orgList.length > 0) {
       const data = computePersonObj(orgList, personList, arrangeKey, orgKey);
       const filterData = filterTree(data);
-      console.log("生成的tree数据", filterData);
       setTreeData(filterData);
     }
   }, [orgList, personList]);
@@ -133,8 +132,6 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
     currentValue = selectSeat;
 
     if (previousValue !== currentValue) {
-      console.log("Some deep nested property changed from", previousValue, "to", currentValue);
-
       if (allList && allList.length > 0) {
         handleLeftTree([...new Set(currentValue)]);
       }
@@ -232,9 +229,6 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
   };
 
   const allCheckboxOnChange = (e: CheckboxChangeEvent) => {
-    console.log("allList 全部列表数据", allList);
-    console.log("personList 当前列表数据", personList);
-
     const filterList = personList.filter(
       (item: any) =>
         item.orgType === orgKey && getArrangeSeat(item, "unArrange") && item.title.includes(inputSearchValue)
@@ -248,7 +242,6 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
       };
     });
 
-    console.log(newData);
     setAllList([...newData]);
 
     setCheckedList(e.target.checked ? allId : []);
@@ -258,9 +251,6 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
   };
 
   const onCheck = (checkedKeysValue: string[], e: any) => {
-    console.log("onCheck", checkedKeysValue);
-    console.log("onCheck", e);
-
     const allId = personList.map((item: ItemType) => item.id);
     const isSelectLength = hasDuplicates(allId, checkedKeysValue).length;
 
@@ -270,8 +260,6 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
         checked: checkedKeysValue.includes(item.id) ? true : false,
       };
     });
-
-    console.log(newData);
 
     setAllList([...newData]);
 
@@ -288,7 +276,6 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
   const getLeftPersonSelection = () => {
     // let { myTreeData, orgKey } = this.state
     // const list = personDataMap(personInfo);
-    // console.log(list);
     let selectPersonArr: any = [];
     allList.forEach((ite: any) => {
       if (ite.checked && getArrangeSeat(ite, "unArrange") && orgKey === ite.orgType) {
@@ -299,9 +286,6 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
   };
 
   const onDragEnd = async ({ event, node }: any) => {
-    console.log("onDragEnd", event);
-    console.log(node);
-
     // const nodeType = getDragNodeType();
     // tree 三种形态
     // 1、拖动人未被选择
@@ -314,8 +298,6 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
     const seatArr = graph.getSelectedCells().filter((item: Node) => !item.attrs.xnode);
     // const filterSeatArr =  seatArr.filter((item: Node)=> !item.attrs.xnode)
     const personArr = getLeftPersonSelection();
-    console.log("框选的座位", seatArr);
-
     if (node.dataType === "level" && personArr.length === 0) {
       message.error("请先选择人员！");
       return;
@@ -426,7 +408,6 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
   };
 
   const onDragStart = ({ event, node }: any) => {
-    console.log("onDragStart", event);
     setDragNodeType(node.nodeType);
   };
 

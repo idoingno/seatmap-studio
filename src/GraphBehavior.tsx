@@ -32,9 +32,8 @@ export const GraphBehavior = (): any => {
 
   // TODO 这里拿到graph对象处理自己的逻辑（例如使用后端数据初始化画布，增加事件监听...）
   useMemo(() => {
-    const cb = (name: object, args: string) => console.log(name, args);
-    const added = cb.bind(null, "cell:added");
-    const removed = cb.bind(null, "cell:removed");
+    const added = (): void => undefined;
+    const removed = (): void => undefined;
 
     graph.on("cell:removed", removed);
 
@@ -113,8 +112,6 @@ export const GraphBehavior = (): any => {
               arr.push(obj);
             }
           });
-
-          console.log(arr);
 
           if (arr.length > 0) {
             // 添加人员
@@ -263,8 +260,6 @@ export const GraphBehavior = (): any => {
     };
 
     const nodeMouseenter = ({ e, node, view, cell }: C) => {
-      console.log(node);
-      console.log(e);
       if (!node || !node.data) return;
       const { nodeType, visible } = node.data;
       matrixToolsConfig({ e, node, view, cell });
@@ -334,8 +329,6 @@ export const GraphBehavior = (): any => {
                 },
               ];
 
-              console.log(arr);
-
               // 添加人员
               const nodeParams = generatePersonnel(arr);
               await handleCpApi({ params: nodeParams, code: "seat" }, true);
@@ -379,8 +372,6 @@ export const GraphBehavior = (): any => {
                 nodeType: nodeType,
                 visible: true,
               };
-
-              console.log("button-xnode-------->", node);
 
               const arr: any = [
                 {

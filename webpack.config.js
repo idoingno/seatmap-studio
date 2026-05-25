@@ -23,11 +23,15 @@ const config = {
     filename: isProduction
       ? '[name].[contenthash].bundle.js'
       : '[name].bundle.js',
+    chunkFilename: isProduction
+      ? 'chunks/[name].[contenthash].js'
+      : 'chunks/[name].js',
   },
   devServer: {
     // open: ['/', '/playground.html'],
     host: 'localhost',
     port: 8080,
+    allowedHosts: 'all',
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
@@ -127,6 +131,52 @@ const config = {
     }
   },
   optimization: {
+    runtimeChunk: 'single',
+    splitChunks: {
+      chunks: 'all',
+      maxInitialRequests: 10,
+      cacheGroups: {
+        exceljs: {
+          test: /[\\/]node_modules[\\/](exceljs|jszip|fast-csv|archiver|readable-stream|saxes|xmlchars)[\\/]/,
+          chunks: 'async',
+          name: 'exceljs',
+          enforce: true,
+          priority: 60,
+        },
+        oss: {
+          test: /[\\/]node_modules[\\/](ali-oss|addressing|bowser|copy-to|dateformat|humanize-ms|utility)[\\/]/,
+          chunks: 'async',
+          name: 'oss',
+          enforce: true,
+          priority: 50,
+        },
+        react: {
+          test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+          chunks: 'initial',
+          name: 'vendor-react',
+          priority: 40,
+        },
+        antd: {
+          test: /[\\/]node_modules[\\/](@ant-design|antd|rc-[^\\/]+)[\\/]/,
+          chunks: 'initial',
+          name: 'vendor-antd',
+          priority: 30,
+        },
+        x6: {
+          test: /[\\/]node_modules[\\/](@antv|x6-)[\\/]/,
+          chunks: 'initial',
+          name: 'vendor-x6',
+          priority: 20,
+        },
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          chunks: 'initial',
+          name: 'vendor',
+          priority: 10,
+          reuseExistingChunk: true,
+        },
+      },
+    },
     minimizer: [
       `...`,
       new CssMinimizerPlugin(),

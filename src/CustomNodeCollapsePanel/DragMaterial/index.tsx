@@ -41,15 +41,11 @@ const DragItem: React.FC<IMyProps> = ({ child }) => {
 
   useDrag(child, dragRef, {
     onDragStart: (e) => {
-      console.log("	开始拖拽的回调", child);
       setDragNodeType(child.nodeType);
     },
 
     onDragEnd: (e) => {
-      console.log("	结束拖拽的回调", child, e);
       const graph = getGraph();
-      console.log(graph);
-
       const { x, y } = e as React.DragEvent<Element> & { x: number; y: number };
 
       const p1 = graph.pageToLocal(x, y);
@@ -60,10 +56,8 @@ const DragItem: React.FC<IMyProps> = ({ child }) => {
         // initCircle(p1.x, p1.y, graph);
         circleModalRef.current?.open({ circle: { x: p1.x, y: p1.y, graph } });
       } else if (child.nodeType === "Corridor") {
-        console.log("竖向走廊");
         handleOffsetCorridor("add");
       } else if (child.nodeType === "Aisle") {
-        console.log("横向走廊");
         handleOffsetAisle("add");
       } else if (child.nodeType === "Proscenium") {
         initProscenium(p1.x, p1.y, graph);

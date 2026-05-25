@@ -13,11 +13,9 @@ const ChairCard: React.FC = () => {
 
   useHover(awayRef, {
     onEnter: () => {
-      console.log("onEnter");
       setShow(true);
     },
     onLeave: () => {
-      console.log("onLeave");
       setShow(false);
     },
   });

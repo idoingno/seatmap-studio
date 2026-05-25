@@ -46,7 +46,6 @@ const App = ({ closeApp }: AppProps) => {
   /** configurations 是组件的配置项信息 */
   // const { configurations, context, form } = props;
   // const { propName1: placeholder, propName2: width = 350, propName3: disabled } = configurations || {};
-  // console.log("CP-----------> props", props);
   // Session.setDataId = context.dataId;
   // CPForm.setForm = form
 
@@ -70,8 +69,6 @@ const App = ({ closeApp }: AppProps) => {
   useEffect(() => {
     refresh && setTimeout(() => setRefresh(false));
   }, [refresh]);
-
-  console.log("rendering...");
 
   // const { modalRef: UserModalRef, FormModal: UserModal } = useFormModal(
   //   { title: "模板配置" },
@@ -118,7 +115,6 @@ const App = ({ closeApp }: AppProps) => {
         store.dispatch(isLoadAction(true));
       }
     } catch (error) {
-      console.error("Failed to load seat layout", error);
       setLoading(false);
     }
   };
@@ -133,8 +129,6 @@ const App = ({ closeApp }: AppProps) => {
   //   currentValue = selectFullScreenLoading;
 
   //   if (previousValue !== currentValue) {
-  //     console.log("页面请求", previousValue, "to", currentValue);
-
   //     setLoading(currentValue);
   //   }
   // }, [selectFullScreenLoading])
@@ -193,7 +187,6 @@ const App = ({ closeApp }: AppProps) => {
       new Transform({
         resizing: {
           enabled(node: any) {
-            console.log("======node====", node);
             const arr = ["windowNode", "doorNode", "prosceniumNode"];
             if (arr.includes(node.data.nodeType)) {
               return true;

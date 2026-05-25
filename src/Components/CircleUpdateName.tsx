@@ -24,7 +24,6 @@ const CircleUpdateName = () => {
     currentValue = selectShow;
 
     if (previousValue?.show !== currentValue?.show) {
-      console.log("Some deep nested property changed from", previousValue, "to", currentValue);
       setShow(currentValue.show);
       setFormData({ tableName: currentValue.tableName, tableNameEn: currentValue.tableNameEn });
     }
@@ -58,7 +57,6 @@ const CircleUpdateName = () => {
   };
 
   const handleOk = (e: any) => {
-    console.log(e);
     formRef.current.submit();
   };
 
@@ -69,7 +67,6 @@ const CircleUpdateName = () => {
   };
 
   const onFinish = async (values: any) => {
-    console.log("Success:", values);
     const { tableName, tableNameEn } = values;
     const { id, nodeType } = store.getState().other.circleUpdate;
     // 获取场次Id
@@ -77,7 +74,6 @@ const CircleUpdateName = () => {
     const graph = getGraph();
 
     if (nodeType === "circleTable") {
-      console.log(graph.getCellById(id));
       const node = graph.getCellById(id);
       node.attr("text1/text", tableName);
       node.attr("text2/text", tableNameEn);

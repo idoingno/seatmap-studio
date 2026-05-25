@@ -98,8 +98,6 @@ const initCircleSeat = async (
   for (let i = 0; i < chairCount; i++) {
     const angle = (CHAIR_START_ANGLE + CHAIR_ANGLE_STEP * i) * (Math.PI / 180);
     const chair = graph.addNode(circleChairParams(circleData, circleTableData, table, angle, i));
-    console.log(chair.getPosition());
-    console.log("角度angle", angle);
     parent.addChild(chair);
   }
 
@@ -108,8 +106,6 @@ const initCircleSeat = async (
   await handleCpApi({ params: graphicsParams, code: "seat" }, true);
 
   const newNodes = graph.getNodes();
-
-  console.log(parent);
 
   const filterNode = newNodes.filter(
     (ite: Node) => ite.data.nodeType !== "circleContainer" && ite.parent.id === parent.id

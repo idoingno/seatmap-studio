@@ -94,7 +94,6 @@ const SelectTemplateForm = (
   );
 
   const onChange = (e: any) => {
-    console.log(e);
     setTemplateId(e.target.value);
   };
 
@@ -127,7 +126,6 @@ const SelectTemplateForm = (
             pagination={{
               total,
               onChange: (page) => {
-                console.log(page);
                 getList(page, inputSearchValue);
               },
               pageSize: 9,

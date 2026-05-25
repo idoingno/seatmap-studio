@@ -49,8 +49,6 @@ const commands: CommandsType[] = [
 
 const CanvasScaleToolbar: React.FC = () => {
   const graph = useGraphInstance();
-  console.log("graph", graph);
-
   const transform = (command: string, graph: any) => {
     switch (command) {
       case "translate":

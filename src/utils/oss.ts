@@ -1,4 +1,3 @@
-import OSS from "ali-oss";
 import { handleCpApi } from "../api";
 
 // 获取ossKey
@@ -8,6 +7,7 @@ export const getOssKey = async () => {
   if (res && res.data && res.data.response && res.data.response.credentials) {
     let { accessKeyId, securityToken, accessKeySecret } = res.data.response.credentials;
     // ossInitFlag = true
+    const { default: OSS } = await import("ali-oss");
     let ossClient = new OSS({
       region: window.localStorage.getItem("seatmap-oss-region") || "oss-cn-shanghai",
       accessKeyId: accessKeyId, //阿里云产品的通用id

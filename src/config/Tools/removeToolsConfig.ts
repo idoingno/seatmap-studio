@@ -29,8 +29,6 @@ const removeToolsConfig = ({ e, node }: ConfigProps) => {
         offset: { x: -5, y: 5 },
         async onClick({ view, e }: any) {
           const node = view.cell;
-          console.log("button-remove-------->", node);
-
           // 获取场次Id
           const sessionId = Session.getDataId;
           if (node.attrs.xnode) {
@@ -74,8 +72,6 @@ const removeToolsConfig = ({ e, node }: ConfigProps) => {
               nodeType: nodeType,
               visible: true,
             };
-
-            console.log("button-xnode-------->", node);
 
             // delete node.attrs.xnode;
 

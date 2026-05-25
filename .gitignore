@@ -21,3 +21,5 @@
 /dist.cpplugin
 /dist.zip
 /.vscode
+/playwright-report
+/test-results

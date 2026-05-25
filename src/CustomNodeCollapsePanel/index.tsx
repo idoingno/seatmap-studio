@@ -1,18 +1,15 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 // import { Graph } from "@antv/x6";
 
-// import { Stencil } from "@antv/x6-plugin-stencil";
 
 // import { useGraphInstance } from "x6-graph/react";
 // import ReactDom from 'react-dom'
 // import { NodeCollapseObj, nodes } from "../config";
-// import { DagreLayout, GridLayout } from "@antv/layout";
 // import { useDrop, useDrag } from "ahooks";
 import DragMaterial from "./DragMaterial";
 import { CaretRightOutlined } from "@ant-design/icons";
 import { Button, Collapse } from "antd";
 import { getGraph, panelArr, panelType } from "../config";
-// import { Dnd } from "@antv/x6-plugin-dnd";
 // import Draggable from "react-draggable";
 // import { HTML5Backend } from 'react-dnd-html5-backend'
 // import { DndProvider } from 'react-dnd'
@@ -40,7 +37,6 @@ interface PersonTreeType {
 const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, setShowSelectTemplate, loadTree$ }) => {
   // const CustomNodeCollapsePanel = ({}) => {
   // const graph = getGraph();
-  // console.log("graph", graph);
   const dndContainerRef = useRef<HTMLDivElement>();
   const [list, setList] = useState([]);
 
@@ -67,7 +63,6 @@ const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, setShowSelec
     currentValue = selectDrag;
 
     if (previousValue !== currentValue) {
-      console.log("Some deep nested property changed from", previousValue, "to", currentValue);
       if (currentValue === "Matrix") {
         panelArr.forEach((child) => {
           if (child.nodeType === "Matrix" || child.nodeType === "Round") {
@@ -90,7 +85,6 @@ const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, setShowSelec
         });
       }
 
-      console.log("panelArr", panelArr);
       setList([...panelArr]);
     }
     // });

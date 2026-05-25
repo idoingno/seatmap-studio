@@ -28,7 +28,6 @@ export const AddMenuNode = memo(() => {
   useEventListener(
     "click",
     async () => {
-      console.log("插入最上 1 行");
       // 获取场次Id
       const sessionId = Session.getDataId;
 
@@ -36,8 +35,6 @@ export const AddMenuNode = memo(() => {
 
       // 获取所有节点
       const nodes = graph.getNodes();
-      console.log("获取所有节点----------->", nodes);
-
       const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
 
       // 获取所有行
@@ -104,8 +101,6 @@ export const AddMenuNode = memo(() => {
           !ite.data.idt.includes("corridorColumnSpace")
         );
       });
-      console.log("filterNode", filterNode);
-
       for (let i = 0; i < filterNode.length; i++) {
         const element = filterNode[i];
         let { x, y } = element.getPosition();
@@ -128,8 +123,6 @@ export const AddMenuNode = memo(() => {
       parent.setData({ rows: rows + 1 });
 
       // const nodesss = graph.getNodes();
-      // console.log("获取所有节点----------->", nodesss);
-
       // 更新图形组 父节点
       const graphicsParams = updateGraphics(parent, sessionId);
       await handleCpApi({ params: graphicsParams, code: "seat" }, true);
@@ -144,7 +137,6 @@ export const AddMenuNode = memo(() => {
   useEventListener(
     "click",
     async () => {
-      console.log("插入最下 1 行");
       // 获取场次Id
       const sessionId = Session.getDataId;
 
@@ -152,8 +144,6 @@ export const AddMenuNode = memo(() => {
 
       // 获取所有节点
       const nodes = graph.getNodes();
-      console.log("获取所有节点----------->", nodes);
-
       const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
 
       // 更改父节点高度
@@ -233,8 +223,6 @@ export const AddMenuNode = memo(() => {
       parent.setData({ rows: rows + 1 });
 
       // const nodesss = graph.getNodes();
-      // console.log("获取所有节点----------->", JSON.stringify(nodesss));
-
       // 更新图形组 父节点
       const graphicsParams = updateGraphics(parent, sessionId);
       await handleCpApi({ params: graphicsParams, code: "seat" }, true);
@@ -249,15 +237,12 @@ export const AddMenuNode = memo(() => {
   useEventListener(
     "click",
     async () => {
-      console.log("插入最左 1 行");
       // 获取场次Id
       const sessionId = Session.getDataId;
       const graph = getGraph();
 
       // 获取所有节点
       const nodes = graph.getNodes();
-      console.log("获取所有节点----------->", nodes);
-
       // const columns = MatrixAllRowsOrColumns.getAllColumns;
 
       const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
@@ -329,7 +314,6 @@ export const AddMenuNode = memo(() => {
           !ite.data.idt.includes("aisleRowSpace")
         );
       });
-      console.log("filterNode", filterNode);
       for (let i = 0; i < filterNode.length; i++) {
         const element = filterNode[i];
         let { x, y } = element.getPosition();
@@ -357,8 +341,6 @@ export const AddMenuNode = memo(() => {
       parent.setData({ columns: columns + 1 });
 
       // const nodesss = graph.getNodes();
-      // console.log("获取所有节点----------->", JSON.stringify(nodesss));
-
       // 更新图形组 父节点
       const graphicsParams = updateGraphics(parent, sessionId);
       await handleCpApi({ params: graphicsParams, code: "seat" }, true);
@@ -373,7 +355,6 @@ export const AddMenuNode = memo(() => {
   useEventListener(
     "click",
     async () => {
-      console.log("插入最右 1 行");
       // 获取场次Id
       const sessionId = Session.getDataId;
 
@@ -382,8 +363,6 @@ export const AddMenuNode = memo(() => {
 
       // 获取所有节点
       const nodes = graph.getNodes();
-      console.log("获取所有节点----------->", nodes);
-
       const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
 
       // 获取所有列
@@ -465,8 +444,6 @@ export const AddMenuNode = memo(() => {
       parent.setData({ columns: columns + 1 });
 
       // const nodesss = graph.getNodes();
-      // console.log("获取所有节点----------->", nodesss);
-
       // 更新图形组 父节点
       const graphicsParams = updateGraphics(parent, sessionId);
       await handleCpApi({ params: graphicsParams, code: "seat" }, true);

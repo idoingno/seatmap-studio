@@ -17,8 +17,6 @@ const toDrop = (dropRef: any) => {
     onDom: (content: any, e) => {
       const graph = getGraph();
       const nodes = graph.getNodes() as any;
-      console.log(`custom: ${content} dropped`, content);
-      console.log("onDom", e);
       // 获取场次Id
       // const sessionId = Session.getDataId;
       // const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
@@ -30,7 +28,6 @@ const toDrop = (dropRef: any) => {
           (item: any) => item.data.idt && item.data.idt.includes("corridorColumnSpace-")
         );
         const findIdx = corridorColumnspaceArr.find((ite: any) => ite.data.idx === currentColumn);
-        console.log("currentColumn------------>", currentColumn);
         if (currentColumn > -1) {
           // columnSpaceArr[currentColumn].hit = true;
           // corridorColumnspaceArr[currentColumn].data.isExist = true;
@@ -48,7 +45,6 @@ const toDrop = (dropRef: any) => {
         // const rowSpaceArr = getRowSpaceArr();
         const aisleRowSpaceArr = nodes.filter((item: any) => item.data.idt && item.data.idt.includes("aisleRowSpace-"));
         const findIdx = aisleRowSpaceArr.find((ite: any) => ite.data.idx === currentRow);
-        console.log("currentRow------------>", currentRow);
         if (currentRow > -1) {
           // rowSpaceArr[currentRow].hit = true;
           findIdx.data.isExist = true;
@@ -70,7 +66,6 @@ const toDrop = (dropRef: any) => {
       }
     },
     onDragEnter: (e: any) => {
-      console.log("拖动进入", e);
       const nodeType = getDragNodeType();
 
       const graph = getGraph();
@@ -84,7 +79,6 @@ const toDrop = (dropRef: any) => {
     onDragLeave: (e: any) => {},
     onDragOver: (e: any) => {},
     onDrop: (e: any) => {
-      console.log("当前什么阶段", e);
     },
   });
 };

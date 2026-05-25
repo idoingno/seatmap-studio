@@ -24,7 +24,6 @@ const InitMatrixForm = (
   const [form] = Form.useForm();
 
   const onSubmit = (values: any) => {
-    console.log(values);
     props.beforeSubmit?.(values);
     MatrixAllRowsOrColumns.setAllRows = Number(values.rows);
     MatrixAllRowsOrColumns.setAllColumns = Number(values.columns);

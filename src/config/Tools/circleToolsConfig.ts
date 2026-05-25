@@ -81,8 +81,6 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
               node.addChild(chair);
 
               computeCirclePosition(graph, node, "add", circleChairNum);
-              console.log("最后的node", node);
-
               // 更新图形组 父节点
               const graphicsParams = updateGraphics(node, sessionId);
               await handleCpApi({ params: graphicsParams, code: "seat" }, true);

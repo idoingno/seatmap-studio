@@ -81,7 +81,6 @@ const isOutElement = (str: string, p1: pProps) => {
     }
 
     if (p1.x > objB_x && p1.x < rectB_width && p1.y > objB_y && p1.y < rectB_height) {
-      console.log("进入间隙", element);
       element.setAttrs({
         body: {
           fill: "rgba(179,147,114,.3)",
@@ -90,7 +89,6 @@ const isOutElement = (str: string, p1: pProps) => {
       str === "aisleRowSpace-" ? setCurrentRow(element.data.idx) : setCurrentColumn(element.data.idx);
     } else {
       element.attr("body/fill", "transparent");
-      console.log("离开间隙");
     }
   }
 };
@@ -112,13 +110,11 @@ export const isOutChair = (p1: pProps, chairArr: any) => {
     let rectB_height = objB_y + height;
 
     if (p1.x > objB_x && p1.x < rectB_width && p1.y > objB_y && p1.y < rectB_height) {
-      console.log("进入椅子", element);
       return {
         flag: true,
         element,
       };
     } else {
-      console.log("离开椅子");
     }
   }
   return {
@@ -250,7 +246,6 @@ export const parentAddChair = (data: Node[], row: number, direction: string) => 
           direction === "left" || direction === "right" ? "新增列" : element.data.matrixChairBottomName,
       },
     });
-    console.log("idt-----》》》》》》》》》》》》》", idt);
     parent.addChild(Child);
   }
 };
@@ -393,8 +388,6 @@ export const computePersonObj: any = (list: OrgInfoProps[], personInfo: any, arr
     let obj = {};
     const org = list[i];
     const filterData = personDataFilter(personInfo, org.id, arrangeKey, orgKey);
-    console.log(filterData);
-
     obj = {
       children: filterData,
       fullPath: org.fullPath,
@@ -471,7 +464,6 @@ export const listToTreeSimple = (data: any[]) => {
       obj[item.id] = item;
     });
 
-    // console.log(obj, "obj")
     const parentList: any[] = [];
     data.forEach((item) => {
       const parent = obj[item.pid];

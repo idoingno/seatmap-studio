@@ -24,8 +24,6 @@ const ColorEdit: React.FC<any> = ({ colorObj }) => {
 
   const [loading, setLoading] = useState(false);
 
-  console.log("colorObj", colorObj);
-
   const updateData = (i: number, type: string, e?: any) => {
     if (type === "show") {
       setLoading(true);
@@ -84,8 +82,6 @@ const ColorEdit: React.FC<any> = ({ colorObj }) => {
   };
 
   useUpdateEffect(() => {
-    console.log(colorList);
-
     const graph = getGraph();
     const nodes = graph.getNodes();
     const filtNode = nodes.filter(
@@ -127,14 +123,11 @@ const ColorEdit: React.FC<any> = ({ colorObj }) => {
   };
 
   const selectLoading = useSelector((state: any) => {
-    console.log("=============", state.other.isLoad);
     return state.other.isLoad;
   });
 
   useUpdateEffect(() => {
     let currentValue: any;
-
-    console.log("selectLoadingsselectLoadingsselectLoadings", selectLoading);
 
     // 监听state的变化
     // const unsubscribe = store.subscribe(() => {
@@ -143,10 +136,7 @@ const ColorEdit: React.FC<any> = ({ colorObj }) => {
     // currentValue = selectLoading(store.getState());
     currentValue = selectLoading;
     if (previousValue !== currentValue) {
-      console.log("Some deep nested property changed from", previousValue, "to", currentValue);
-
       if (currentValue) {
-        console.log("执行了几次");
         const graph = getGraph();
         const nodes = graph.getNodes();
         const filtNode = nodes.filter(

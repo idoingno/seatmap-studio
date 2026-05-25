@@ -30,7 +30,6 @@ const getRemoteCodes = () => {
   try {
     return JSON.parse(window.localStorage.getItem("seatmap-api-codes") || "{}");
   } catch (error) {
-    console.warn("Invalid seatmap-api-codes configuration", error);
     return {};
   }
 };
@@ -93,7 +92,6 @@ const request = (options: AxiosRequestConfig = {}, loading = false) => {
         resolve(res);
       })
       .catch((error) => {
-        console.log(error);
         loading && endLoading();
         reject(error);
       });

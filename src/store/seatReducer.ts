@@ -17,8 +17,6 @@ function reducer(state = defaultState, action: { type: string; val: any }) {
       // newState.seatSet.add(action.val);
       // break;
       // const newVal = newState.seatSet.add(action.val);
-      console.log("============", newState.seatSet);
-
       return Object.assign({}, newState, {
         // seatSet: newState.seatSet.push(action.val),
         seatSet: [...newState.seatSet, action.val],
@@ -31,7 +29,6 @@ function reducer(state = defaultState, action: { type: string; val: any }) {
           arr.push(ele);
         }
       }
-      console.log([...newState.seatSet, ...arr]);
       return Object.assign({}, newState, {
         seatSet: [...newState.seatSet, ...arr],
       });

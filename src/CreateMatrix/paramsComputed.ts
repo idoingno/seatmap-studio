@@ -107,7 +107,6 @@ export const aisleColumnNodeParams = (
   corridorCount: number,
   i: number
 ) => {
-  console.log(moreCorridorNum);
   let { x, y, height } = parentData;
   // let { count, height: AISLE_SIZE } = aisleData
   // let { width: corridorW } = corridorData

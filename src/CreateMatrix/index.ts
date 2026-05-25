@@ -55,8 +55,6 @@ export const initMatrix = async (x: number, y: number, graph: Graph) => {
 
   const parent = graph.addNode(parentParams(groupData));
 
-  console.log("父节点parent---->", parent);
-
   reDrawMatrix(groupData, parent, graph);
   setGroupData(groupData);
   setRowSpaceArr(groupData.rowSpaceArr);
@@ -83,7 +81,6 @@ const reDrawMatrix = async (groupData: parentProps, parent: Node, graph: Graph) 
 
   for (let i = 0; i < pcLength; i++) {
     let corridorColumnSpace = graph.addNode(aisleColumnSpaceNodeParams(groupData, i));
-    console.log("corridorColumnSpace", corridorColumnSpace);
     parent.addChild(corridorColumnSpace);
   }
 
@@ -191,10 +188,8 @@ const computeWidth = (oper: string, size: number) => {
 };
 
 export const handleOffsetCorridor = async (oper: string) => {
-  console.log(`${oper} =>>>>> 竖向进行重绘`);
   const graph = getGraph();
   const currentColumn = getCurrentColumn();
-  console.log(currentColumn);
   // 获取场次Id
   const sessionId = Session.getDataId;
 
@@ -229,7 +224,6 @@ export const handleOffsetCorridor = async (oper: string) => {
     }
 
     const matrixNode = nodes.filter((ite) => {
-      console.log("currentColumn----------------", currentColumn);
       return (
         (ite.data?.idt && ite.data?.idt?.includes("corridorColumnSpace") && ite.data?.idx > currentColumn) ||
         (ite.data.nodeType === "matrixChair" && Number(ite.data?.idt.split("-")[1]) > currentColumn) ||
@@ -238,8 +232,6 @@ export const handleOffsetCorridor = async (oper: string) => {
         ite.data?.idt?.includes("rowEn")
       );
     });
-
-    console.log("matrixNode----------------->", matrixNode);
 
     for (let i = 0; i < matrixNode.length; i++) {
       const element = matrixNode[i];
@@ -260,11 +252,8 @@ export const handleOffsetCorridor = async (oper: string) => {
 };
 
 export const handleOffsetAisle = async (oper: string) => {
-  console.log(`${oper} =>>>>> 横向进行重绘`);
   const graph = getGraph();
   const currentRow = getCurrentRow();
-  console.log(currentRow);
-
   // 获取场次Id
   const sessionId = Session.getDataId;
 
@@ -309,8 +298,6 @@ export const handleOffsetAisle = async (oper: string) => {
         ite.data?.idt?.includes("matrixColumnBottomNum")
       );
     });
-
-    console.log("matrixNode----------------->", matrixNode);
 
     for (let i = 0; i < matrixNode.length; i++) {
       const element = matrixNode[i];

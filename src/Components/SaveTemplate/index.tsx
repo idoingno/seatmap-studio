@@ -19,7 +19,6 @@ const SaveTemplate = ({ showTemplate }: SaveTemplateProps) => {
   };
 
   const handleOk = (e: any) => {
-    console.log(e);
     formRef.current.submit();
   };
 
@@ -38,7 +37,6 @@ const SaveTemplate = ({ showTemplate }: SaveTemplateProps) => {
   };
 
   const onFinish = (values: any) => {
-    console.log(values);
   };
 
   return (

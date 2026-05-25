@@ -9,9 +9,6 @@
 //   },
 //   reducers: {
 //     adds: (state, { payload }) => {
-//       console.log(state)
-//       console.log(payload)
-
 //     },
 //     removes: (state, { payload }) => {
 //       // state.list = payload;

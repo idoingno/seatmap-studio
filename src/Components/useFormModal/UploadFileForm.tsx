@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { ResponseType, handleCpApi } from "../../api";
 import { Session, getGraph } from "../../config";
 import { LoadingOutlined, UploadOutlined } from "@ant-design/icons";
-import ExcelJs from "exceljs";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import store from "../../store";
 import { emptyAction, isLoadAction } from "../../store/actionCreators";
@@ -56,7 +55,8 @@ const UploadFileForm = (
 
     const fileReader = new FileReader();
     fileReader.readAsArrayBuffer(file);
-    fileReader.onload = (e) => {
+    fileReader.onload = async (e) => {
+      const { default: ExcelJs } = await import("exceljs");
       const workbook = new ExcelJs.Workbook();
       // load 方法读取 ArrayBuffer 类型 具体参考文档
       workbook.xlsx.load(e.target.result as ArrayBuffer).then(async () => {
@@ -68,7 +68,6 @@ const UploadFileForm = (
 
         const row_5: any = sheet.getRow(5);
         sheet.eachRow((row: any, idx: any) => {
-          console.log("===============", row, idx);
           if (row.values && idx > 5) {
             let arr = [];
             for (let i = 1; i < row._cells.length; i++) {
@@ -87,8 +86,6 @@ const UploadFileForm = (
           }
         });
         // 这里 imputData 就是 Sheet1中的内容了
-        console.log(imputData);
-
         const uploadArr = imputData.filter((item: { name: string; idt: string; seat: string }) => item.name !== "");
 
         const params = {
@@ -117,7 +114,6 @@ const UploadFileForm = (
   };
 
   const onSubmit = async (values: any) => {
-    console.log(values);
     // 获取场次Id
     const sessionId = Session.getDataId;
 
@@ -136,8 +132,6 @@ const UploadFileForm = (
       //     id: item.attrs.xnode.key,
       //   };
       // });
-      // console.log(personNodeArr);
-
       // if (personNodeArr.length > 0) {
       // 全部人员删除
       const nodeParams = delPersonnel([], sessionId, false);
@@ -179,8 +173,6 @@ const UploadFileForm = (
           nodeType: node.data.nodeType,
           visible: true,
         };
-
-        console.log("button-xnode-------->", node);
 
         node.removeAttrByPath("xnode");
       });
