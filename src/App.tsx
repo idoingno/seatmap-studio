@@ -34,6 +34,7 @@ import useFormModal from "./Components/useFormModal";
 import SelectTemplateForm from "./Components/useFormModal/SelectTemplateForm";
 import { useEventEmitter, useUpdateEffect } from "ahooks";
 import { useSelector } from "react-redux";
+import { runGraphBatch } from "./utils/graphBatch";
 
 const prefixCls = "clickpaas-customize-component-1691398243116";
 
@@ -98,7 +99,9 @@ const App = ({ closeApp }: AppProps) => {
         const schema = data?.response?.schema || [];
 
         const newData = renderGraph(schema);
-        gRef.current.fromJSON({ cells: newData });
+        runGraphBatch(gRef.current, "load-seatmap", () => {
+          gRef.current.fromJSON({ cells: newData }, { async: true });
+        });
         gRef.current.centerContent(); // 将画布中元素居中展示
 
         const findMatrixContainer = schema && schema.findIndex((item: any) => item.type === "matrixContainer");
@@ -240,6 +243,8 @@ const App = ({ closeApp }: AppProps) => {
                 mousewheel={mousewheel}
                 width={window.innerWidth - 260}
                 height={window.innerHeight - 48}
+                async={true}
+                virtual={true}
                 interacting={interacting}
                 translating={translating}
                 // embedding={embedding}

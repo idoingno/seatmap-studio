@@ -4,6 +4,7 @@ import { CirclePreComputed, circleChairParams, parentParams, tableParams } from 
 import { CircleAllCount, Session, getGraph } from "../config";
 import { generateGraphics, generateNode } from "../utils/apiParams";
 import { handleCpApi } from "../api";
+import { runGraphBatch } from "../utils/graphBatch";
 
 // export const chairNum: number = 10;
 // export const tableNum: number = 2;
@@ -88,18 +89,25 @@ const initCircleSeat = async (
   graph: Graph,
   sessionId: string
 ) => {
-  const parent = graph.addNode(parentParams(parentData, circleData));
+  const parent = graph.createNode(parentParams(parentData, circleData));
+  const table = graph.createNode(tableParams(circleData, circleTableData));
 
-  const table = graph.addNode(tableParams(circleData, circleTableData));
+  runGraphBatch(graph, "create-circle", () => {
+    const children: Node[] = [table];
 
-  parent.addChild(table);
-  // 椅子角度间隔
-  const CHAIR_ANGLE_STEP = 360 / chairCount;
-  for (let i = 0; i < chairCount; i++) {
-    const angle = (CHAIR_START_ANGLE + CHAIR_ANGLE_STEP * i) * (Math.PI / 180);
-    const chair = graph.addNode(circleChairParams(circleData, circleTableData, table, angle, i));
-    parent.addChild(chair);
-  }
+    parent.addChild(table);
+    // 椅子角度间隔
+    const CHAIR_ANGLE_STEP = 360 / chairCount;
+    for (let i = 0; i < chairCount; i++) {
+      const angle = (CHAIR_START_ANGLE + CHAIR_ANGLE_STEP * i) * (Math.PI / 180);
+      const chair = graph.createNode(circleChairParams(circleData, circleTableData, table, angle, i));
+      parent.addChild(chair);
+      children.push(chair);
+    }
+
+    graph.addNode(parent, { async: true });
+    graph.addNodes(children, { async: true });
+  });
 
   // 添加图形组（父节点）
   const graphicsParams = generateGraphics(parent, sessionId);

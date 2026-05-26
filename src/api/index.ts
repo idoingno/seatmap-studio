@@ -86,14 +86,33 @@ const request = (options: AxiosRequestConfig = {}, loading = false) => {
       },
       body: JSON.stringify(data),
     })
-      .then((response) => response.json())
+      .then(async (response) => {
+        const text = await response.text();
+
+        if (!response.ok) {
+          throw new Error(`Seatmap API request failed with status ${response.status}`);
+        }
+
+        try {
+          return text ? JSON.parse(text) : {};
+        } catch (error) {
+          throw new Error("Seatmap API returned invalid JSON");
+        }
+      })
       .then((res) => {
         loading && endLoading();
         resolve(res);
       })
       .catch((error) => {
         loading && endLoading();
-        reject(error);
+        resolve({
+          code: 500,
+          subMsgType: "error",
+          data: {
+            response: null,
+            message: error instanceof Error ? error.message : "Seatmap API request failed",
+          },
+        });
       });
   });
 };

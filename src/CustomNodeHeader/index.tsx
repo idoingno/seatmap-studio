@@ -126,39 +126,59 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
   }, [selectTime]);
 
   const exportSeat = () => {
+    if (imgLoading) return;
     setImgLoading(true);
     setImgDom();
   };
 
   const setImgDom = (oper = "download") => {
     const grpah: Graph = getGraph();
+    if (oper !== "download" && grpah.getNodes().length === 0) {
+      message.warning("请先创建一个布局，再另存为模板");
+      return;
+    }
+
+    const shouldRestoreVirtualRender = Boolean((grpah as any).options?.virtual);
+    const restoreVirtualRender = () => {
+      if (shouldRestoreVirtualRender) {
+        grpah.enableVirtualRender();
+      }
+    };
+
     if (oper !== "download") {
       setTemplateStatus(false);
       setTemplateLoading(true);
     }
 
     setTimeout(() => {
+      if (shouldRestoreVirtualRender) {
+        grpah.disableVirtualRender();
+      }
+
       grpah.toPNG((base64Img: string) => {
         const colorImgDom = document.querySelector(".color-edit-in");
         setGraphImgPng(base64Img);
 
-        if (!colorImgDom.hasChildNodes()) {
+        if (!colorImgDom?.hasChildNodes()) {
           setColorImgPng("");
 
-          downloadImg(oper);
-          if (oper !== "download") {
-            setTemplateStatus(true);
-            setTemplateLoading(false);
-          }
-        } else {
-          domtoimage.toPng(colorImgDom, { bgcolor: "#FFF" }).then((val: any) => {
-            setColorImgPng(val);
-            downloadImg(oper);
-
+          downloadImg(oper).finally(() => {
             if (oper !== "download") {
               setTemplateStatus(true);
               setTemplateLoading(false);
             }
+            restoreVirtualRender();
+          });
+        } else {
+          domtoimage.toPng(colorImgDom, { bgcolor: "#FFF" }).then((val: any) => {
+            setColorImgPng(val);
+            downloadImg(oper).finally(() => {
+              if (oper !== "download") {
+                setTemplateStatus(true);
+                setTemplateLoading(false);
+              }
+              restoreVirtualRender();
+            });
           });
         }
       });
@@ -192,18 +212,21 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
     const url = URL.createObjectURL(blob);
     link.href = url;
     link.download = `${v_name}-场地座位图.png`;
+    document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
-
-    setImgLoading(false);
+    link.remove();
+    URL.revokeObjectURL(url);
 
     await handleCpApi({
       params: { id: sessionId, venueMap: mapUrl },
       code: "mapPicture",
     });
+
+    setImgLoading(false);
   };
 
   const saveTemplate = () => {
+    if (templateLoading) return;
     setImgDom("imgUrl");
   };
 

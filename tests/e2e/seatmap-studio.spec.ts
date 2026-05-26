@@ -47,4 +47,40 @@ test.describe("Seatmap Studio", () => {
     await expect(page.getByText("Workshop Demo")).toBeVisible();
     await expect(page.getByText("Roundtable Demo")).toBeVisible();
   });
+
+  test("guards template save until a layout exists", async ({ page }) => {
+    await page.goto("/");
+
+    await page.getByText("另存为模板").click();
+
+    await expect(page.getByText("请先创建一个布局，再另存为模板")).toBeVisible();
+    await expect(page.getByText("模板配置")).not.toBeVisible();
+  });
+
+  test("exports a seat map without runtime errors", async ({ page }) => {
+    const pageErrors: string[] = [];
+    page.on("pageerror", (error) => {
+      pageErrors.push(error.message);
+    });
+
+    await page.goto("/");
+
+    const matrix = page.locator("#Matrix");
+    const graph = page.locator(".x6-graph");
+    await matrix.dragTo(graph, { targetPosition: { x: 500, y: 250 } });
+
+    const modal = page.locator(".ant-modal").filter({ hasText: "矩阵配置" });
+    await modal.locator("input").nth(0).fill("2");
+    await modal.locator("input").nth(1).fill("3");
+    await modal.locator(".ant-btn-primary").click();
+
+    await expect(page.getByText("第1排")).toBeVisible();
+
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByText("导出座位图").click();
+    const download = await downloadPromise;
+
+    expect(download.suggestedFilename()).toBe("Seatmap Studio Demo-场地座位图.png");
+    expect(pageErrors).toEqual([]);
+  });
 });

@@ -9,7 +9,7 @@
     "build:prod": "webpack --mode=production --node-env=production",
     "test:e2e": "NO_PROXY=127.0.0.1,localhost,::1 no_proxy=127.0.0.1,localhost,::1 playwright test",
     "serve": "webpack serve",
-    "serve:dist": "webpack serve --mode=production --node-env=production",
+    "serve:dist": "python3 -m http.server 8080 --bind 127.0.0.1 --directory dist",
     "start": "webpack serve"
   },
   "engines": {

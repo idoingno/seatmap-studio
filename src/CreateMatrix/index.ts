@@ -40,6 +40,7 @@ import {
 // import { resizeProscenium, resizeWindow } from "../utils/util";
 import { generateGraphics, generateNode, updateGraphics, updateNode } from "../utils/apiParams";
 import { ResponseType, handleCpApi } from "../api";
+import { runGraphBatch } from "../utils/graphBatch";
 
 export const initMatrix = async (x: number, y: number, graph: Graph) => {
   const columns: number = MatrixAllRowsOrColumns.getAllColumns;
@@ -53,7 +54,8 @@ export const initMatrix = async (x: number, y: number, graph: Graph) => {
 
   const groupData = matrixPreComputed(x, y, parentWidth, parentHeight);
 
-  const parent = graph.addNode(parentParams(groupData));
+  const parent = graph.createNode(parentParams(groupData));
+  graph.addNode(parent, { async: true });
 
   reDrawMatrix(groupData, parent, graph);
   setGroupData(groupData);
@@ -79,36 +81,35 @@ const reDrawMatrix = async (groupData: parentProps, parent: Node, graph: Graph) 
   const pcLength = groupData.columnSpaceArr.length;
   const prLength = groupData.rowSpaceArr.length;
 
-  for (let i = 0; i < pcLength; i++) {
-    let corridorColumnSpace = graph.addNode(aisleColumnSpaceNodeParams(groupData, i));
-    parent.addChild(corridorColumnSpace);
-  }
+  runGraphBatch(graph, "create-matrix", () => {
+    const children: Node[] = [];
 
-  for (let i = 0; i < prLength; i++) {
-    const aisleRowSpace = graph.addNode(aisleRowSpaceNodeParams(groupData, i));
-    parent.addChild(aisleRowSpace);
-  }
-
-  for (let i = 0; i < columns; i++) {
-    const chairColumnTopNumText = graph.addNode(matrixColumnTopNumNodeParams(groupData, 0, i));
-    const chairColumnBottomNumText = graph.addNode(matrixColumnBottomNumNodeParams(groupData, i));
-    parent.addChild(chairColumnTopNumText);
-    parent.addChild(chairColumnBottomNumText);
-  }
-
-  for (let i = 0; i < rows; i++) {
-    const rowText = graph.addNode(rowTextNodeParams(groupData, 0, i));
-
-    parent.addChild(rowText);
-
-    for (let j = 0; j < columns; j++) {
-      const chair = graph.addNode(chairNodeParams(groupData, i, j));
-      parent.addChild(chair);
+    for (let i = 0; i < pcLength; i++) {
+      children.push(graph.createNode(aisleColumnSpaceNodeParams(groupData, i)));
     }
-    let rowTextEn = graph.addNode(rowTextEnNodeParams(groupData, i));
 
-    parent.addChild(rowTextEn);
-  }
+    for (let i = 0; i < prLength; i++) {
+      children.push(graph.createNode(aisleRowSpaceNodeParams(groupData, i)));
+    }
+
+    for (let i = 0; i < columns; i++) {
+      children.push(graph.createNode(matrixColumnTopNumNodeParams(groupData, 0, i)));
+      children.push(graph.createNode(matrixColumnBottomNumNodeParams(groupData, i)));
+    }
+
+    for (let i = 0; i < rows; i++) {
+      children.push(graph.createNode(rowTextNodeParams(groupData, 0, i)));
+
+      for (let j = 0; j < columns; j++) {
+        children.push(graph.createNode(chairNodeParams(groupData, i, j)));
+      }
+
+      children.push(graph.createNode(rowTextEnNodeParams(groupData, i)));
+    }
+
+    children.forEach((child) => parent.addChild(child));
+    graph.addNodes(children, { async: true });
+  });
 
   // 添加图形组（父节点）
   const graphicsParams = generateGraphics(parent, sessionId);
