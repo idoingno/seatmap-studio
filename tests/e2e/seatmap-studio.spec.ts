@@ -1,6 +1,19 @@
-import { expect, test } from "@playwright/test";
+import { expect, Page, test } from "@playwright/test";
 
 test.describe("Seatmap Studio", () => {
+  test.describe.configure({ mode: "serial" });
+
+  const createMatrix = async (page: Page, rows: string, columns: string) => {
+    const matrix = page.locator("#Matrix");
+    const graph = page.locator(".x6-graph");
+    await matrix.dragTo(graph, { targetPosition: { x: 500, y: 250 } });
+
+    const modal = page.locator(".ant-modal").filter({ hasText: "矩阵配置" });
+    await modal.locator("input").nth(0).fill(rows);
+    await modal.locator("input").nth(1).fill(columns);
+    await modal.locator(".ant-btn-primary").click();
+  };
+
   test("loads the editor directly with clean mock data", async ({ page }) => {
     const consoleMessages: string[] = [];
     page.on("console", (message) => {
@@ -65,14 +78,7 @@ test.describe("Seatmap Studio", () => {
 
     await page.goto("/");
 
-    const matrix = page.locator("#Matrix");
-    const graph = page.locator(".x6-graph");
-    await matrix.dragTo(graph, { targetPosition: { x: 500, y: 250 } });
-
-    const modal = page.locator(".ant-modal").filter({ hasText: "矩阵配置" });
-    await modal.locator("input").nth(0).fill("2");
-    await modal.locator("input").nth(1).fill("3");
-    await modal.locator(".ant-btn-primary").click();
+    await createMatrix(page, "2", "3");
 
     await expect(page.getByText("第1排")).toBeVisible();
 
@@ -81,6 +87,41 @@ test.describe("Seatmap Studio", () => {
     const download = await downloadPromise;
 
     expect(download.suggestedFilename()).toBe("Seatmap Studio Demo-场地座位图.png");
+    expect(pageErrors).toEqual([]);
+  });
+
+  test("creates and interacts with a large matrix without rendering every node", async ({ page }) => {
+    test.setTimeout(45_000);
+
+    const pageErrors: string[] = [];
+    page.on("pageerror", (error) => {
+      pageErrors.push(error.message);
+    });
+
+    await page.goto("/");
+    await expect(page.getByText("已加载最新版本")).toBeVisible();
+    await page.waitForTimeout(750);
+
+    const start = Date.now();
+    await page.evaluate(() => (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__(50, 50));
+    await page.waitForFunction(() => (window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes().length >= 2_500, undefined, {
+      timeout: 30_000,
+    });
+    const createDuration = Date.now() - start;
+
+    const visibleNodes = await page.locator(".x6-node").count();
+    const modelNodes = await page.evaluate(() => (window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes().length ?? 0);
+    const heapSize = await page.evaluate(() => (performance as any).memory?.usedJSHeapSize ?? 0);
+
+    const clickStart = Date.now();
+    await page.locator(".x6-graph").click({ position: { x: 500, y: 250 } });
+    const clickDuration = Date.now() - clickStart;
+
+    expect(modelNodes).toBeGreaterThanOrEqual(2_500);
+    expect(createDuration).toBeLessThan(30_000);
+    expect(clickDuration).toBeLessThan(1_000);
+    expect(visibleNodes).toBeLessThan(1_000);
+    expect(heapSize).toBeLessThan(200 * 1024 * 1024);
     expect(pageErrors).toEqual([]);
   });
 });

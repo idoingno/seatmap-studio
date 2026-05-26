@@ -16,6 +16,7 @@ import {
 } from "../../utils/util";
 import { updateGraphics, updateNode } from "../../utils/apiParams";
 import { handleCpApi } from "../../api";
+import { runGraphBatch } from "../../utils/graphBatch";
 
 export const AddMenuNode = memo(() => {
   const [show, setShow] = useState(true);
@@ -40,87 +41,89 @@ export const AddMenuNode = memo(() => {
       // 获取所有行
       const rows = parent.data.rows;
 
-      // 更改父节点高度
-      const { width, height } = parent.size();
-      const pHeight = height + MATRIX_OFFSET_DISTANCE;
-      parent.setProp({
-        size: {
-          width: width,
-          height: pHeight,
-        },
-      });
+      runGraphBatch(graph, "matrix-add-row-top", () => {
+        // 更改父节点高度
+        const { width, height } = parent.size();
+        const pHeight = height + MATRIX_OFFSET_DISTANCE;
+        parent.setProp({
+          size: {
+            width: width,
+            height: pHeight,
+          },
+        });
 
-      // resizeWindow(pHeight);
+        // resizeWindow(pHeight);
 
-      MatrixSize.setMh = pHeight;
+        MatrixSize.setMh = pHeight;
 
-      const firstRowText = nodes.filter((ite: Node) => ite.data.nodeType === "matrixRows" && ite.data.idt === "row-0");
-      const firstRowEnText = nodes.filter(
-        (ite: Node) => ite.data.nodeType === "matrixRowsEn" && ite.data.idt === "rowEn-0"
-      );
-      const firstRowChair: any[] = nodes.filter(
-        (ite: Node) => ite.data.nodeType === "matrixChair" && ite.data.idt.split("-")[0] === "0"
-      );
-      const firstRowSpace: any[] = nodes.filter(
-        (ite: Node) => ite.data.nodeType === "aisleRowSpace" && ite.data.idt === "aisleRowSpace-0"
-      );
-
-      parentAddText({
-        data: firstRowText,
-        shape: "row-text-cn",
-        label: `新增行`,
-        idt: `row-0`,
-        idx: 0,
-        direction: "top",
-      });
-      parentAddText({
-        data: firstRowEnText,
-        shape: "row-text-en",
-        label: `新增行`,
-        idt: `rowEn-0`,
-        idx: 0,
-        direction: "top",
-      });
-      parentAddChair(firstRowChair, 0, "top");
-      parentAddRoworColumn({
-        data: firstRowSpace,
-        shape: "row-space-node",
-        idt: "aisleRowSpace-0",
-        idx: 0,
-        direction: "top",
-      });
-      // 设置所有列间隙高度
-      setAllCorridorColumnH(nodes, "corridorColumnSpace", pHeight);
-
-      const filterNode = nodes.filter((ite: Node) => {
-        return (
-          ite.data &&
-          ite.data.idt &&
-          !ite.data.idt.includes("matrixColumnTopNum") &&
-          ite.data.nodeType !== "matrixContainer" &&
-          !ite.data.idt.includes("corridorColumnSpace")
+        const firstRowText = nodes.filter((ite: Node) => ite.data.nodeType === "matrixRows" && ite.data.idt === "row-0");
+        const firstRowEnText = nodes.filter(
+          (ite: Node) => ite.data.nodeType === "matrixRowsEn" && ite.data.idt === "rowEn-0"
         );
-      });
-      for (let i = 0; i < filterNode.length; i++) {
-        const element = filterNode[i];
-        let { x, y } = element.getPosition();
-        const idArr = element.data.idt && element.data.idt.split("-");
-        if (element.data.nodeType === "matrixRows") {
-          // element.setProp({ label: `第${Number(idArr[1]) + 2}排` });
-          element.setData({ idx: element.data.idx + 1, idt: `row-${Number(idArr[1]) + 1}` });
-        } else if (element.data.nodeType === "matrixRowsEn") {
-          // element.setProp({ label: `Row ${Number(idArr[1]) + 2}` });
-          element.setData({ idx: element.data.idx + 1, idt: `rowEn-${Number(idArr[1]) + 1}` });
-        } else if (element.data.nodeType === "matrixChair") {
-          element.setData({ idx: element.data.idx + 1, idt: `${Number(idArr[0]) + 1}-${idArr[1]}` });
-        } else if (element.data.nodeType === "aisleRowSpace") {
-          element.setData({ idx: element.data.idx + 1, idt: `aisleRowSpace-${Number(idArr[1]) + 1}` });
+        const firstRowChair: any[] = nodes.filter(
+          (ite: Node) => ite.data.nodeType === "matrixChair" && ite.data.idt.split("-")[0] === "0"
+        );
+        const firstRowSpace: any[] = nodes.filter(
+          (ite: Node) => ite.data.nodeType === "aisleRowSpace" && ite.data.idt === "aisleRowSpace-0"
+        );
+
+        parentAddText({
+          data: firstRowText,
+          shape: "row-text-cn",
+          label: `新增行`,
+          idt: `row-0`,
+          idx: 0,
+          direction: "top",
+        });
+        parentAddText({
+          data: firstRowEnText,
+          shape: "row-text-en",
+          label: `新增行`,
+          idt: `rowEn-0`,
+          idx: 0,
+          direction: "top",
+        });
+        parentAddChair(firstRowChair, 0, "top");
+        parentAddRoworColumn({
+          data: firstRowSpace,
+          shape: "row-space-node",
+          idt: "aisleRowSpace-0",
+          idx: 0,
+          direction: "top",
+        });
+        // 设置所有列间隙高度
+        setAllCorridorColumnH(nodes, "corridorColumnSpace", pHeight);
+
+        const filterNode = nodes.filter((ite: Node) => {
+          return (
+            ite.data &&
+            ite.data.idt &&
+            !ite.data.idt.includes("matrixColumnTopNum") &&
+            ite.data.nodeType !== "matrixContainer" &&
+            !ite.data.idt.includes("corridorColumnSpace")
+          );
+        });
+        for (let i = 0; i < filterNode.length; i++) {
+          const element = filterNode[i];
+          let { x, y } = element.getPosition();
+          const idArr = element.data.idt && element.data.idt.split("-");
+          if (element.data.nodeType === "matrixRows") {
+            // element.setProp({ label: `第${Number(idArr[1]) + 2}排` });
+            element.setData({ idx: element.data.idx + 1, idt: `row-${Number(idArr[1]) + 1}` });
+          } else if (element.data.nodeType === "matrixRowsEn") {
+            // element.setProp({ label: `Row ${Number(idArr[1]) + 2}` });
+            element.setData({ idx: element.data.idx + 1, idt: `rowEn-${Number(idArr[1]) + 1}` });
+          } else if (element.data.nodeType === "matrixChair") {
+            element.setData({ idx: element.data.idx + 1, idt: `${Number(idArr[0]) + 1}-${idArr[1]}` });
+          } else if (element.data.nodeType === "aisleRowSpace") {
+            element.setData({ idx: element.data.idx + 1, idt: `aisleRowSpace-${Number(idArr[1]) + 1}` });
+          }
+
+          element.position(x, y + MATRIX_OFFSET_DISTANCE);
         }
 
-        element.position(x, y + MATRIX_OFFSET_DISTANCE);
-      }
-
-      parent.setData({ rows: rows + 1 });
+        parent.setData({ rows: rows + 1 });
+      });
 
       // const nodesss = graph.getNodes();
       // 更新图形组 父节点

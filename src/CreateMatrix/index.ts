@@ -178,6 +178,14 @@ export const initDoor = async (x: number, y: number, graph: Graph) => {
   await handleCpApi({ params: graphicsParams, code: "seat" }, true);
 };
 
+if (typeof window !== "undefined" && ["127.0.0.1", "localhost"].includes(window.location.hostname)) {
+  (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__ = async (rows: number, columns: number, x = 240, y = 120) => {
+    MatrixAllRowsOrColumns.setAllRows = rows;
+    MatrixAllRowsOrColumns.setAllColumns = columns;
+    return initMatrix(x, y, getGraph());
+  };
+}
+
 const computeWidth = (oper: string, size: number) => {
   let num = 0;
   if (oper === "add") {
@@ -198,47 +206,51 @@ export const handleOffsetCorridor = async (oper: string) => {
     const nodes = graph.getNodes();
 
     const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
-    const { width, height } = parent.size();
-    const pWidth = computeWidth(oper, width);
-    parent.setProp({
-      size: {
-        width: pWidth,
-        height: height,
-      },
-    });
+    let pWidth = 0;
 
-    // resizeProscenium(pWidth);
-
-    MatrixSize.setMw = pWidth;
-
-    const aisleRowSpaceArr = nodes.filter((item: any) => item.data.idt && item.data.idt.includes("aisleRowSpace-"));
-
-    for (let i = 0; i < aisleRowSpaceArr.length; i++) {
-      const element = aisleRowSpaceArr[i];
-      const { width, height } = element.size();
-      element.setProp({
+    runGraphBatch(graph, "offset-corridor", () => {
+      const { width, height } = parent.size();
+      pWidth = computeWidth(oper, width);
+      parent.setProp({
         size: {
-          width: computeWidth(oper, width),
+          width: pWidth,
           height: height,
         },
       });
-    }
 
-    const matrixNode = nodes.filter((ite) => {
-      return (
-        (ite.data?.idt && ite.data?.idt?.includes("corridorColumnSpace") && ite.data?.idx > currentColumn) ||
-        (ite.data.nodeType === "matrixChair" && Number(ite.data?.idt.split("-")[1]) > currentColumn) ||
-        (ite.data?.idt?.includes("matrixColumnTopNum") && ite.data?.idx > currentColumn) ||
-        (ite.data?.idt?.includes("matrixColumnBottomNum") && ite.data?.idx > currentColumn) ||
-        ite.data?.idt?.includes("rowEn")
-      );
+      // resizeProscenium(pWidth);
+
+      MatrixSize.setMw = pWidth;
+
+      const aisleRowSpaceArr = nodes.filter((item: any) => item.data.idt && item.data.idt.includes("aisleRowSpace-"));
+
+      for (let i = 0; i < aisleRowSpaceArr.length; i++) {
+        const element = aisleRowSpaceArr[i];
+        const { width, height } = element.size();
+        element.setProp({
+          size: {
+            width: computeWidth(oper, width),
+            height: height,
+          },
+        });
+      }
+
+      const matrixNode = nodes.filter((ite) => {
+        return (
+          (ite.data?.idt && ite.data?.idt?.includes("corridorColumnSpace") && ite.data?.idx > currentColumn) ||
+          (ite.data.nodeType === "matrixChair" && Number(ite.data?.idt.split("-")[1]) > currentColumn) ||
+          (ite.data?.idt?.includes("matrixColumnTopNum") && ite.data?.idx > currentColumn) ||
+          (ite.data?.idt?.includes("matrixColumnBottomNum") && ite.data?.idx > currentColumn) ||
+          ite.data?.idt?.includes("rowEn")
+        );
+      });
+
+      for (let i = 0; i < matrixNode.length; i++) {
+        const element = matrixNode[i];
+        let { x, y } = element.getPosition();
+        element.position(computeWidth(oper, x), y);
+      }
     });
-
-    for (let i = 0; i < matrixNode.length; i++) {
-      const element = matrixNode[i];
-      let { x, y } = element.getPosition();
-      element.position(computeWidth(oper, x), y);
-    }
 
     // 更新图形组 父节点
     const graphicsParams = updateGraphics(parent, sessionId);
@@ -262,49 +274,53 @@ export const handleOffsetAisle = async (oper: string) => {
     const nodes = graph.getNodes();
 
     const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
-    const { width, height } = parent.size();
-    const pHeight = computeWidth(oper, height);
-    parent.setProp({
-      size: {
-        width: width,
-        height: pHeight,
-      },
-    });
+    let pHeight = 0;
 
-    // resizeWindow(pHeight);
-
-    MatrixSize.setMh = pHeight;
-
-    const corridorColumnSpaceArr = nodes.filter(
-      (item: any) => item.data.idt && item.data.idt.includes("corridorColumnSpace-")
-    );
-
-    for (let i = 0; i < corridorColumnSpaceArr.length; i++) {
-      const element = corridorColumnSpaceArr[i];
-      const { width, height } = element.size();
-      element.setProp({
+    runGraphBatch(graph, "offset-aisle", () => {
+      const { width, height } = parent.size();
+      pHeight = computeWidth(oper, height);
+      parent.setProp({
         size: {
           width: width,
-          height: computeWidth(oper, height),
+          height: pHeight,
         },
       });
-    }
 
-    const matrixNode = nodes.filter((ite) => {
-      return (
-        (ite.data?.idt && ite.data?.idt?.includes("aisleRowSpace") && ite.data.idx > currentRow) ||
-        (ite.data.nodeType === "matrixChair" && Number(ite.data.idt.split("-")[0]) > currentRow) ||
-        (ite.data?.idt?.includes("row-") && ite.data?.idx > currentRow) ||
-        (ite.data?.idt?.includes("rowEn-") && ite.data?.idx > currentRow) ||
-        ite.data?.idt?.includes("matrixColumnBottomNum")
+      // resizeWindow(pHeight);
+
+      MatrixSize.setMh = pHeight;
+
+      const corridorColumnSpaceArr = nodes.filter(
+        (item: any) => item.data.idt && item.data.idt.includes("corridorColumnSpace-")
       );
-    });
 
-    for (let i = 0; i < matrixNode.length; i++) {
-      const element = matrixNode[i];
-      let { x, y } = element.getPosition();
-      element.position(x, computeWidth(oper, y));
-    }
+      for (let i = 0; i < corridorColumnSpaceArr.length; i++) {
+        const element = corridorColumnSpaceArr[i];
+        const { width, height } = element.size();
+        element.setProp({
+          size: {
+            width: width,
+            height: computeWidth(oper, height),
+          },
+        });
+      }
+
+      const matrixNode = nodes.filter((ite) => {
+        return (
+          (ite.data?.idt && ite.data?.idt?.includes("aisleRowSpace") && ite.data.idx > currentRow) ||
+          (ite.data.nodeType === "matrixChair" && Number(ite.data.idt.split("-")[0]) > currentRow) ||
+          (ite.data?.idt?.includes("row-") && ite.data?.idx > currentRow) ||
+          (ite.data?.idt?.includes("rowEn-") && ite.data?.idx > currentRow) ||
+          ite.data?.idt?.includes("matrixColumnBottomNum")
+        );
+      });
+
+      for (let i = 0; i < matrixNode.length; i++) {
+        const element = matrixNode[i];
+        let { x, y } = element.getPosition();
+        element.position(x, computeWidth(oper, y));
+      }
+    });
 
     // 更新图形组 父节点
     const graphicsParams = updateGraphics(parent, sessionId);

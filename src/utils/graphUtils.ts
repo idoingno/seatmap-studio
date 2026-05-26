@@ -124,14 +124,11 @@ const convertData = (nodes: ItemType[]) => {
   return arr;
 };
 
-const findChairObj = (data: any[], id: any) => {
-  return data.find((item: any) => item.nodeId === id);
-};
-
 // 渲染节点
 export const renderGraph = (nodes: ItemType[]) => {
   const data = convertData(nodes);
   const personArr = AllPersonArr.getArr;
+  const personByNodeId = new Map<string, any>(personArr.map((person: any) => [person.nodeId, person]));
 
   return data.map((item) => {
     let obj: any = {
@@ -177,7 +174,7 @@ export const renderGraph = (nodes: ItemType[]) => {
     } else if (item.type === "corridorColumnSpace") {
       obj.attrs = getColumnSpaceAttrs();
     } else if (item.type === "matrixChair" || item.type === "circleChair") {
-      obj.attrs = getChairAttrs(item.data.visible, personArr, item);
+      obj.attrs = getChairAttrs(item.data.visible, personByNodeId, item);
       if (!item.data.visible) {
         obj.markup = chairNoMarkup;
       }
@@ -225,7 +222,7 @@ const getColumnSpaceAttrs = () => {
   };
 };
 
-const getChairAttrs = (flag: boolean, personArr: any[], item: any) => {
+const getChairAttrs = (flag: boolean, personByNodeId: Map<string, any>, item: any) => {
   // 不展示
   if (!flag) {
     return {
@@ -234,7 +231,7 @@ const getChairAttrs = (flag: boolean, personArr: any[], item: any) => {
       },
     };
   } else if (flag) {
-    const person = findChairObj(personArr, item.id);
+    const person = personByNodeId.get(item.id);
 
     const idt = item.data.idt && item.data.idt.split("-");
     // 查询人员座位关联

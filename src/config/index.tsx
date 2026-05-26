@@ -367,6 +367,9 @@ export function getDragNodeType() {
 
 export function setGraphs(val: any) {
   graph = val;
+  if (typeof window !== "undefined" && ["127.0.0.1", "localhost"].includes(window.location.hostname)) {
+    (window as any).__SEATMAP_STUDIO_GRAPH__ = val;
+  }
 }
 export function getGraph() {
   return graph;

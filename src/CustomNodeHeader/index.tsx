@@ -150,6 +150,15 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
       setTemplateLoading(true);
     }
 
+    const finishCapture = () => {
+      if (oper !== "download") {
+        setTemplateStatus(true);
+        setTemplateLoading(false);
+      }
+      restoreVirtualRender();
+      setImgLoading(false);
+    };
+
     setTimeout(() => {
       if (shouldRestoreVirtualRender) {
         grpah.disableVirtualRender();
@@ -162,24 +171,18 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
         if (!colorImgDom?.hasChildNodes()) {
           setColorImgPng("");
 
-          downloadImg(oper).finally(() => {
-            if (oper !== "download") {
-              setTemplateStatus(true);
-              setTemplateLoading(false);
-            }
-            restoreVirtualRender();
-          });
+          downloadImg(oper).finally(finishCapture);
         } else {
-          domtoimage.toPng(colorImgDom, { bgcolor: "#FFF" }).then((val: any) => {
-            setColorImgPng(val);
-            downloadImg(oper).finally(() => {
-              if (oper !== "download") {
-                setTemplateStatus(true);
-                setTemplateLoading(false);
-              }
-              restoreVirtualRender();
-            });
-          });
+          domtoimage
+            .toPng(colorImgDom, { bgcolor: "#FFF" })
+            .then((val: any) => {
+              setColorImgPng(val);
+              return downloadImg(oper);
+            })
+            .catch(() => {
+              message.error("导出座位图失败，请稍后重试");
+            })
+            .finally(finishCapture);
         }
       });
     }, 600);

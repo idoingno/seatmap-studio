@@ -56,12 +56,19 @@ export const GraphBehavior = (): any => {
       }
     });
 
+    let pendingTransitionCleanup = false;
     graph.on("node:mousemove", ({ e, node, view }: C) => {
-      const allGdom: any = document.querySelectorAll(".x6-graph-svg-stage > g");
+      if (pendingTransitionCleanup) return;
 
-      for (const iterator of allGdom) {
-        iterator.classList.remove("x6-transition");
-      }
+      pendingTransitionCleanup = true;
+      requestAnimationFrame(() => {
+        const allGdom: any = document.querySelectorAll(".x6-graph-svg-stage > g");
+
+        for (const iterator of allGdom) {
+          iterator.classList.remove("x6-transition");
+        }
+        pendingTransitionCleanup = false;
+      });
     });
 
     const nodeResized = async ({ node }: C) => {
