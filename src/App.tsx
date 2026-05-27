@@ -13,10 +13,8 @@ import "./CreateMatrix/MenuNode/AddMenuNode";
 import "./CreateMatrix/MenuNode/MinusMenuNode";
 import toDrop from "./toDrop";
 import { Selection } from "@antv/x6-plugin-selection";
-import { Export } from "@antv/x6-plugin-export";
 import { Transform } from "@antv/x6-plugin-transform";
 
-import "antd/dist/antd.css";
 // import "./style.less";
 import { querySeatInfo } from "./utils/apiParams";
 import { ResponseType, handleCpApi } from "./api";
@@ -31,12 +29,13 @@ import ColorPanel from "./Components/ColorPanel";
 import ColorEdit, { ColorItemType } from "./Components/ColorPanel/ColorEdit";
 // import SaveTemplate from "./Components/SaveTemplate";
 import useFormModal from "./Components/useFormModal";
-import SelectTemplateForm from "./Components/useFormModal/SelectTemplateForm";
 import { useEventEmitter, useUpdateEffect } from "ahooks";
 import { useSelector } from "react-redux";
 import { runGraphBatch } from "./utils/graphBatch";
+import { lazyForm } from "./Components/useFormModal/lazyForm";
 
 const prefixCls = "clickpaas-customize-component-1691398243116";
+const SelectTemplateForm = lazyForm(() => import("./Components/useFormModal/SelectTemplateForm"));
 
 interface AppProps {
   closeApp?: () => void;
@@ -78,7 +77,7 @@ const App = ({ closeApp }: AppProps) => {
 
   const { modalRef: SelectListRef, FormModal: SelectTemplateModal } = useFormModal(
     { title: "模板选择", width: "100%" },
-    React.forwardRef(SelectTemplateForm)
+    SelectTemplateForm
   );
 
   const loadTree$ = useEventEmitter();
@@ -149,7 +148,6 @@ const App = ({ closeApp }: AppProps) => {
 
   useEffect(() => {
     setGraphs(gRef.current);
-    gRef.current.use(new Export());
     gRef.current.use(
       new Snapline({
         enabled: true,

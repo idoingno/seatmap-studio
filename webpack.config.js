@@ -77,6 +77,26 @@ const config = {
             loader: 'babel-loader',
             options: {
               presets: ['@babel/preset-react'],
+              plugins: [
+                [
+                  'import',
+                  {
+                    libraryName: 'antd',
+                    libraryDirectory: 'es',
+                    style: true,
+                  },
+                  'antd',
+                ],
+                [
+                  'import',
+                  {
+                    libraryName: '@ant-design/icons',
+                    libraryDirectory: 'lib/icons',
+                    camel2DashComponentName: false,
+                  },
+                  'ant-design-icons',
+                ],
+              ],
             },
           },
           'ts-loader',

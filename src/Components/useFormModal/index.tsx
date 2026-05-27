@@ -1,5 +1,5 @@
 import { FormInstance, Modal, ModalProps } from "antd";
-import React, { PropsWithoutRef, forwardRef, useCallback, useImperativeHandle, useRef, useState } from "react";
+import React, { PropsWithoutRef, Suspense, forwardRef, useCallback, useImperativeHandle, useRef, useState } from "react";
 
 type ModalRefType<T> = { open: (initProp?: Partial<T>) => void; close: () => void } | undefined;
 
@@ -46,16 +46,20 @@ const useFormModal = function <T>(modalProps: Partial<ModalProps>, Slot: React.C
         {...modalProps}
         destroyOnClose={true}
       >
-        <SlotComponent
-          ref={formRef}
-          {...slotProps}
-          {...slotInitProp}
-          afterSubmit={() => {
-            setLoading(false);
-            close();
-          }}
-          beforeSubmit={() => setLoading(true)}
-        />
+        {visiable ? (
+          <Suspense fallback={null}>
+            <SlotComponent
+              ref={formRef}
+              {...slotProps}
+              {...slotInitProp}
+              afterSubmit={() => {
+                setLoading(false);
+                close();
+              }}
+              beforeSubmit={() => setLoading(true)}
+            />
+          </Suspense>
+        ) : null}
       </Modal>
     );
   });

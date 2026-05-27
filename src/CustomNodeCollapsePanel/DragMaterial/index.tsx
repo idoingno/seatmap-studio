@@ -13,8 +13,10 @@ import store from "../../store";
 import { addDargAction } from "../../store/actionCreators";
 // import { initCircle } from "../../CreateCircle";
 import useFormModal from "../../Components/useFormModal";
-import InitMatrixForm from "../../Components/useFormModal/InitMatrixForm";
-import InitCircleForm from "../../Components/useFormModal/InitCircleForm";
+import { lazyForm } from "../../Components/useFormModal/lazyForm";
+
+const InitMatrixForm = lazyForm(() => import("../../Components/useFormModal/InitMatrixForm"));
+const InitCircleForm = lazyForm(() => import("../../Components/useFormModal/InitCircleForm"));
 
 interface IMyProps {
   child: {
@@ -32,11 +34,11 @@ const DragItem: React.FC<IMyProps> = ({ child }) => {
 
   const { modalRef: matrixModalRef, FormModal: MatrixFormModal } = useFormModal(
     { title: "矩阵配置" },
-    React.forwardRef(InitMatrixForm)
+    InitMatrixForm
   );
   const { modalRef: circleModalRef, FormModal: CircleFormModal } = useFormModal(
     { title: "圆桌配置" },
-    React.forwardRef(InitCircleForm)
+    InitCircleForm
   );
 
   useDrag(child, dragRef, {

@@ -4,7 +4,6 @@ import { Provider } from "react-redux"
 import store from './store'
 import App from './App';
 import './assets/all-svg';  // 入口文件引入
-import 'antd/dist/antd.less';
 import { CPForm, Session } from './config';
 
 Session.setDataId = 'demo-session';

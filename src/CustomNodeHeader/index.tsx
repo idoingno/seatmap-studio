@@ -19,15 +19,17 @@ import store from "../store";
 import { Graph, Node } from "@antv/x6";
 import { base64ToFile, sortCompareFn3 } from "../utils/util";
 // import { time } from "../utils/util";
-import domtoimage from "dom-to-image";
 import { getHasPersonSeatImg } from "../utils/oss";
 import { useGetState, useUpdateEffect } from "ahooks";
 import useFormModal from "../Components/useFormModal";
-import LayoutClearForm from "../Components/useFormModal/LayoutClearForm";
-import UploadFileForm from "../Components/useFormModal/UploadFileForm";
 import { useSelector } from "react-redux";
 import { useCallbackState } from "../hooks/useCallbackState";
-import UserForm from "../Components/useFormModal/UserForm";
+import { ensureGraphExportPlugin, loadDomToImage } from "../utils/exportRuntime";
+import { lazyForm } from "../Components/useFormModal/lazyForm";
+
+const LayoutClearForm = lazyForm(() => import("../Components/useFormModal/LayoutClearForm"));
+const UploadFileForm = lazyForm(() => import("../Components/useFormModal/UploadFileForm"));
+const UserForm = lazyForm(() => import("../Components/useFormModal/UserForm"));
 
 interface PageLoadingProps {
   setPageLoading: (val: boolean) => void;
@@ -60,17 +62,17 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
 
   const { modalRef: LayoutClearModalRef, FormModal: LayoutClearModal } = useFormModal(
     { title: "清空配置", width: "300px" },
-    React.forwardRef(LayoutClearForm)
+    LayoutClearForm
   );
 
   const { modalRef: UploadFileModalRef, FormModal: UploadFileModal } = useFormModal(
     { title: "上传配置", width: "420px" },
-    React.forwardRef(UploadFileForm)
+    UploadFileForm
   );
 
   const { modalRef: UserModalRef, FormModal: UserModal } = useFormModal(
     { title: "模板配置" },
-    React.forwardRef(UserForm)
+    UserForm
   );
 
   const toEmpty = () => {
@@ -131,10 +133,11 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
     setImgDom();
   };
 
-  const setImgDom = (oper = "download") => {
+  const setImgDom = async (oper = "download") => {
     const grpah: Graph = getGraph();
     if (oper !== "download" && grpah.getNodes().length === 0) {
       message.warning("请先创建一个布局，再另存为模板");
+      setImgLoading(false);
       return;
     }
 
@@ -159,6 +162,14 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
       setImgLoading(false);
     };
 
+    try {
+      await ensureGraphExportPlugin(grpah);
+    } catch {
+      message.error("导出插件加载失败，请稍后重试");
+      finishCapture();
+      return;
+    }
+
     setTimeout(() => {
       if (shouldRestoreVirtualRender) {
         grpah.disableVirtualRender();
@@ -173,8 +184,10 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
 
           downloadImg(oper).finally(finishCapture);
         } else {
-          domtoimage
-            .toPng(colorImgDom, { bgcolor: "#FFF" })
+          loadDomToImage()
+            .then((domtoimage) => {
+              return domtoimage.toPng(colorImgDom, { bgcolor: "#FFF" });
+            })
             .then((val: any) => {
               setColorImgPng(val);
               return downloadImg(oper);
@@ -197,6 +210,7 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
     const sessionId = Session.getDataId;
     const downloadImgDom = document.querySelector("#download_img");
 
+    const domtoimage = await loadDomToImage();
     const canvas = await domtoimage.toPng(downloadImgDom, { bgcolor: "#FFF" });
 
     const imgFile = base64ToFile(canvas);
