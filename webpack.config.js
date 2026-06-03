@@ -44,7 +44,9 @@ const config = {
   plugins: [
     new CleanWebpackPlugin(),
     new MomentLocalesPlugin(),
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({
+      ignoreOrder: true,
+    }),
     new HtmlWebpackPlugin({
       inject: true,
       template: 'public/index.html',
@@ -147,7 +149,8 @@ const config = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
     alias: {
-      '@': path.resolve('src')
+      '@': path.resolve('src'),
+      exceljs$: path.resolve(__dirname, 'node_modules/exceljs/dist/exceljs.min.js'),
     }
   },
   optimization: {
@@ -163,10 +166,45 @@ const config = {
           enforce: true,
           priority: 60,
         },
-        oss: {
-          test: /[\\/]node_modules[\\/](ali-oss|addressing|bowser|copy-to|dateformat|humanize-ms|utility)[\\/]/,
+        xlsx: {
+          test: /[\\/]node_modules[\\/]xlsx[\\/]/,
           chunks: 'async',
-          name: 'oss',
+          name: 'xlsx-import',
+          enforce: true,
+          priority: 59,
+        },
+        antdModalAsync: {
+          test: /[\\/]node_modules[\\/](antd[\\/]es[\\/](card|form|list|modal|radio|upload)|rc-dialog|rc-field-form|rc-upload|async-validator)[\\/]/,
+          chunks: 'async',
+          name: 'vendor-antd-modal-async',
+          enforce: true,
+          priority: 58,
+        },
+        antdAsync: {
+          test: /[\\/]node_modules[\\/](@ant-design|antd|rc-[^\\/]+)[\\/]/,
+          chunks: 'async',
+          name: 'vendor-antd-async',
+          enforce: true,
+          priority: 55,
+        },
+        x6PluginsAsync: {
+          test: /[\\/]node_modules[\\/]@antv[\\/]x6-plugin-[^\\/]+[\\/]/,
+          chunks: 'async',
+          name: 'vendor-x6-plugins-async',
+          enforce: true,
+          priority: 54,
+        },
+        x6HtmlAsync: {
+          test: /[\\/]node_modules[\\/](x6-html-shape)[\\/]/,
+          chunks: 'async',
+          name: 'vendor-x6-html-async',
+          enforce: true,
+          priority: 53,
+        },
+        x6Async: {
+          test: /[\\/]node_modules[\\/](@antv|x6-)[\\/]/,
+          chunks: 'async',
+          name: 'vendor-x6-async',
           enforce: true,
           priority: 50,
         },

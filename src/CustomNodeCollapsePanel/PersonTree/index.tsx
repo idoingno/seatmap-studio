@@ -1,17 +1,16 @@
-import { Checkbox, Input, Tabs, Tree, message } from "antd";
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { Checkbox, Input, Tree, message } from "antd";
+import React, { useEffect, useImperativeHandle, useState } from "react";
 import "./index.less";
 import { tabItems, tabItems2 } from "./data";
 import type { CheckboxChangeEvent } from "antd/es/checkbox";
-// import type { CheckboxValueType } from "antd/es/checkbox/Group";
 import {
   computePersonObj,
   filterTree,
   hasDuplicates,
-  isOutChair,
   personDataMap,
-  setChairPerson,
-} from "../../utils/util";
+} from "./treeData";
+import type { ItemType, OrgInfoProps, TreeDataType } from "./types";
+import { isOutChair, setChairPerson } from "../../utils/util";
 import { AllPersonArr, Session, getGraph, setDragNodeType } from "../../config";
 import { SearchOutlined } from "@ant-design/icons";
 
@@ -24,47 +23,6 @@ import { defaultAvatar } from "../../assets";
 import { useUpdateEffect } from "ahooks";
 import { useSelector } from "react-redux";
 import { EventEmitter } from "ahooks/lib/useEventEmitter";
-
-export interface OrgInfoProps {
-  fullPath: string;
-  id: string;
-  name: string;
-  subList?: OrgInfoProps[];
-}
-
-export interface ItemType {
-  title: string;
-  subTitle: string;
-  name: string;
-  dataType: string;
-  otherName: string;
-  hasSeat: boolean;
-  orgType: string;
-  id: string;
-  key: string;
-  pid: string;
-  hasChildOrg: boolean;
-  checked: boolean;
-}
-
-export interface TreeDataType {
-  children?: any;
-  fullPath?: string;
-  id?: string;
-  name?: string;
-  orgLevel?: string;
-  dataType?: string;
-  key?: string;
-  title?: string;
-  titleDv?: Element;
-  subOrg?: any;
-  checked?: boolean;
-  orgType?: string;
-  checkedHalf?: boolean;
-  hasSeat?: boolean;
-  s_seat?: boolean;
-  hasChildOrg?: boolean;
-}
 
 const getArrangeSeat = (item: any, key: string) => {
   if (key === "hasArrange") {
@@ -430,13 +388,32 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
         }
         placeholder="搜索"
       />
-      <Tabs
-        className="orgTabs"
-        defaultActiveKey="org"
-        items={tabItems(getPersonCount(allList, "org"), getPersonCount(allList, "pattern"))}
-        onChange={orgOnChange}
-      />
-      <Tabs className="seatTabs" defaultActiveKey="unArrange" items={tabItems2} onChange={arrangeSeatOnChange} />
+      <div className="tab-dv org-tab-row" role="tablist" aria-label="人员类型">
+        {tabItems(getPersonCount(allList, "org"), getPersonCount(allList, "pattern")).map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            className={orgKey === item.key ? "active" : ""}
+            onClick={() => orgOnChange(item.key)}
+            aria-pressed={orgKey === item.key}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+      <div className="tab-dv seat-tab-row" role="tablist" aria-label="排座状态">
+        {tabItems2.map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            className={arrangeKey === item.key ? "active" : ""}
+            onClick={() => arrangeSeatOnChange(item.key)}
+            aria-pressed={arrangeKey === item.key}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
       <div className="show-person-number-row">
         {arrangeKey === "unArrange" && personList.length > 0 && (
           <div style={{ marginBottom: "5px" }}>
@@ -465,3 +442,4 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
 };
 
 export default PersonTree;
+export type { ItemType, OrgInfoProps, TreeDataType };

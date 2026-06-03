@@ -1,10 +1,11 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { Provider } from "react-redux"
-import store from './store'
-import App from './App';
-import './assets/all-svg';  // 入口文件引入
-import { CPForm, Session } from './config';
+import React, { Suspense } from "react";
+import { createRoot } from "react-dom/client";
+import { Provider } from "react-redux";
+import store from "./store";
+import "./assets/all-svg";
+import { CPForm, Session } from "./config";
+
+const App = React.lazy(() => import("./App"));
 
 Session.setDataId = 'demo-session';
 Session.setHallId = 'demo-hall';
@@ -21,7 +22,25 @@ const render = (container: string) => {
 
   createRoot(rootElement).render(
     <Provider store={store}>
-      <App />
+      <Suspense
+        fallback={
+          <div
+            style={{
+              height: "100vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "#f7f8fa",
+              color: "rgba(0, 0, 0, 0.65)",
+              fontSize: 14,
+            }}
+          >
+            Seatmap Studio loading...
+          </div>
+        }
+      >
+        <App />
+      </Suspense>
     </Provider>
   );
 };

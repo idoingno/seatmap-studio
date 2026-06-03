@@ -9,19 +9,11 @@ import {
 
 import type { Graph } from "@antv/x6";
 import { CellView, Node, NodeView } from "@antv/x6";
+import { chairSvg } from "../config/Markup/chair";
 
 import {
   matrixPreComputed,
   parentParams,
-  aisleColumnNodeParams,
-  aisleColumnSpaceNodeParams,
-  aisleRowNodeParams,
-  aisleRowSpaceNodeParams,
-  matrixColumnBottomNumNodeParams,
-  matrixColumnTopNumNodeParams,
-  chairNodeParams,
-  rowTextEnNodeParams,
-  rowTextNodeParams,
   parentProps,
 } from "./paramsComputed";
 import {
@@ -41,6 +33,245 @@ import {
 import { generateGraphics, generateNode, updateGraphics, updateNode } from "../utils/apiParams";
 import { ResponseType, handleCpApi } from "../api";
 import { runGraphBatch } from "../utils/graphBatch";
+import { syncGraphPerformanceMode } from "../utils/graphPerformance";
+import { getNodeChildren } from "../utils/util";
+import { patternSeat } from "../assets";
+
+const CHAIR_STEP = CHAIR_SIZE + SPACE_SIZE;
+const EDITABLE_TOOLS = ["node-editor"];
+const TRANSPARENT_STROKE_BODY = {
+  fill: "transparent",
+  stroke: "transparent",
+};
+const CHAIR_MARKUP = [
+  {
+    tagName: "rect",
+    attrs: {
+      width: "40px",
+      height: "40px",
+    },
+  },
+  chairSvg,
+  {
+    tagName: "image",
+  },
+  {
+    tagName: "text",
+  },
+];
+
+const createMatrixChildren = (graph: Graph, groupData: parentProps, parentId: string, rows: number, columns: number) => {
+  const children: Node[] = [];
+  const chairBaseX = groupData.x + SPACE_SIZE + PARENTLEFTANDRIGHTSPACE;
+  const rowTextX = groupData.x + SPACE_SIZE / 2;
+  const rowTextEnX = groupData.x + PARENTLEFTANDRIGHTSPACE + CHAIR_STEP * columns;
+  const topNumberY = groupData.y + SPACE_SIZE;
+  const bottomNumberY = groupData.y + groupData.height - PARENTTOPANDBOTTOMHEIGHT - SPACE_SIZE;
+  const rowBaseY = groupData.y + SPACE_SIZE + PARENTTOPANDBOTTOMHEIGHT;
+
+  for (let i = 0; i < groupData.columnSpaceArr.length; i++) {
+    children.push(
+      graph.createNode({
+        shape: "rect",
+        parent: parentId,
+        width: SPACE_SIZE - 4,
+        height: groupData.height,
+        x: groupData.x + (i + 1) * CHAIR_STEP + PARENTLEFTANDRIGHTSPACE + 2,
+        y: groupData.y,
+        label: "",
+        data: {
+          disableMove: true,
+          nodeType: "corridorColumnSpace",
+          idx: i,
+          isExist: false,
+          idt: `corridorColumnSpace-${i}`,
+        },
+        attrs: {
+          body: TRANSPARENT_STROKE_BODY,
+          text: {},
+        },
+      })
+    );
+  }
+
+  for (let i = 0; i < groupData.rowSpaceArr.length; i++) {
+    children.push(
+      graph.createNode({
+        shape: "rect",
+        parent: parentId,
+        width: groupData.width,
+        height: SPACE_SIZE - 4,
+        x: groupData.x,
+        y: groupData.y + (i + 1) * CHAIR_STEP + PARENTTOPANDBOTTOMHEIGHT + 2,
+        label: "",
+        data: {
+          disableMove: true,
+          nodeType: "aisleRowSpace",
+          idx: i,
+          idt: `aisleRowSpace-${i}`,
+        },
+        attrs: {
+          body: TRANSPARENT_STROKE_BODY,
+        },
+      })
+    );
+  }
+
+  for (let columnIndex = 0; columnIndex < columns; columnIndex++) {
+    const columnLabel = `${columnIndex + 1}`;
+    const chairX = chairBaseX + columnIndex * CHAIR_STEP;
+
+    children.push(
+      graph.createNode({
+        shape: "rect",
+        parent: parentId,
+        width: CHAIR_SIZE,
+        height: PARENTTOPANDBOTTOMHEIGHT,
+        x: groupData.x + columnIndex * CHAIR_STEP + SPACE_SIZE + AISLE_SIZE,
+        y: topNumberY,
+        label: columnLabel,
+        data: {
+          disableMove: true,
+          nodeType: "matrixColumnTopNum",
+          idx: columnIndex,
+          idt: `matrixColumnTopNum-${columnIndex}`,
+        },
+        attrs: {
+          body: TRANSPARENT_STROKE_BODY,
+        },
+        tools: EDITABLE_TOOLS,
+      })
+    );
+
+    children.push(
+      graph.createNode({
+        shape: "rect",
+        parent: parentId,
+        width: CHAIR_SIZE,
+        height: PARENTTOPANDBOTTOMHEIGHT,
+        x: chairX,
+        y: bottomNumberY,
+        label: columnLabel,
+        data: {
+          disableMove: true,
+          nodeType: "matrixColumnBottomNum",
+          idx: columnIndex,
+          idt: `matrixColumnBottomNum-${columnIndex}`,
+        },
+        attrs: {
+          body: TRANSPARENT_STROKE_BODY,
+        },
+        tools: EDITABLE_TOOLS,
+      })
+    );
+  }
+
+  for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
+    const rowLabel = `第${rowIndex + 1}排`;
+    const rowLabelEn = `Row ${rowIndex + 1}`;
+    const chairNameEn = `Row${rowIndex + 1}`;
+    const rowY = rowBaseY + rowIndex * CHAIR_STEP;
+
+    children.push(
+      graph.createNode({
+        shape: "rect",
+        parent: parentId,
+        width: CHAIR_SIZE + 20,
+        height: CHAIR_SIZE,
+        x: rowTextX,
+        y: rowY,
+        label: rowLabel,
+        data: {
+          disableMove: true,
+          nodeType: "matrixRows",
+          idx: rowIndex,
+          idt: `row-${rowIndex}`,
+        },
+        attrs: {
+          body: TRANSPARENT_STROKE_BODY,
+        },
+        tools: EDITABLE_TOOLS,
+      })
+    );
+
+    for (let columnIndex = 0; columnIndex < columns; columnIndex++) {
+      const columnLabel = `${columnIndex + 1}`;
+
+      children.push(
+        graph.createNode({
+          shape: "rect",
+          parent: parentId,
+          width: CHAIR_SIZE,
+          height: CHAIR_SIZE,
+          x: chairBaseX + columnIndex * CHAIR_STEP,
+          y: rowY,
+          data: {
+            disableMove: true,
+            nodeType: "matrixChair",
+            visible: true,
+            idt: `${rowIndex}-${columnIndex}`,
+            matrixChairName: rowLabel,
+            matrixChairNameEn: chairNameEn,
+            matrixChairTopName: columnLabel,
+            matrixChairBottomName: columnLabel,
+          },
+          markup: CHAIR_MARKUP,
+          attrs: {
+            body: {
+              stroke: "transparent",
+            },
+            rect: {
+              fill: "transparent",
+              stroke: "transparent",
+            },
+            svg: {
+              width: 34,
+              height: 34,
+              x: 3,
+              y: 3,
+              fill: "#FFFFFF",
+            },
+            image: {
+              width: 40,
+              y: 3,
+              style: {
+                display: "none",
+              },
+              "xlink:href": patternSeat,
+            },
+            text: {
+              "font-size": "12",
+            },
+          },
+        })
+      );
+    }
+
+    children.push(
+      graph.createNode({
+        shape: "rect",
+        parent: parentId,
+        width: CHAIR_SIZE + 20,
+        height: CHAIR_SIZE,
+        x: rowTextEnX,
+        y: rowY,
+        label: rowLabelEn,
+        data: {
+          disableMove: true,
+          nodeType: "matrixRowsEn",
+          idx: rowIndex,
+          idt: `rowEn-${rowIndex}`,
+        },
+        attrs: {
+          body: TRANSPARENT_STROKE_BODY,
+        },
+        tools: EDITABLE_TOOLS,
+      })
+    );
+  }
+
+  return children;
+};
 
 export const initMatrix = async (x: number, y: number, graph: Graph) => {
   const columns: number = MatrixAllRowsOrColumns.getAllColumns;
@@ -55,7 +286,6 @@ export const initMatrix = async (x: number, y: number, graph: Graph) => {
   const groupData = matrixPreComputed(x, y, parentWidth, parentHeight);
 
   const parent = graph.createNode(parentParams(groupData));
-  graph.addNode(parent, { async: true });
 
   reDrawMatrix(groupData, parent, graph);
   setGroupData(groupData);
@@ -80,45 +310,24 @@ const reDrawMatrix = async (groupData: parentProps, parent: Node, graph: Graph) 
 
   const pcLength = groupData.columnSpaceArr.length;
   const prLength = groupData.rowSpaceArr.length;
+  let createdChildCount = 0;
+  let createdChildren: Node[] = [];
 
   runGraphBatch(graph, "create-matrix", () => {
-    const children: Node[] = [];
+    const children = createMatrixChildren(graph, groupData, parent.id, rows, columns);
 
-    for (let i = 0; i < pcLength; i++) {
-      children.push(graph.createNode(aisleColumnSpaceNodeParams(groupData, i)));
-    }
-
-    for (let i = 0; i < prLength; i++) {
-      children.push(graph.createNode(aisleRowSpaceNodeParams(groupData, i)));
-    }
-
-    for (let i = 0; i < columns; i++) {
-      children.push(graph.createNode(matrixColumnTopNumNodeParams(groupData, 0, i)));
-      children.push(graph.createNode(matrixColumnBottomNumNodeParams(groupData, i)));
-    }
-
-    for (let i = 0; i < rows; i++) {
-      children.push(graph.createNode(rowTextNodeParams(groupData, 0, i)));
-
-      for (let j = 0; j < columns; j++) {
-        children.push(graph.createNode(chairNodeParams(groupData, i, j)));
-      }
-
-      children.push(graph.createNode(rowTextEnNodeParams(groupData, i)));
-    }
-
-    children.forEach((child) => parent.addChild(child));
-    graph.addNodes(children, { async: true });
+    graph.addNodes([parent, ...children], { async: true });
+    createdChildren = children;
+    createdChildCount = children.length;
   });
+  syncGraphPerformanceMode(graph, createdChildCount + 1);
 
   // 添加图形组（父节点）
   const graphicsParams = generateGraphics(parent, sessionId);
   await handleCpApi({ params: graphicsParams, code: "seat" }, true);
 
   // 添加节点
-  const nodes = graph.getNodes();
-  const filterNode = nodes.filter((ite: Node) => ite.data.nodeType !== "matrixContainer");
-  const nodeParams = generateNode(filterNode, sessionId, parent);
+  const nodeParams = generateNode(createdChildren, sessionId, parent);
   await handleCpApi({ params: nodeParams, code: "seat" }, true);
 };
 
@@ -257,7 +466,7 @@ export const handleOffsetCorridor = async (oper: string) => {
     await handleCpApi({ params: graphicsParams, code: "seat" }, true);
 
     // 更新子节点节点
-    const nodeParams = updateNode(parent.children, sessionId, parent);
+    const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
     await handleCpApi({ params: nodeParams, code: "seat" }, true);
 
     setCurrentColumn(-1);
@@ -327,7 +536,7 @@ export const handleOffsetAisle = async (oper: string) => {
     await handleCpApi({ params: graphicsParams, code: "seat" }, true);
 
     // 更新子节点节点
-    const nodeParams = updateNode(parent.children, sessionId, parent);
+    const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
     await handleCpApi({ params: nodeParams, code: "seat" }, true);
 
     setCurrentRow(-1);

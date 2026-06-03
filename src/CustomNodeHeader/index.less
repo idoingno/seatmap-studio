@@ -71,24 +71,25 @@
         cursor: pointer;
         color: #94785B;
 
-        div:last-child {
+        .action-button {
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            display: flex;
+            align-items: center;
+            margin-right: 32px;
+            cursor: pointer;
+
+            img {
+                margin-right: 8px;
+            }
+        }
+
+        .action-button:last-child {
             margin-right: 0;
         }
-    }
-}
-
-#download_img {
-    position: absolute;
-    // z-index: 0;
-    left: 0;
-    top: 0;
-    display: flex;
-    z-index: -9999999;
-    align-items: center;
-    padding: 30px;
-
-    #color_img {
-        margin-right: 15px;
     }
 }
 

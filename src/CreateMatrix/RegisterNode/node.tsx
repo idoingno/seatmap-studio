@@ -5,10 +5,6 @@ import { chairSvg } from "../../config/Markup/chair";
 import { Graph } from "@antv/x6";
 import { CHAIR_SIZE, PARENTTOPANDBOTTOMHEIGHT, SPACE_SIZE } from "../../GlobalVar";
 import { patternSeat } from "../../assets";
-
-// import { Menu, Dropdown } from "@antv/x6-react-components";
-import "@antv/x6-react-components/es/menu/style/index.css";
-import "@antv/x6-react-components/es/dropdown/style/index.css";
 // import type { CellView } from "@antv/x6";
 
 // const SyncNode = memo(() => {

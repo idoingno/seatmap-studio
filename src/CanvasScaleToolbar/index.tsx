@@ -1,9 +1,6 @@
 import React, { ReactNode } from "react";
-// import { Graph } from '@antv/x6'
 import { useGraphInstance } from "x6-graph/react";
 import { ZoomInOutlined, ZoomOutOutlined, OneToOneOutlined, CompressOutlined, ExpandOutlined } from "@ant-design/icons";
-import { Toolbar } from "@antv/x6-react-components";
-import classnames from "classnames";
 import "./index.less";
 
 interface CommandsType {
@@ -74,31 +71,22 @@ const CanvasScaleToolbar: React.FC = () => {
     }
   };
 
-  const clz = classnames({
-    ["canvas-toolbar-group"]: true,
-  });
-
-  const clzi = classnames({
-    ["canvas-toolbar-item"]: true,
-  });
-
-  const placement = "left";
-
   return (
     <div className="canvas-toolbar">
-      <Toolbar.Group className={clz} key="toolBar">
+      <div className="canvas-toolbar-group">
         {commands.map((item) => (
-          <Toolbar.Item
-            {...item}
-            icon={item.icon}
+          <button
+            type="button"
             key={item.key}
-            tooltip={item.title}
-            className={clzi}
-            tooltipProps={{ placement: "left", ...item.tooltipProps }}
+            className="canvas-toolbar-item"
+            title={item.title}
+            aria-label={item.title}
             onClick={() => transform(item.key, graph)}
-          />
+          >
+            {item.icon}
+          </button>
         ))}
-      </Toolbar.Group>
+      </div>
     </div>
   );
 };

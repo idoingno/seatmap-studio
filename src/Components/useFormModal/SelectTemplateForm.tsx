@@ -1,9 +1,10 @@
-import { Card, Form, FormInstance, Input, List, Radio, message } from "antd";
-import React, { useEffect, useState } from "react";
+import { Form, FormInstance, Input, message } from "antd";
+import React, { useMemo, useState } from "react";
 import { ResponseType, handleCpApi } from "../../api";
 import { Session } from "../../config";
 import { SearchOutlined } from "@ant-design/icons";
 import { useDebounceEffect } from "ahooks";
+import "./SelectTemplateForm.less";
 
 interface SelectTemplateFormPropsType {
   // mapUrl?: string;
@@ -18,6 +19,7 @@ const SelectTemplateForm = (
   ref?: React.ForwardedRef<FormInstance>
 ) => {
   const [form] = Form.useForm();
+  const pageSize = 9;
 
   // 获取场次Id
   const sessionId = Session.getDataId;
@@ -27,6 +29,7 @@ const SelectTemplateForm = (
   const [loading, setLoading] = useState<boolean>(false);
 
   const [total, setTotal] = useState<number>(0);
+  const [pageNum, setPageNum] = useState<number>(1);
   const [inputSearchValue, setInputSearchValue] = useState<string>("");
 
   const inputOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,7 +64,7 @@ const SelectTemplateForm = (
     const hallParams = {
       // sessionId,
       $pageNum: pageNum,
-      $pageSize: 9,
+      $pageSize: pageSize,
       $likeQueryField: "name",
       $sortField: "{'createdTime':'desc'}",
       name,
@@ -85,6 +88,7 @@ const SelectTemplateForm = (
 
   useDebounceEffect(
     () => {
+      setPageNum(1);
       getList(1, inputSearchValue);
     },
     [inputSearchValue],
@@ -93,12 +97,23 @@ const SelectTemplateForm = (
     }
   );
 
-  const onChange = (e: any) => {
-    setTemplateId(e.target.value);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const pageButtons = useMemo(() => {
+    const pages = new Set<number>([1, totalPages, pageNum - 1, pageNum, pageNum + 1]);
+    return [...pages].filter((page) => page >= 1 && page <= totalPages).sort((a, b) => a - b);
+  }, [pageNum, totalPages]);
+
+  const changePage = (nextPage: number) => {
+    if (nextPage < 1 || nextPage > totalPages || nextPage === pageNum) {
+      return;
+    }
+
+    setPageNum(nextPage);
+    getList(nextPage, inputSearchValue);
   };
 
   return (
-    <div className="form">
+    <div className="form template-select-form">
       <Input
         value={inputSearchValue}
         onChange={(e) => {
@@ -109,43 +124,58 @@ const SelectTemplateForm = (
         style={{ marginBottom: "20px", width: "300px" }}
       />
       <Form onFinish={onSubmit} ref={ref} form={form}>
-        <Radio.Group onChange={onChange}>
-          <List
-            grid={{
-              gutter: 16,
-              xs: 1,
-              sm: 2,
-              md: 3,
-              lg: 3,
-              xl: 3,
-              xxl: 3,
-            }}
-            // itemLayout="vertical"
-            // size="large"
-            loading={loading}
-            pagination={{
-              total,
-              onChange: (page) => {
-                getList(page, inputSearchValue);
-              },
-              pageSize: 9,
-            }}
-            dataSource={data}
-            renderItem={(item) => (
-              <Radio.Button value={item.id}>
-                <List.Item key={item.id}>
+        {loading ? <div className="template-grid-empty">模板加载中...</div> : null}
+        {!loading && data.length === 0 ? <div className="template-grid-empty">没有匹配的模板</div> : null}
+        {!loading && data.length > 0 ? (
+          <div className="template-grid" role="list" aria-label="模板列表">
+            {data.map((item: any) => {
+              const selected = templateId === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`template-card${selected ? " active" : ""}`}
+                  onClick={() => setTemplateId(item.id)}
+                  aria-pressed={selected}
+                >
                   <div className="list-box">
-                    <img alt="logo" src={item.s_hall_map} />
-                    <span style={templateId === item.id ? { color: "#b39372" } : {}}>
-                      {templateId === item.id ? "已选中：" : ""}
+                    <img alt={item.name} src={item.s_hall_map} />
+                    <span>
+                      {selected ? "已选中：" : ""}
                       {item.name}
                     </span>
                   </div>
-                </List.Item>
-              </Radio.Button>
-            )}
-          />
-        </Radio.Group>
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+        {total > pageSize ? (
+          <div className="template-pagination" aria-label="模板分页">
+            <button type="button" onClick={() => changePage(pageNum - 1)} disabled={pageNum === 1}>
+              上一页
+            </button>
+            <div className="template-pagination-pages">
+              {pageButtons.map((page) => (
+                <button
+                  key={page}
+                  type="button"
+                  className={page === pageNum ? "active" : ""}
+                  onClick={() => changePage(page)}
+                  aria-pressed={page === pageNum}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+            <span className="template-pagination-summary">
+              第 {pageNum} / {totalPages} 页
+            </span>
+            <button type="button" onClick={() => changePage(pageNum + 1)} disabled={pageNum === totalPages}>
+              下一页
+            </button>
+          </div>
+        ) : null}
       </Form>
     </div>
   );

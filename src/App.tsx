@@ -1,41 +1,34 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useGraphState } from "x6-hooks/react";
 // import { Button } from "antd";
 import { Graph } from "x6-graph/react";
-import { Snapline } from "@antv/x6-plugin-snapline";
-import CustomNodeCollapsePanel from "./CustomNodeCollapsePanel";
 import { GraphBehavior } from "./GraphBehavior";
 import CanvasScaleToolbar from "./CanvasScaleToolbar";
 import { scaling, mousewheel, interacting, Session, background, translating, CPForm } from "./config";
 import { setGraphs } from "./config/index";
-import "./CreateMatrix/RegisterNode/node";
-import "./CreateMatrix/MenuNode/AddMenuNode";
-import "./CreateMatrix/MenuNode/MinusMenuNode";
 import toDrop from "./toDrop";
-import { Selection } from "@antv/x6-plugin-selection";
-import { Transform } from "@antv/x6-plugin-transform";
 
 // import "./style.less";
 import { querySeatInfo } from "./utils/apiParams";
 import { ResponseType, handleCpApi } from "./api";
 import { renderGraph } from "./utils/graphUtils";
-import CustomNodeHeader from "./CustomNodeHeader";
 import { Spin } from "antd";
 import store from "./store";
 import { addDargAction, emptyAction, isLoadAction } from "./store/actionCreators";
-import CircleUpdateName from "./Components/CircleUpdateName";
-import ChairCard from "./Components/ChairCard";
-import ColorPanel from "./Components/ColorPanel";
-import ColorEdit, { ColorItemType } from "./Components/ColorPanel/ColorEdit";
-// import SaveTemplate from "./Components/SaveTemplate";
-import useFormModal from "./Components/useFormModal";
+import type { ColorItemType } from "./Components/ColorPanel/ColorEdit";
 import { useEventEmitter, useUpdateEffect } from "ahooks";
 import { useSelector } from "react-redux";
 import { runGraphBatch } from "./utils/graphBatch";
-import { lazyForm } from "./Components/useFormModal/lazyForm";
+import { syncGraphPerformanceMode } from "./utils/graphPerformance";
+import { ensureEditorInteractionRuntime, ensureEditorNodeRuntime } from "./utils/editorRuntime";
 
 const prefixCls = "clickpaas-customize-component-1691398243116";
-const SelectTemplateForm = lazyForm(() => import("./Components/useFormModal/SelectTemplateForm"));
+const CustomNodeCollapsePanel = React.lazy(() => import("./CustomNodeCollapsePanel"));
+const CustomNodeHeader = React.lazy(() => import("./CustomNodeHeader"));
+const CircleUpdateName = React.lazy(() => import("./Components/CircleUpdateName"));
+const ChairCard = React.lazy(() => import("./Components/ChairCard"));
+const ColorPanel = React.lazy(() => import("./Components/ColorPanel"));
+const ColorEdit = React.lazy(() => import("./Components/ColorPanel/ColorEdit"));
 
 interface AppProps {
   closeApp?: () => void;
@@ -61,7 +54,7 @@ const App = ({ closeApp }: AppProps) => {
   // const [mapUrl, setMapUrl, getMapUrl] = useGetState<string>("");
 
   const [refresh, setRefresh] = useState<boolean>(false);
-  const customNodeCollapsePanelRef: any = React.createRef();
+  const customNodeCollapsePanelRef = useRef<{ getData?: () => void } | null>(null);
 
   const [, updateState] = useState<any>();
   const forceUpdate = useCallback(() => updateState({}), []);
@@ -69,17 +62,6 @@ const App = ({ closeApp }: AppProps) => {
   useEffect(() => {
     refresh && setTimeout(() => setRefresh(false));
   }, [refresh]);
-
-  // const { modalRef: UserModalRef, FormModal: UserModal } = useFormModal(
-  //   { title: "模板配置" },
-  //   React.forwardRef(UserForm)
-  // );
-
-  const { modalRef: SelectListRef, FormModal: SelectTemplateModal } = useFormModal(
-    { title: "模板选择", width: "100%" },
-    SelectTemplateForm
-  );
-
   const loadTree$ = useEventEmitter();
 
   // 拖拽
@@ -101,6 +83,7 @@ const App = ({ closeApp }: AppProps) => {
         runGraphBatch(gRef.current, "load-seatmap", () => {
           gRef.current.fromJSON({ cells: newData }, { async: true });
         });
+        syncGraphPerformanceMode(gRef.current, newData.length);
         gRef.current.centerContent(); // 将画布中元素居中展示
 
         const findMatrixContainer = schema && schema.findIndex((item: any) => item.type === "matrixContainer");
@@ -145,65 +128,50 @@ const App = ({ closeApp }: AppProps) => {
     forceUpdate();
   };
 
+  const refreshPeopleTree = useCallback(() => {
+    customNodeCollapsePanelRef.current?.getData?.();
+  }, []);
+
 
   useEffect(() => {
-    setGraphs(gRef.current);
-    gRef.current.use(
-      new Snapline({
-        enabled: true,
-        clean: false,
-        filter: (a: any) => {
-          return a.getData().snapline;
-        },
-      } as any)
-    );
+    const graph = gRef.current;
+    let cancelled = false;
+    let interactionTimer: number | undefined;
 
-    gRef.current.use(
-      new Selection({
-        enabled: true,
-        filter(node: any) {
-          return (
-            node.data &&
-            ((node.data.nodeType === "matrixChair" && node.data.visible) ||
-              (node.data.nodeType === "circleChair" && node.data.visible))
-            // ||  node.data.nodeType === "circleContainer")
-          );
-        },
-        multiple: true,
-        modifiers: ["ctrl", "meta"],
-        multipleSelectionModifiers: ["ctrl", "meta"],
-        strict: true,
-        pointerEvents: "none",
-        rubberband: true,
-        movable: true,
-        showNodeSelectionBox: true,
-        // content: `<div class="frame-close-wrap"><div class="frame-close">
-        //             <div class="frame-line1"></div>
-        //             <div class="frame-line2"></div>
-        //         </div></div>`,
-      })
-    );
+    setGraphs(graph);
 
-    gRef.current.use(
-      new Transform({
-        resizing: {
-          enabled(node: any) {
-            const arr = ["windowNode", "doorNode", "prosceniumNode"];
-            if (arr.includes(node.data.nodeType)) {
-              return true;
-            }
-          },
-          minHeight: 48,
-          minWidth: 48,
-        },
-      })
-    );
+    (async () => {
+      try {
+        await ensureEditorNodeRuntime(graph);
+      } catch (error) {
+        if (!cancelled) {
+          setLoading(false);
+        }
+        return;
+      }
 
-    if (sessionId) {
-      query();
-    } else {
-      setLoading(false);
-    }
+      if (cancelled) {
+        return;
+      }
+
+      if (sessionId) {
+        query();
+      } else {
+        setLoading(false);
+        syncGraphPerformanceMode(graph, 0);
+      }
+
+      interactionTimer = window.setTimeout(() => {
+        ensureEditorInteractionRuntime(graph).catch(() => undefined);
+      }, 0);
+    })();
+
+    return () => {
+      cancelled = true;
+      if (interactionTimer) {
+        window.clearTimeout(interactionTimer);
+      }
+    };
   }, []);
 
   loadTree$.useSubscription(() => {
@@ -214,24 +182,30 @@ const App = ({ closeApp }: AppProps) => {
     <div className={prefixCls} style={{ width: "100%", height: "100%" }}>
       <Spin spinning={loading} delay={500} wrapperClassName="spin-wrap" tip="努力加载数据中, 请稍后...">
         <>
-          <CustomNodeHeader
-            setPageLoading={setLoading}
-            // setShowTemplate={() => UserModalRef.current?.open({ mapUrl })}
-            // setMapUrl={setMapUrl}
-            setRefresh={setRefresh}
-            getData={getAllData}
-            closeApp={closeApp}
-          />
+          <Suspense fallback={<div style={{ height: 48, borderBottom: "1px solid #eee", background: "#fff" }} />}>
+            <CustomNodeHeader
+              setPageLoading={setLoading}
+              // setShowTemplate={() => UserModalRef.current?.open({ mapUrl })}
+              // setMapUrl={setMapUrl}
+              setRefresh={setRefresh}
+              getData={getAllData}
+              refreshPeople={refreshPeopleTree}
+              closeApp={closeApp}
+            />
+          </Suspense>
 
           <div style={{ display: "flex" }}>
             {refresh ? (
               <></>
             ) : (
-              <CustomNodeCollapsePanel
-                onRef={customNodeCollapsePanelRef}
-                setShowSelectTemplate={() => SelectListRef.current?.open()}
-                loadTree$={loadTree$}
-              />
+              <Suspense fallback={<div style={{ width: 260, flex: "0 0 260px", background: "#fff" }} />}>
+                <CustomNodeCollapsePanel
+                  onRef={customNodeCollapsePanelRef}
+                  loadTree$={loadTree$}
+                  getData={getAllData}
+                  setRefresh={setRefresh}
+                />
+              </Suspense>
             )}
             <div ref={dropRef}>
               <Graph
@@ -257,12 +231,18 @@ const App = ({ closeApp }: AppProps) => {
           </div>
         </>
 
-        <CircleUpdateName />
-        <ChairCard />
-        <ColorPanel setColorObj={setColorObj} />
-        <ColorEdit colorObj={colorObj} />
-        {/* <UserModal /> */}
-        <SelectTemplateModal getData={getAllData} setRefresh={setRefresh} />
+        <Suspense fallback={null}>
+          <CircleUpdateName />
+        </Suspense>
+        <Suspense fallback={null}>
+          <ChairCard />
+        </Suspense>
+        <Suspense fallback={null}>
+          <ColorPanel setColorObj={setColorObj} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <ColorEdit colorObj={colorObj} />
+        </Suspense>
       </Spin>
     </div>
   );

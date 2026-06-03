@@ -1,4 +1,4 @@
-import { Form, FormInstance, Input, Radio, message } from "antd";
+import { Form, FormInstance, message } from "antd";
 import React, { useState } from "react";
 import { ResponseType, handleCpApi } from "../../api";
 import { Session, getGraph } from "../../config";
@@ -18,11 +18,7 @@ const LayoutClearForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?
   // 获取场次Id
   const sessionId = Session.getDataId;
 
-  const [value, setValue] = useState();
-
-  const onChange = (e: any) => {
-    setValue(e.target.value);
-  };
+  const [value, setValue] = useState<number | undefined>();
 
   const onSubmit = async (values: any) => {
     props.beforeSubmit?.(values);
@@ -31,7 +27,12 @@ const LayoutClearForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?
     const graph = getGraph();
 
     // 清空座位
-    if (values.type === 1) {
+    if (!value) {
+      message.error("请选择选项");
+      return;
+    }
+
+    if (value === 1) {
       store.dispatch(isLoadAction(true));
 
       const nodes = graph.getNodes();
@@ -101,12 +102,31 @@ const LayoutClearForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?
   return (
     <div className="form">
       <Form onFinish={onSubmit} ref={ref} form={form} wrapperCol={{ span: 24 }}>
-        <Form.Item name="type" rules={[{ required: true, message: "请选择选项" }]}>
-          <Radio.Group onChange={onChange} value={value}>
-            <Radio value={1}>清空座位</Radio>
-            <Radio value={2}>清空布局</Radio>
-          </Radio.Group>
-        </Form.Item>
+        <div style={{ display: "flex", gap: 12 }}>
+          {[
+            { label: "清空座位", nextValue: 1 },
+            { label: "清空布局", nextValue: 2 },
+          ].map((item) => (
+            <button
+              key={item.nextValue}
+              type="button"
+              onClick={() => setValue(item.nextValue)}
+              aria-pressed={value === item.nextValue}
+              style={{
+                minWidth: 96,
+                height: 36,
+                padding: "0 16px",
+                borderRadius: 6,
+                border: value === item.nextValue ? "1px solid #b39372" : "1px solid #d9d9d9",
+                background: value === item.nextValue ? "rgba(179, 147, 114, 0.08)" : "#fff",
+                color: value === item.nextValue ? "#b39372" : "#262626",
+                cursor: "pointer",
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
       </Form>
     </div>
   );

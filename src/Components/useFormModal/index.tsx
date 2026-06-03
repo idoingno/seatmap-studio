@@ -1,5 +1,7 @@
-import { FormInstance, Modal, ModalProps } from "antd";
+import type { FormInstance, ModalProps } from "antd";
 import React, { PropsWithoutRef, Suspense, forwardRef, useCallback, useImperativeHandle, useRef, useState } from "react";
+
+const ModalShell = React.lazy(() => import("./ModalShell"));
 
 type ModalRefType<T> = { open: (initProp?: Partial<T>) => void; close: () => void } | undefined;
 
@@ -21,33 +23,17 @@ const useFormModal = function <T>(modalProps: Partial<ModalProps>, Slot: React.C
       setVisiable(false);
     };
     useImperativeHandle(mRef, () => ({ open, close }));
-    const onCancel = () => {
+    const onCancel: NonNullable<ModalProps["onCancel"]> = () => {
       close();
     };
     const formRef = React.useRef<FormInstance>();
-    const ok = () => {
+    const ok: NonNullable<ModalProps["onOk"]> = () => {
       formRef.current?.submit();
     };
     return (
-      <Modal
-        onCancel={onCancel}
-        onOk={ok}
-        open={visiable}
-        wrapClassName="modal-wrap"
-        keyboard={false}
-        maskClosable={false}
-        okText="提交"
-        cancelText="取消"
-        // cancelButtonProps={{ shape: "round" }}
-        // okButtonProps={{ shape: "round" }}
-        confirmLoading={loading}
-        width={360}
-        zIndex={1000000}
-        {...modalProps}
-        destroyOnClose={true}
-      >
-        {visiable ? (
-          <Suspense fallback={null}>
+      visiable ? (
+        <Suspense fallback={null}>
+          <ModalShell onCancel={onCancel} onOk={ok} open={visiable} confirmLoading={loading} {...modalProps}>
             <SlotComponent
               ref={formRef}
               {...slotProps}
@@ -58,9 +44,9 @@ const useFormModal = function <T>(modalProps: Partial<ModalProps>, Slot: React.C
               }}
               beforeSubmit={() => setLoading(true)}
             />
-          </Suspense>
-        ) : null}
-      </Modal>
+          </ModalShell>
+        </Suspense>
+      ) : null
     );
   });
   return {

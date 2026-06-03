@@ -18,8 +18,6 @@ import {
   SPACE_SIZE,
 } from "../GlobalVar";
 
-import { getPersonLevel1Node, getPersonNode } from "../CustomNodeCollapsePanel/PersonTree/Person";
-import { OrgInfoProps, TreeDataType } from "../CustomNodeCollapsePanel/PersonTree";
 import { updateGraphics } from "./apiParams";
 import { handleCpApi } from "../api";
 
@@ -36,6 +34,120 @@ export interface ParamsProps {
   idx?: number;
   direction?: string;
 }
+
+export interface MatrixMenuIndex {
+  allChildren: Node[];
+  columnBottomNodes: Node[];
+  columnBottomTextByIdx: Map<number, Node>;
+  columnSpaceByIdx: Map<number, Node>;
+  columnTopTextByIdx: Map<number, Node>;
+  parent: Node;
+  rowEnNodes: Node[];
+  rowSpaceByIdx: Map<number, Node>;
+  rowTextByIdx: Map<number, Node>;
+  rowTextEnByIdx: Map<number, Node>;
+  chairsByColumn: Map<number, Node[]>;
+  chairsByRow: Map<number, Node[]>;
+}
+
+export const getNodeChildren = (parent: Node | null | undefined): Node[] => {
+  const directChildren = (parent as Node & { children?: Node[] } | null | undefined)?.children;
+  if (Array.isArray(directChildren) && directChildren.length) {
+    return directChildren.filter(Boolean) as Node[];
+  }
+
+  const nestedChildren = (((parent?.getChildren() as unknown as Node[] | null) ?? []).filter(Boolean) as Node[]);
+  if (nestedChildren.length) {
+    return nestedChildren;
+  }
+
+  if (!parent) {
+    return [];
+  }
+
+  return getGraph()
+    .getNodes()
+    .filter((node) => {
+      const currentNode = node as Node;
+      const currentParent = currentNode.getParent?.() ?? ((currentNode as Node & { parent?: Node }).parent ?? null);
+      return currentParent?.id === parent.id;
+    }) as Node[];
+};
+
+export const buildMatrixMenuIndex = (parent: Node): MatrixMenuIndex => {
+  const allChildren = getNodeChildren(parent);
+  const index: MatrixMenuIndex = {
+    allChildren,
+    columnBottomNodes: [],
+    columnBottomTextByIdx: new Map(),
+    columnSpaceByIdx: new Map(),
+    columnTopTextByIdx: new Map(),
+    parent,
+    rowEnNodes: [],
+    rowSpaceByIdx: new Map(),
+    rowTextByIdx: new Map(),
+    rowTextEnByIdx: new Map(),
+    chairsByColumn: new Map(),
+    chairsByRow: new Map(),
+  };
+
+  for (const node of allChildren) {
+    const nodeType = node.data?.nodeType;
+    const idx = Number(node.data?.idx);
+
+    if (nodeType === "matrixRows") {
+      index.rowTextByIdx.set(idx, node);
+      continue;
+    }
+
+    if (nodeType === "matrixRowsEn") {
+      index.rowTextEnByIdx.set(idx, node);
+      index.rowEnNodes.push(node);
+      continue;
+    }
+
+    if (nodeType === "aisleRowSpace") {
+      index.rowSpaceByIdx.set(idx, node);
+      continue;
+    }
+
+    if (nodeType === "matrixColumnTopNum") {
+      index.columnTopTextByIdx.set(idx, node);
+      continue;
+    }
+
+    if (nodeType === "matrixColumnBottomNum") {
+      index.columnBottomTextByIdx.set(idx, node);
+      index.columnBottomNodes.push(node);
+      continue;
+    }
+
+    if (nodeType === "corridorColumnSpace") {
+      index.columnSpaceByIdx.set(idx, node);
+      continue;
+    }
+
+    if (nodeType === "matrixChair") {
+      const [rowKey, columnKey] = String(node.data?.idt ?? "-").split("-");
+      const rowIndex = Number(rowKey);
+      const columnIndex = Number(columnKey);
+
+      if (!Number.isNaN(rowIndex)) {
+        const rowNodes = index.chairsByRow.get(rowIndex) ?? [];
+        rowNodes.push(node);
+        index.chairsByRow.set(rowIndex, rowNodes);
+      }
+
+      if (!Number.isNaN(columnIndex)) {
+        const columnNodes = index.chairsByColumn.get(columnIndex) ?? [];
+        columnNodes.push(node);
+        index.chairsByColumn.set(columnIndex, columnNodes);
+      }
+    }
+  }
+
+  return index;
+};
 
 export const isOutElementCorridor = (p1: pProps) => {
   // 设置当前列为-1
@@ -200,14 +312,16 @@ export const parentAddText = (params: ParamsProps) => {
   const { x, y } = element.getPosition();
   const parent = element.getParent();
 
-  const Child = graph.addNode({
+  const child = graph.createNode({
     shape,
     x: direction === "right" ? x + MATRIX_OFFSET_DISTANCE : x,
     y: direction === "bottom" ? y + MATRIX_OFFSET_DISTANCE : y,
     label,
     data: { idt, idx },
   });
-  parent.addChild(Child);
+
+  parent.addChild(child);
+  return child;
 };
 
 export const sortCompareFn = (a: any, b: any) => {
@@ -226,13 +340,14 @@ export const parentAddChair = (data: Node[], row: number, direction: string) => 
   const graph = getGraph();
 
   const sortData = data.sort(sortCompareFn).sort(sortCompareFn2);
+  const children: Node[] = [];
   for (let i = 0; i < sortData.length; i++) {
     const element = sortData[i] as Node;
     let { x, y } = element.getPosition();
     const idt = direction === "bottom" || direction === "top" ? `${row}-${i}` : `${i}-${row}`;
 
     const parent = element.getParent();
-    const Child = graph.addNode({
+    const child = graph.createNode({
       shape: "chair-node",
       x: direction === "right" ? x + MATRIX_OFFSET_DISTANCE : x,
       y: direction === "bottom" ? y + MATRIX_OFFSET_DISTANCE : y,
@@ -246,8 +361,11 @@ export const parentAddChair = (data: Node[], row: number, direction: string) => 
           direction === "left" || direction === "right" ? "新增列" : element.data.matrixChairBottomName,
       },
     });
-    parent.addChild(Child);
+    parent.addChild(child);
+    children.push(child);
   }
+
+  return children;
 };
 
 export const parentAddRoworColumn = (params: ParamsProps) => {
@@ -261,7 +379,7 @@ export const parentAddRoworColumn = (params: ParamsProps) => {
   const new_x = width > 6 ? x + MATRIX_OFFSET_SIZE_DISTANCE : x + MATRIX_OFFSET_DISTANCE;
   const new_y = height > 6 ? y + MATRIX_OFFSET_SIZE_DISTANCE : y + MATRIX_OFFSET_DISTANCE;
 
-  const Child = graph.addNode({
+  const child = graph.createNode({
     shape,
     x: direction === "right" ? new_x : x,
     y: direction === "bottom" ? new_y : y,
@@ -269,7 +387,8 @@ export const parentAddRoworColumn = (params: ParamsProps) => {
     height: direction === "top" || direction === "bottom" ? AISLE_DEFAULT_SIZE : height,
     data: { idt, idx },
   });
-  parent.addChild(Child);
+  parent.addChild(child);
+  return child;
 };
 
 export const setAllCorridorColumnH = (nodes: Node[], name: string, num: number) => {
@@ -341,120 +460,6 @@ export const resizeProscenium = async (width: number) => {
     }
   }
 };
-
-export const personDataMap = (data: any) => {
-  return data.map((ite: any) => {
-    return {
-      title: ite.s_field_96bkqmtqbo,
-      subTitle: ite.s_field_hhac39dspg,
-      name: ite.s_field_96bkqmtqbo,
-      dataType: "person",
-      nodeType: "Tree",
-      otherName: ite.s_field_mi16acq0er,
-      hasSeat: !!ite.s_seat,
-      orgType: ite.s_field_f39ex5pcvp ? "pattern" : "org",
-      id: ite.id,
-      key: ite.id,
-      pid: ite.s_field_xxu9wjskm8,
-      hasChildOrg: true,
-      checked: false,
-      isAttend: ite.s_whether_to_attend === undefined || ite.s_whether_to_attend ? true : false,
-      nodeId: ite.s_node_id,
-      nodeName: ite.s_node_name,
-      s_seat: ite.s_seat,
-      s_seat_english: ite.s_seat_english,
-    };
-  });
-};
-
-export const personDataHandle = (data: any[], arrangeKey: string, orgKey: string) => {
-  // const handleData = personDataMap(data);
-  return data.map((item) => {
-    return {
-      ...item,
-      titleDv: getPersonNode(item, arrangeKey, orgKey),
-    };
-  });
-};
-
-export const personDataFilter = (data: any[], id: string, arrangeKey: string, orgKey: string) => {
-  const hdata = personDataHandle(data, arrangeKey, orgKey);
-  return hdata.filter((item: any) => item.pid === id);
-};
-
-export const computePersonObj: any = (list: OrgInfoProps[], personInfo: any, arrangeKey: string, orgKey: string) => {
-  let arr: TreeDataType[] = [];
-  for (let i = 0; i < list.length; i++) {
-    let obj = {};
-    const org = list[i];
-    const filterData = personDataFilter(personInfo, org.id, arrangeKey, orgKey);
-    obj = {
-      children: filterData,
-      fullPath: org.fullPath,
-      id: org.id,
-      name: org.name,
-      orgLevel: "firstLevel",
-      dataType: "level",
-      nodeType: "Tree",
-      key: org.id,
-      title: org.name,
-      checked: false,
-      titleDv: getPersonLevel1Node(org.name, org, arrangeKey),
-      checkedHalf: false,
-      hasChildOrg: org.subList || filterData.length > 0 ? true : false,
-    };
-    arr.push(obj);
-
-    if (org.subList && org.subList.length) {
-      for (let j = 0; j < org.subList.length; j++) {
-        let objs = {};
-        const sub = org.subList[j];
-        const subfilterData = personDataFilter(personInfo, sub.id, arrangeKey, orgKey);
-
-        objs = {
-          children: subfilterData,
-          fullPath: sub.fullPath,
-          id: sub.id,
-          name: sub.name,
-          orgLevel: "twoLevel",
-          dataType: "level",
-          nodeType: "Tree",
-          key: sub.id,
-          title: sub.name,
-          checked: false,
-          titleDv: getPersonLevel1Node(sub.name, sub, arrangeKey),
-          checkedHalf: false,
-          hasChildOrg: subfilterData.length > 0 ? true : false,
-        };
-        arr[i].children.push(objs);
-        // arr[i].hasChildOrg = subfilterData.length > 0 ? true : false
-      }
-      const length = arr[i].children.filter((item: any) => item.hasChildOrg).length;
-      arr[i].hasChildOrg = length > 0 ? true : false;
-    }
-  }
-  return arr;
-};
-
-export function filterTree(arr: any[]) {
-  return arr
-    .filter((item) => item.hasChildOrg)
-    .map((item) => {
-      item = Object.assign({}, item);
-      if (item.children) {
-        item.children = filterTree(item.children);
-      }
-      return item;
-    });
-}
-
-export function hasDuplicates(arr1: any, arr2: any) {
-  return arr1.filter((item: any) => {
-    if (arr2.indexOf(item) > -1) {
-      return item;
-    }
-  });
-}
 
 export const listToTreeSimple = (data: any[]) => {
   if (data && data.length) {
