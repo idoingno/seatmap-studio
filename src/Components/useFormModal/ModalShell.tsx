@@ -12,7 +12,7 @@ interface ModalShellProps extends Partial<ModalProps> {
 const ModalShell: React.FC<ModalShellProps> = ({ children, ...modalProps }) => {
   return (
     <Modal
-      wrapClassName="modal-wrap"
+      wrapClassName={`modal-wrap studio-modal-wrap ${modalProps.wrapClassName ?? ""}`.trim()}
       keyboard={false}
       maskClosable={false}
       okText="提交"

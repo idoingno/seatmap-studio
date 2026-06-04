@@ -6,7 +6,7 @@ import { useClickAway, useEventListener } from "ahooks";
 import { MatrixAllRowsOrColumns, MatrixSize, Session, getGraph } from "../../config";
 import type { Node } from "@antv/x6";
 import { buildMatrixMenuIndex, getNodeChildren, resizeProscenium, resizeWindow, setAllCorridorColumnH } from "../../utils/util";
-import SvgIcon from "../../Components/SvgIcon";
+import AppIcon from "../../Components/AppIcon";
 import { message } from "antd";
 import { delNode, delPersonnel, updateGraphics, updateNode } from "../../utils/apiParams";
 import { handleCpApi } from "../../api";
@@ -432,16 +432,16 @@ export const MinusMenuNode = memo(() => {
   return show ? (
     <div className="menu-dialog" ref={awayRef}>
       <div className="items" ref={upRef}>
-        <SvgIcon svgName="del-top" color="#000000" /> 删除最上 1 行
+        <AppIcon name="removeTop" className="menu-item-icon" /> 删除最上 1 行
       </div>
       <div className="items" ref={downRef}>
-        <SvgIcon svgName="del-bottom" color="#000000" /> 删除最下 1 行
+        <AppIcon name="removeBottom" className="menu-item-icon" /> 删除最下 1 行
       </div>
       <div className="items" ref={leftRef}>
-        <SvgIcon svgName="del-left" color="#000000" /> 删除最左 1 列
+        <AppIcon name="removeLeft" className="menu-item-icon" /> 删除最左 1 列
       </div>
       <div className="items" ref={rightRef}>
-        <SvgIcon svgName="del-right" color="#000000" /> 删除最右 1 列
+        <AppIcon name="removeRight" className="menu-item-icon" /> 删除最右 1 列
       </div>
     </div>
   ) : (

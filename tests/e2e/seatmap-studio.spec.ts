@@ -8,7 +8,7 @@ test.describe("Seatmap Studio", () => {
   test.describe.configure({ mode: "serial" });
 
   const createMatrix = async (page: Page, rows: string, columns: string) => {
-    await expect(page.getByText("已加载最新版本")).toBeVisible();
+    await expect(page.getByText("已同步到最新版本")).toBeVisible();
     await page.waitForFunction(
       () => Boolean((window as any).__SEATMAP_STUDIO_GRAPH__) && typeof (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__ === "function",
       undefined,
@@ -78,7 +78,7 @@ test.describe("Seatmap Studio", () => {
 
     await expect(page).toHaveTitle(/Seatmap Studio/);
     await expect(page.getByText("会议室布局")).toBeVisible();
-    await expect(page.getByText("已加载最新版本")).toBeVisible();
+    await expect(page.getByText("已同步到最新版本")).toBeVisible();
     await expect(page.getByText("所属组织(4)")).toBeVisible();
     await expect(page.getByText("全球合伙人(2)")).toBeVisible();
     await expect(page.getByText("Product")).toBeVisible();
@@ -90,7 +90,7 @@ test.describe("Seatmap Studio", () => {
   test("guards Excel export until a layout exists", async ({ page }) => {
     await page.goto("/");
 
-    await page.getByText("下载Excel模板").click();
+    await page.getByRole("button", { name: /下载 Excel 模板/ }).click();
 
     await expect(page.getByText("请先创建一个布局，再下载 Excel 模板")).toBeVisible();
   });
@@ -98,7 +98,7 @@ test.describe("Seatmap Studio", () => {
   test("guards seat upload until a file is selected", async ({ page }) => {
     await page.goto("/");
 
-    await page.getByText("上传座位").click();
+    await page.getByRole("button", { name: /上传座位配置/ }).click();
     await expect(page.getByText("上传配置")).toBeVisible();
     await page.locator(".ant-modal").filter({ hasText: "上传配置" }).getByRole("button", { name: /提\s*交/ }).click();
 
@@ -116,7 +116,7 @@ test.describe("Seatmap Studio", () => {
     await page.locator(".ant-modal").filter({ hasText: "模板选择" }).getByRole("button", { name: /提\s*交/ }).click();
     await expect(page.getByText("操作完成~")).toBeVisible();
 
-    await page.getByText("上传座位").click();
+    await page.getByText("上传座位配置").click();
     await expect(page.getByText("上传配置")).toBeVisible();
     await page.locator('input[type="file"]').setInputFiles(workbookPath);
     await page.locator(".ant-modal").filter({ hasText: "上传配置" }).getByRole("button", { name: /提\s*交/ }).click();
@@ -222,7 +222,7 @@ test.describe("Seatmap Studio", () => {
     await createMatrix(page, "2", "3");
     await expect(page.getByText("第1排")).toBeVisible();
 
-    await page.locator("header .middle").getByText("清空").click();
+    await page.locator("header .middle").getByText("清空画布").click();
     await expect(page.getByText("清空配置")).toBeVisible();
     await page.getByRole("button", { name: "清空布局" }).click();
     await page.locator(".ant-modal").filter({ hasText: "清空配置" }).getByRole("button", { name: /提\s*交/ }).click();
@@ -242,7 +242,7 @@ test.describe("Seatmap Studio", () => {
     });
 
     await page.goto("/");
-    await expect(page.getByText("已加载最新版本")).toBeVisible();
+    await expect(page.getByText("已同步到最新版本")).toBeVisible();
     await page.waitForTimeout(750);
 
     const start = Date.now();
@@ -263,7 +263,7 @@ test.describe("Seatmap Studio", () => {
     const perfState = await page.evaluate(() => (window as any).__SEATMAP_STUDIO_PERF__ ?? null);
 
     const clickStart = Date.now();
-    await page.locator(".x6-graph").click({ position: { x: 500, y: 250 } });
+    await page.locator(".x6-graph").click({ position: { x: 760, y: 180 }, force: true });
     const clickDuration = Date.now() - clickStart;
 
     expect(modelNodes).toBeGreaterThanOrEqual(2_500);
@@ -279,7 +279,7 @@ test.describe("Seatmap Studio", () => {
     test.setTimeout(45_000);
 
     await page.goto("/");
-    await expect(page.getByText("已加载最新版本")).toBeVisible();
+    await expect(page.getByText("已同步到最新版本")).toBeVisible();
     await page.waitForTimeout(750);
 
     await page.evaluate(async () => {

@@ -21,6 +21,8 @@ import { useSelector } from "react-redux";
 import { runGraphBatch } from "./utils/graphBatch";
 import { syncGraphPerformanceMode } from "./utils/graphPerformance";
 import { ensureEditorInteractionRuntime, ensureEditorNodeRuntime } from "./utils/editorRuntime";
+import AppIcon from "./Components/AppIcon";
+import "./style.less";
 
 const prefixCls = "clickpaas-customize-component-1691398243116";
 const CustomNodeCollapsePanel = React.lazy(() => import("./CustomNodeCollapsePanel"));
@@ -45,6 +47,7 @@ const App = ({ closeApp }: AppProps) => {
   const sessionId = Session.getDataId;
 
   const { nodes, setNodes, edges, setEdges, graph: gRef, setGraph } = useGraphState();
+  const [graphInstance, setGraphInstance] = useState<any>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
   // const colorEditRef = useRef(null);
@@ -55,9 +58,19 @@ const App = ({ closeApp }: AppProps) => {
 
   const [refresh, setRefresh] = useState<boolean>(false);
   const customNodeCollapsePanelRef = useRef<{ getData?: () => void } | null>(null);
+  const stageShellRef = useRef<HTMLDivElement | null>(null);
+  const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
 
   const [, updateState] = useState<any>();
   const forceUpdate = useCallback(() => updateState({}), []);
+  const handleGraphRef = useCallback(
+    (instance: any) => {
+      gRef.current = instance;
+      setGraph(instance);
+      setGraphInstance(instance);
+    },
+    [gRef, setGraph]
+  );
 
   useEffect(() => {
     refresh && setTimeout(() => setRefresh(false));
@@ -67,6 +80,40 @@ const App = ({ closeApp }: AppProps) => {
   // 拖拽
   const dropRef = useRef(null);
   toDrop(dropRef);
+
+  useEffect(() => {
+    const stageEl = stageShellRef.current;
+    if (!stageEl) {
+      return;
+    }
+
+    const updateStageSize = () => {
+      const nextWidth = Math.max(0, Math.floor(stageEl.clientWidth));
+      const nextHeight = Math.max(0, Math.floor(stageEl.clientHeight));
+
+      setStageSize((prev) => {
+        if (prev.width === nextWidth && prev.height === nextHeight) {
+          return prev;
+        }
+
+        return { width: nextWidth, height: nextHeight };
+      });
+    };
+
+    updateStageSize();
+
+    const observer = new ResizeObserver(() => {
+      updateStageSize();
+    });
+
+    observer.observe(stageEl);
+    window.addEventListener("resize", updateStageSize);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateStageSize);
+    };
+  }, []);
 
   const query = async () => {
     setLoading(true);
@@ -134,7 +181,10 @@ const App = ({ closeApp }: AppProps) => {
 
 
   useEffect(() => {
-    const graph = gRef.current;
+    const graph = graphInstance;
+    if (!graph) {
+      return;
+    }
     let cancelled = false;
     let interactionTimer: number | undefined;
 
@@ -172,17 +222,17 @@ const App = ({ closeApp }: AppProps) => {
         window.clearTimeout(interactionTimer);
       }
     };
-  }, []);
+  }, [graphInstance, sessionId]);
 
   loadTree$.useSubscription(() => {
     query();
   });
 
   return (
-    <div className={prefixCls} style={{ width: "100%", height: "100%" }}>
-      <Spin spinning={loading} delay={500} wrapperClassName="spin-wrap" tip="努力加载数据中, 请稍后...">
-        <>
-          <Suspense fallback={<div style={{ height: 48, borderBottom: "1px solid #eee", background: "#fff" }} />}>
+    <div className={`${prefixCls} seatmap-studio-shell`}>
+      <Spin spinning={loading} delay={500} wrapperClassName="spin-wrap seatmap-studio-spin" tip="Seatmap Studio 正在装载工作台...">
+        <div className="seatmap-studio-frame">
+          <Suspense fallback={<div className="seatmap-header-skeleton" />}>
             <CustomNodeHeader
               setPageLoading={setLoading}
               // setShowTemplate={() => UserModalRef.current?.open({ mapUrl })}
@@ -194,11 +244,11 @@ const App = ({ closeApp }: AppProps) => {
             />
           </Suspense>
 
-          <div style={{ display: "flex" }}>
+          <div className={`seatmap-studio-workspace${refresh ? " seatmap-studio-workspace--refreshing" : ""}`}>
             {refresh ? (
-              <></>
+              <div className="seatmap-sidebar-placeholder" aria-hidden="true" />
             ) : (
-              <Suspense fallback={<div style={{ width: 260, flex: "0 0 260px", background: "#fff" }} />}>
+              <Suspense fallback={<div className="seatmap-sidebar-skeleton" />}>
                 <CustomNodeCollapsePanel
                   onRef={customNodeCollapsePanelRef}
                   loadTree$={loadTree$}
@@ -207,42 +257,65 @@ const App = ({ closeApp }: AppProps) => {
                 />
               </Suspense>
             )}
-            <div ref={dropRef}>
-              <Graph
-                background={background}
-                panning
-                scaling={scaling}
-                mousewheel={mousewheel}
-                width={window.innerWidth - 260}
-                height={window.innerHeight - 48}
-                async={true}
-                virtual={true}
-                interacting={interacting}
-                translating={translating}
-                // embedding={embedding}
-                // virtual={true}
-                autoResize={true}
-                ref={gRef}
-              >
-                <GraphBehavior />
-                <CanvasScaleToolbar />
-              </Graph>
+            <div ref={dropRef} className="seatmap-stage-shell">
+              <div ref={stageShellRef} className="seatmap-stage-surface">
+                {stageSize.width > 0 && stageSize.height > 0 ? (
+                  <Graph
+                    background={background}
+                    panning
+                    scaling={scaling}
+                    mousewheel={mousewheel}
+                    width={stageSize.width}
+                    height={stageSize.height}
+                    async={true}
+                    virtual={true}
+                    interacting={interacting}
+                    translating={translating}
+                    // embedding={embedding}
+                    // virtual={true}
+                    autoResize={true}
+                    ref={handleGraphRef}
+                  >
+                    <GraphBehavior />
+                    <CanvasScaleToolbar />
+                  </Graph>
+                ) : null}
+              </div>
+              <div className="seatmap-stage-chrome">
+                <div className="stage-chrome-copy">
+                  <span className="stage-kicker">
+                    <AppIcon name="sparkle" className="stage-kicker-icon" />
+                    Live Canvas
+                  </span>
+                  <span className="stage-title">排座画布</span>
+                  <span className="stage-copy">拖拽素材构建空间，框选座位后可直接分区与命名。</span>
+                </div>
+                <div className="stage-chrome-badges">
+                  <span className="stage-badge">
+                    <AppIcon name="matrixLayout" className="stage-badge-icon" />
+                    Matrix / Round / Aisle
+                  </span>
+                  <span className="stage-badge">
+                    <AppIcon name="palette" className="stage-badge-icon" />
+                    Select to Paint
+                  </span>
+                </div>
+              </div>
+              <Suspense fallback={null}>
+                <ColorPanel setColorObj={setColorObj} />
+              </Suspense>
+              <Suspense fallback={null}>
+                <ColorEdit colorObj={colorObj} />
+              </Suspense>
             </div>
           </div>
-        </>
-
-        <Suspense fallback={null}>
-          <CircleUpdateName />
-        </Suspense>
-        <Suspense fallback={null}>
-          <ChairCard />
-        </Suspense>
-        <Suspense fallback={null}>
-          <ColorPanel setColorObj={setColorObj} />
-        </Suspense>
-        <Suspense fallback={null}>
-          <ColorEdit colorObj={colorObj} />
-        </Suspense>
+          <Suspense fallback={null}>
+            <CircleUpdateName />
+          </Suspense>
+          <Suspense fallback={null}>
+            <ChairCard />
+          </Suspense>
+        </div>
       </Spin>
     </div>
   );

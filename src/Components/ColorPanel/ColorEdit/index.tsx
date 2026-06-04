@@ -44,6 +44,9 @@ const ColorEdit: React.FC<any> = ({ colorObj }) => {
       setLoading(false);
 
       const graph = getGraph();
+      if (!graph) {
+        return;
+      }
       let newNodes: any = [];
       arr.forEach((item) => {
         let nodes: any = [];
@@ -83,6 +86,9 @@ const ColorEdit: React.FC<any> = ({ colorObj }) => {
 
   useUpdateEffect(() => {
     const graph = getGraph();
+    if (!graph || !colorObj) {
+      return;
+    }
     const nodes = graph.getNodes();
     const filtNode = nodes.filter(
       (item) =>
@@ -138,6 +144,9 @@ const ColorEdit: React.FC<any> = ({ colorObj }) => {
     if (previousValue !== currentValue) {
       if (currentValue) {
         const graph = getGraph();
+        if (!graph) {
+          return;
+        }
         const nodes = graph.getNodes();
         const filtNode = nodes.filter(
           (item) =>
@@ -185,9 +194,17 @@ const ColorEdit: React.FC<any> = ({ colorObj }) => {
   //   return state.other.isLoad;
   // };
 
+  if (!colorList || colorList.length === 0) {
+    return null;
+  }
+
   return (
     <div className="color-edit">
       <div className="color-edit-in">
+        <div className="color-edit-head">
+          <span className="color-edit-kicker">Regions</span>
+          <span className="color-edit-title">区域命名</span>
+        </div>
         <Spin spinning={loading}>
           {colorList &&
             colorList.map((ite: ColorItemType, index: number) => {
@@ -203,7 +220,7 @@ const ColorEdit: React.FC<any> = ({ colorObj }) => {
 
                   {ite.type === "edit" ? (
                     <Input
-                      style={{ width: "150px" }}
+                      className="color-edit-input"
                       onBlur={(e) => {
                         updateData(index, "show", e);
                       }}

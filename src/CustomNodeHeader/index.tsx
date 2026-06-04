@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ArrowLeftOutlined, CheckCircleOutlined, LoadingOutlined } from "@ant-design/icons";
-
-import { img_export_seat, img_seat_empty, img_seat_download, img_seat_upload, img_seat_save } from "../assets";
+import { LoadingOutlined } from "@ant-design/icons";
 import "./index.less";
 import { message } from "antd";
 import { AlphabeticSerialNumber, CPForm, getGraph } from "../config";
@@ -14,6 +12,7 @@ import { useSelector } from "react-redux";
 import { useCallbackState } from "../hooks/useCallbackState";
 import { lazyForm } from "../Components/useFormModal/lazyForm";
 import { exportSeatTemplate } from "../utils/excel/exportSeatTemplate";
+import AppIcon from "../Components/AppIcon";
 
 const LayoutClearForm = lazyForm(() => import("../Components/useFormModal/LayoutClearForm"));
 const UploadFileForm = lazyForm(() => import("../Components/useFormModal/UploadFileForm"));
@@ -326,68 +325,83 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
   // };
 
   return (
-    <header>
-      <div className="container-header">
-        <div className="left">
-          {closeApp ? <ArrowLeftOutlined onClick={closeApp} style={{ marginRight: "20px" }} /> : null}
-          <span className="text">会议室布局</span>
-
+    <>
+      <header className="container-header">
+        <div className="left header-block">
+          {closeApp ? (
+            <button type="button" className="back-button" aria-label="返回" onClick={closeApp}>
+              <AppIcon name="arrowLeft" />
+            </button>
+          ) : null}
+          <div className="brand-lockup">
+            <span className="eyebrow">Seatmap Studio</span>
+            <span className="text">会议室布局编辑台</span>
+          </div>
           <div className="save-status">
+            <span className={`status-dot ${loading ? "is-loading" : "is-ready"}`} />
             {loading ? (
               <>
-                <LoadingOutlined /> <span className="save-status-text">自动保存中…</span>
+                <LoadingOutlined /> <span className="save-status-text">自动保存中</span>
               </>
             ) : (
               <>
-                <CheckCircleOutlined />
-                <span className="save-status-text">{time ? `已保存 ${time}` : `已加载最新版本`}</span>
+                <AppIcon name="statusReady" className="save-status-icon" />
+                <span className="save-status-text">{time ? `已保存 ${time}` : `已同步到最新版本`}</span>
               </>
             )}
           </div>
         </div>
-        <div className="middle">
-          <div onClick={toEmpty}>
-            <img src={img_seat_empty} />
-            清空
-          </div>
-          <div onClick={exportToExcel}>
-            <img src={img_seat_download} />
-            下载Excel模板
-          </div>
-          <div onClick={toUpload}>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <img src={img_seat_upload} />
-              <span>上传座位</span>
-            </div>
-          </div>
+        <div className="middle header-block">
+          <button type="button" className="header-tool" onClick={toEmpty}>
+            <AppIcon name="clearCanvas" className="tool-icon" />
+            <span>清空画布</span>
+          </button>
+          <button type="button" className="header-tool" onClick={exportToExcel}>
+            <AppIcon name="downloadSheet" className="tool-icon" />
+            <span>下载 Excel 模板</span>
+          </button>
+          <button type="button" className="header-tool" onClick={toUpload}>
+            <AppIcon name="uploadSheet" className="tool-icon" />
+            <span>上传座位配置</span>
+          </button>
         </div>
-        <div className="right">
+        <div className="right header-block">
           <button type="button" className="action-button" data-testid="export-seatmap-button" onClick={exportSeat}>
-            <img src={img_export_seat} />
+            <AppIcon name="exportImage" className="action-icon" />
+            <span className="action-text-group">
+              <span className="action-eyebrow">Export</span>
+              <span className="action-label">
             {imgLoading ? (
               <>
-                <LoadingOutlined style={{ marginRight: "5px" }} /> 导出中...
+                    <LoadingOutlined style={{ marginRight: "5px" }} /> 导出中...
               </>
             ) : (
-              <span>导出座位图</span>
+                    <span>导出座位图</span>
             )}
+              </span>
+            </span>
           </button>
           <button type="button" className="action-button" data-testid="save-template-button" onClick={saveTemplate}>
-            <img src={img_seat_save} />
+            <AppIcon name="saveTemplate" className="action-icon" />
+            <span className="action-text-group">
+              <span className="action-eyebrow">Template</span>
+              <span className="action-label">
             {templateLoading ? (
               <>
-                <LoadingOutlined style={{ marginRight: "5px" }} /> 获取图像...
+                    <LoadingOutlined style={{ marginRight: "5px" }} /> 获取图像...
               </>
             ) : (
-              <span>另存为模板</span>
+                    <span>另存为模板</span>
             )}
+              </span>
+            </span>
           </button>
         </div>
-      </div>
+      </header>
       <LayoutClearModal />
       <UploadFileModal setRefresh={setRefresh} getData={getData} refreshPeople={refreshPeople} />
       <UserModal />
-    </header>
+    </>
   );
 };
 

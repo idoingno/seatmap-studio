@@ -1,20 +1,58 @@
 .color-edit {
-    background-color: transparent;
-    left: 270px;
-    top: 150px;
-    position: absolute;
-    z-index: 1000;
+  position: fixed;
+  left: 376px;
+  top: 198px;
+  z-index: 1000;
 
-    .color-edit-row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-    }
+  .color-edit-in {
+    min-width: 228px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    border: 1px solid rgba(194, 165, 178, 0.16);
+    background:
+      linear-gradient(180deg, rgba(255, 252, 247, 0.96), rgba(245, 239, 230, 0.9)),
+      rgba(255, 252, 247, 0.88);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 18px 34px rgba(137, 108, 129, 0.14);
+  }
 
-    .color-edit-square {
-        display: inline-block;
-        width: 32px;
-        height: 32px;
-        margin-right: 20px;
-    }
+  .color-edit-head {
+    display: grid;
+    gap: 3px;
+    margin-bottom: 14px;
+  }
+
+  .color-edit-kicker {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(216, 79, 120, 0.8);
+  }
+
+  .color-edit-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #473646;
+  }
+
+  .color-edit-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    color: #684f65;
+  }
+
+  .color-edit-square {
+    display: inline-block;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    flex: 0 0 26px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  }
+
+  .color-edit-input {
+    width: 160px;
+  }
 }

@@ -35,7 +35,11 @@ const InitMatrixForm = (
   };
 
   return (
-    <div className="form">
+    <div className="form studio-form-shell">
+      <div className="studio-form-intro">
+        <span className="studio-form-kicker">Matrix</span>
+        <span className="studio-form-copy">设定排数与列数，生成适合会场的大规模矩阵布局。</span>
+      </div>
       <Form onFinish={onSubmit} ref={ref} form={form} labelCol={{ span: 6 }} wrapperCol={{ span: 14 }}>
         <Form.Item
           label="排数:"

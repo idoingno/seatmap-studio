@@ -2,7 +2,6 @@ import { register } from "x6-html-shape";
 import createRender from "x6-html-shape/dist/react17";
 import React, { memo, useEffect, useRef, useState } from "react";
 import { MATRIX_OFFSET_DISTANCE } from "../../GlobalVar";
-import { ArrowDownOutlined, ArrowLeftOutlined, ArrowRightOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { useClickAway, useEventListener } from "ahooks";
 import { MatrixAllRowsOrColumns, MatrixSize, Session, getGraph } from "../../config";
 import type { Node } from "@antv/x6";
@@ -20,6 +19,7 @@ import { updateGraphics, updateNode } from "../../utils/apiParams";
 import { handleCpApi } from "../../api";
 import { runGraphBatch } from "../../utils/graphBatch";
 import { syncGraphPerformanceMode } from "../../utils/graphPerformance";
+import AppIcon from "../../Components/AppIcon";
 
 export const AddMenuNode = memo(() => {
   const [show, setShow] = useState(true);
@@ -459,16 +459,16 @@ export const AddMenuNode = memo(() => {
   return show ? (
     <div className="menu-dialog" ref={awayRef}>
       <div className="items" ref={upRef}>
-        <ArrowUpOutlined /> 插入最上 1 行
+        <AppIcon name="addTop" className="menu-item-icon" /> 插入最上 1 行
       </div>
       <div className="items" ref={downRef}>
-        <ArrowDownOutlined /> 插入最下 1 行
+        <AppIcon name="addBottom" className="menu-item-icon" /> 插入最下 1 行
       </div>
       <div className="items" ref={leftRef}>
-        <ArrowLeftOutlined /> 插入最左 1 列
+        <AppIcon name="addLeft" className="menu-item-icon" /> 插入最左 1 列
       </div>
       <div className="items" ref={rightRef}>
-        <ArrowRightOutlined /> 插入最右 1 列
+        <AppIcon name="addRight" className="menu-item-icon" /> 插入最右 1 列
       </div>
     </div>
   ) : (

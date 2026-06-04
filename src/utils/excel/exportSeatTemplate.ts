@@ -20,21 +20,12 @@ const writeExcelFile = (fileName: string, content: BlobPart) => {
 };
 
 export const exportSeatTemplate = async () => {
-  const cpForm = CPForm.getForm;
-
-  const venueName = cpForm["K2582458"].text;
-  const venueStartTime = cpForm["K2460125"].value;
-  const venueEndTime = cpForm["K2460124"].value;
-  const venuePosition = cpForm["K2460459"].text;
-
-  const fileName = `${venueName}-人员排座模板.xlsx`;
-  const sheetName = "Sheet1";
-  const headerName = "RequestsList";
-
-  let headerColumnArr: { name: string }[] = [];
-  let rowArr: Array<Array<string | number>> = [];
-
   const graph: Graph = getGraph();
+  if (!graph) {
+    message.warning("编辑器正在初始化，请稍后再试");
+    return;
+  }
+
   const nodes = graph.getNodes();
   const container = nodes.find((item) => item.data?.nodeType?.includes("Container"));
 
@@ -42,6 +33,19 @@ export const exportSeatTemplate = async () => {
     message.warning("请先创建一个布局，再下载 Excel 模板");
     return;
   }
+
+  const cpForm = CPForm.getForm ?? {};
+  const venueName = cpForm["K2582458"]?.text || "Seatmap Studio";
+  const venueStartTime = cpForm["K2460125"]?.value || "--";
+  const venueEndTime = cpForm["K2460124"]?.value || "--";
+  const venuePosition = cpForm["K2460459"]?.text || "--";
+
+  const fileName = `${venueName}-人员排座模板.xlsx`;
+  const sheetName = "Sheet1";
+  const headerName = "RequestsList";
+
+  let headerColumnArr: { name: string }[] = [];
+  let rowArr: Array<Array<string | number>> = [];
 
   if (container.data.nodeType === "matrixContainer") {
     headerColumnArr = [{ name: "排数/座位号" }];

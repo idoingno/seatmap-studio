@@ -113,15 +113,19 @@ const SelectTemplateForm = (
   };
 
   return (
-    <div className="form template-select-form">
+    <div className="form studio-form-shell template-select-form">
+      <div className="studio-form-intro">
+        <span className="studio-form-kicker">Template Library</span>
+        <span className="studio-form-copy">从已有模板快速接管布局，适合复刻同类会场或活动排布。</span>
+      </div>
       <Input
         value={inputSearchValue}
         onChange={(e) => {
           inputOnChange(e);
         }}
         prefix={<SearchOutlined />}
-        placeholder="搜索"
-        style={{ marginBottom: "20px", width: "300px" }}
+        placeholder="搜索模板名称"
+        className="template-search"
       />
       <Form onFinish={onSubmit} ref={ref} form={form}>
         {loading ? <div className="template-grid-empty">模板加载中...</div> : null}

@@ -136,7 +136,11 @@ const UploadFileForm = (
     setSelectedFile(null);
   };
   return (
-    <div className="form">
+    <div className="form studio-form-shell">
+      <div className="studio-form-intro">
+        <span className="studio-form-kicker">Import</span>
+        <span className="studio-form-copy">导入 Excel 座位名单。默认会先清掉当前排座，避免旧数据混入。</span>
+      </div>
       <Form onFinish={onSubmit} ref={ref} form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 14 }}>
         {upLoading ? (
           <>
@@ -145,7 +149,7 @@ const UploadFileForm = (
         ) : (
           <>
             <Form.Item label="文件上传">
-              <div style={{ display: "grid", gap: 8 }}>
+              <div className="studio-upload-stack">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -159,20 +163,12 @@ const UploadFileForm = (
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  style={{
-                    width: "fit-content",
-                    height: 32,
-                    padding: "0 12px",
-                    borderRadius: 6,
-                    border: "1px solid #d9d9d9",
-                    background: "#fff",
-                    cursor: "pointer",
-                  }}
+                  className="studio-upload-button"
                 >
                   <UploadOutlined style={{ marginRight: 6 }} />
                   {selectedFile ? "重新选择文件" : "上传座位"}
                 </button>
-                <span style={{ color: selectedFile ? "#262626" : "#8c8c8c", lineHeight: "20px" }}>
+                <span className={`studio-upload-file${selectedFile ? " is-selected" : ""}`}>
                   {selectedFile ? selectedFile.name : "请选择 Excel 座位文件"}
                 </span>
               </div>

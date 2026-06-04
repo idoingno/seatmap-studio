@@ -7,7 +7,6 @@ import React, { Suspense, useEffect, useImperativeHandle, useRef, useState } fro
 // import { NodeCollapseObj, nodes } from "../config";
 // import { useDrop, useDrag } from "ahooks";
 import DragMaterial from "./DragMaterial";
-import { CaretRightOutlined } from "@ant-design/icons";
 import { getGraph, panelArr, panelType } from "../config";
 // import Draggable from "react-draggable";
 // import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -19,6 +18,7 @@ import { useSelector } from "react-redux";
 import { EventEmitter } from "ahooks/lib/useEventEmitter";
 import useFormModal from "../Components/useFormModal";
 import { lazyForm } from "../Components/useFormModal/lazyForm";
+import AppIcon from "../Components/AppIcon";
 
 const PersonTree = React.lazy(() => import("./PersonTree"));
 const SelectTemplateForm = lazyForm(() => import("../Components/useFormModal/SelectTemplateForm"));
@@ -114,8 +114,12 @@ const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, loadTree$, g
   return (
     <div className="stencil-app" ref={dndContainerRef}>
       <div className="top">
-        <span>布局</span>
+        <div className="top-copy">
+          <span className="panel-kicker">Studio Deck</span>
+          <span className="panel-title">布局素材与排座</span>
+        </div>
         <button type="button" className="panel-action-button" onClick={importTemplate}>
+          <AppIcon name="importTemplate" className="panel-action-icon" />
           引入模板
         </button>
       </div>
@@ -123,28 +127,34 @@ const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, loadTree$, g
         <div className="stencil-sections">
           <section className="stencil-section">
             <button type="button" className="section-header" onClick={() => toggleSection("layout")}>
-              <span>场景布局</span>
-              <CaretRightOutlined rotate={sectionOpen("layout") ? 90 : 0} />
+              <span className="section-title-group">
+                <span className="section-kicker">Canvas</span>
+                <span>场景布局</span>
+              </span>
+              <AppIcon name="chevronRight" className={`section-chevron${sectionOpen("layout") ? " is-open" : ""}`} />
             </button>
             {sectionOpen("layout") ? (
               <div className="section-body">
-            <div className="grid-list">
-              {list &&
-                list.map((m: panelType) => {
-                  return <DragMaterial key={m.id} child={m} />;
-                })}
-            </div>
+                <div className="grid-list">
+                  {list &&
+                    list.map((m: panelType) => {
+                      return <DragMaterial key={m.id} child={m} />;
+                    })}
+                </div>
               </div>
             ) : null}
           </section>
           <section className="stencil-section">
             <button type="button" className="section-header" onClick={() => toggleSection("people")}>
-              <span>人员排座</span>
-              <CaretRightOutlined rotate={sectionOpen("people") ? 90 : 0} />
+              <span className="section-title-group">
+                <span className="section-kicker">Roster</span>
+                <span>人员排座</span>
+              </span>
+              <AppIcon name="chevronRight" className={`section-chevron${sectionOpen("people") ? " is-open" : ""}`} />
             </button>
             {sectionOpen("people") ? (
               <div className="section-body">
-                <Suspense fallback={<div style={{ minHeight: 320, background: "#fff" }} />}>
+                <Suspense fallback={<div className="person-tree-fallback" />}>
                   <PersonTree onRef={innerRef} loadTree$={loadTree$} />
                 </Suspense>
               </div>

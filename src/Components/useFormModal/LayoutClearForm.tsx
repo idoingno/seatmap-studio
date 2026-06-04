@@ -100,30 +100,26 @@ const LayoutClearForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?
     form.resetFields();
   };
   return (
-    <div className="form">
+    <div className="form studio-form-shell">
+      <div className="studio-form-intro">
+        <span className="studio-form-kicker">Reset</span>
+        <span className="studio-form-copy">保留布局结构或整体重置，避免误清空时看不出区别。</span>
+      </div>
       <Form onFinish={onSubmit} ref={ref} form={form} wrapperCol={{ span: 24 }}>
-        <div style={{ display: "flex", gap: 12 }}>
+        <div className="studio-choice-row">
           {[
-            { label: "清空座位", nextValue: 1 },
-            { label: "清空布局", nextValue: 2 },
+            { label: "清空座位", copy: "保留场地结构，只移除已安排人员。", nextValue: 1 },
+            { label: "清空布局", copy: "移除全部节点与布局配置，回到空白画布。", nextValue: 2 },
           ].map((item) => (
             <button
               key={item.nextValue}
               type="button"
               onClick={() => setValue(item.nextValue)}
               aria-pressed={value === item.nextValue}
-              style={{
-                minWidth: 96,
-                height: 36,
-                padding: "0 16px",
-                borderRadius: 6,
-                border: value === item.nextValue ? "1px solid #b39372" : "1px solid #d9d9d9",
-                background: value === item.nextValue ? "rgba(179, 147, 114, 0.08)" : "#fff",
-                color: value === item.nextValue ? "#b39372" : "#262626",
-                cursor: "pointer",
-              }}
+              className={`studio-choice-button${value === item.nextValue ? " is-active" : ""}`}
             >
-              {item.label}
+              <span className="studio-choice-title">{item.label}</span>
+              <span className="studio-choice-copy">{item.copy}</span>
             </button>
           ))}
         </div>

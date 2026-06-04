@@ -1,5 +1,6 @@
 import type { FormInstance, ModalProps } from "antd";
 import React, { PropsWithoutRef, Suspense, forwardRef, useCallback, useImperativeHandle, useRef, useState } from "react";
+import "./index.less";
 
 const ModalShell = React.lazy(() => import("./ModalShell"));
 
