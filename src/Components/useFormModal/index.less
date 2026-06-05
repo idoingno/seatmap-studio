@@ -1,7 +1,158 @@
-.modal-wrap {
-    .ant-row {
-        display: flex;
-        justify-content: space-evenly;
+.studio-modal-wrap {
+  .ant-modal {
+    top: 32px;
+  }
+
+  .ant-modal-content {
+    overflow: hidden;
+  }
+
+  .ant-modal-header {
+    padding: 18px 24px 16px;
+  }
+
+  .ant-modal-title {
+    font-family: "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-size: 24px;
+    line-height: 1.15;
+    color: #342738;
+    font-weight: 700;
+  }
+
+  .ant-modal-body {
+    padding: 20px 24px 24px;
+  }
+
+  .ant-modal-footer {
+    padding: 14px 24px 22px;
+    border-top: 1px solid rgba(194, 165, 178, 0.14);
+  }
+
+  .form {
+    color: #4e3c4e;
+  }
+
+  .studio-form-shell {
+    display: grid;
+    gap: 18px;
+  }
+
+  .studio-form-intro {
+    display: grid;
+    gap: 6px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(194, 165, 178, 0.14);
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  .studio-form-kicker {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(216, 79, 120, 0.8);
+  }
+
+  .studio-form-copy {
+    font-size: 13px;
+    line-height: 1.6;
+    color: rgba(88, 67, 87, 0.76);
+  }
+
+  .ant-form {
+    .ant-form-item {
+      margin-bottom: 16px;
     }
 
+    .ant-form-item-label > label {
+      height: auto;
+      font-size: 13px;
+      color: rgba(78, 61, 78, 0.86);
+    }
+
+    .ant-input,
+    .ant-input-affix-wrapper {
+      min-height: 42px;
+      border-radius: 14px;
+      padding: 8px 14px;
+    }
+
+    .ant-checkbox-inner {
+      background: rgba(255, 255, 255, 0.82);
+      border-color: rgba(194, 165, 178, 0.18);
+    }
+  }
+
+  .studio-choice-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .studio-choice-button {
+    min-height: 82px;
+    padding: 14px 14px 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(150, 126, 91, 0.12);
+    background: rgba(255, 255, 255, 0.74);
+    text-align: left;
+    color: #503f2c;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      border-color: rgba(251, 114, 153, 0.18);
+      background: rgba(251, 114, 153, 0.12);
+    }
+
+    &.is-active {
+      border-color: rgba(251, 114, 153, 0.3);
+      background:
+        linear-gradient(135deg, rgba(251, 114, 153, 0.16), rgba(255, 255, 255, 0.82)),
+        rgba(255, 255, 255, 0.74);
+      box-shadow: 0 0 0 1px rgba(251, 114, 153, 0.12);
+    }
+  }
+
+  .studio-choice-title {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #352737;
+  }
+
+  .studio-choice-copy {
+    display: block;
+    font-size: 12px;
+    line-height: 1.45;
+    color: rgba(90, 71, 90, 0.68);
+  }
+
+  .studio-upload-stack {
+    display: grid;
+    gap: 10px;
+  }
+
+  .studio-upload-button {
+    width: fit-content;
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(194, 165, 178, 0.16);
+    background: rgba(255, 255, 255, 0.76);
+    color: #6e536a;
+    cursor: pointer;
+  }
+
+  .studio-upload-file {
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(90, 71, 90, 0.74);
+  }
+
+  .studio-upload-file.is-selected {
+    color: #342738;
+  }
 }

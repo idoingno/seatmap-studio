@@ -85,6 +85,7 @@ export const parentParams = (parentData: ParentDataType, circleData: circleDataT
       label: {
         refY: 120,
         fontSize: 12,
+        fill: "rgba(122, 84, 106, 0.74)",
       },
       body: {
         fill: "transparent",
@@ -123,10 +124,9 @@ export const tableParams = (circleData: circleDataType, circleTableData: any) =>
           cy: circleTableSize / 2,
           r: circleTableSize / 2,
           text: circleData.tableName,
-          fill: "transparent",
-          // stroke: 'transparent',
-          // fill: '#f2d4ad',
-          stroke: "#333",
+          fill: "rgba(251, 114, 153, 0.06)",
+          stroke: "rgba(251, 114, 153, 0.28)",
+          strokeWidth: 2,
           fontSize: 18,
         },
       },
@@ -153,6 +153,9 @@ export const tableParams = (circleData: circleDataType, circleTableData: any) =>
       text1: {
         text: circleData.tableName,
         fontSize: 18,
+        fill: "#6d4f82",
+        fontWeight: 700,
+        fontFamily: '"Helvetica Neue", "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
       },
       text2: {
         // text:
@@ -161,6 +164,8 @@ export const tableParams = (circleData: circleDataType, circleTableData: any) =>
 
         text: circleData.tableNameEn,
         fontSize: 14,
+        fill: "rgba(109, 92, 126, 0.6)",
+        fontFamily: '"Helvetica Neue", "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
       },
     },
   };

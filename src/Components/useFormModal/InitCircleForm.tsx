@@ -33,7 +33,11 @@ const InitCircleForm = (
     store.dispatch(addDargAction("Round"));
   };
   return (
-    <div className="form">
+    <div className="form studio-form-shell">
+      <div className="studio-form-intro">
+        <span className="studio-form-kicker">Round Table</span>
+        <span className="studio-form-copy">快速生成圆桌区，适合宴会、论坛或带讨论属性的场景。</span>
+      </div>
       <Form onFinish={onSubmit} ref={ref} form={form} labelCol={{ span: 6 }} wrapperCol={{ span: 14 }}>
         <Form.Item
           label="圆桌数:"

@@ -1,7 +1,5 @@
-import { CheckOutlined } from "@ant-design/icons";
 import { useSafeState, useUpdateEffect } from "ahooks";
 import React, { useEffect, useState } from "react";
-import { img_color, img_packup } from "../../assets/index";
 import "./index.less";
 import { ColorArr, Session, getGraph } from "../../config";
 import { Node } from "@antv/x6";
@@ -9,6 +7,7 @@ import { ColorItemType } from "./ColorEdit";
 import { Spin, message } from "antd";
 import { updateNodeRegion } from "../../utils/apiParams";
 import { handleCpApi } from "../../api";
+import AppIcon from "../AppIcon";
 
 interface ItemType {
   color?: string;
@@ -46,6 +45,10 @@ const ColorPanel: React.FC<ColorPanelProps> = ({ setColorObj }) => {
 
     setTimeout(async () => {
       const graph = getGraph();
+      if (!graph) {
+        setLoading(false);
+        return;
+      }
       const cells = graph.getSelectedCells();
       if (cells && cells.length === 0) {
         message.error("请选择座位区域！");
@@ -108,35 +111,37 @@ const ColorPanel: React.FC<ColorPanelProps> = ({ setColorObj }) => {
       {panelType === "expand" ? (
         <div className="dv">
           <div className="title">
-            <span>背景色</span>
-            <img className="packupImg" onClick={packup} src={img_packup} />
+            <div className="title-copy">
+              <span className="panel-kicker">Palette</span>
+              <span>背景色</span>
+            </div>
+            <button type="button" className="panel-icon-button" onClick={packup} aria-label="收起配色面板">
+              <AppIcon name="collapsePanel" className="panel-icon" />
+            </button>
           </div>
 
           <Spin spinning={loading}>
             <div className="content">
               {colorData.map((item: ItemType) => (
-                <div
+                <button
+                  type="button"
                   key={item.color}
                   onClick={() => changeCurColor(item)}
+                  className={`color-swatch${item.selected ? " is-selected" : ""}${item.color === "#FFFFFF" ? " is-empty" : ""}`}
                   style={{
                     backgroundColor: `${item.color}`,
-                    border: `1px solid ${item.color === "#FFFFFF" ? "#c2c2c2" : item.color}`,
-                    borderRadius: "4px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
+                    borderColor: `${item.color === "#FFFFFF" ? "rgba(255,255,255,0.18)" : item.color}`,
                   }}
                 >
-                  {item.selected && <CheckOutlined />}
-                </div>
+                  {item.selected && <AppIcon name="check" className="swatch-check-icon" />}
+                </button>
               ))}
             </div>
           </Spin>
         </div>
       ) : (
         <div className="colorDv" onClick={expand}>
-          <img className="color" src={img_color} />
+          <AppIcon name="palette" className="color-trigger-icon" />
           <span>背景色</span>
         </div>
       )}

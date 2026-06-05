@@ -1,4 +1,4 @@
-import { Form, FormInstance, Input, Radio, message } from "antd";
+import { Form, FormInstance, message } from "antd";
 import React, { useState } from "react";
 import { ResponseType, handleCpApi } from "../../api";
 import { Session, getGraph } from "../../config";
@@ -18,11 +18,7 @@ const LayoutClearForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?
   // 获取场次Id
   const sessionId = Session.getDataId;
 
-  const [value, setValue] = useState();
-
-  const onChange = (e: any) => {
-    setValue(e.target.value);
-  };
+  const [value, setValue] = useState<number | undefined>();
 
   const onSubmit = async (values: any) => {
     props.beforeSubmit?.(values);
@@ -31,7 +27,12 @@ const LayoutClearForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?
     const graph = getGraph();
 
     // 清空座位
-    if (values.type === 1) {
+    if (!value) {
+      message.error("请选择选项");
+      return;
+    }
+
+    if (value === 1) {
       store.dispatch(isLoadAction(true));
 
       const nodes = graph.getNodes();
@@ -99,14 +100,29 @@ const LayoutClearForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?
     form.resetFields();
   };
   return (
-    <div className="form">
+    <div className="form studio-form-shell">
+      <div className="studio-form-intro">
+        <span className="studio-form-kicker">Reset</span>
+        <span className="studio-form-copy">保留布局结构或整体重置，避免误清空时看不出区别。</span>
+      </div>
       <Form onFinish={onSubmit} ref={ref} form={form} wrapperCol={{ span: 24 }}>
-        <Form.Item name="type" rules={[{ required: true, message: "请选择选项" }]}>
-          <Radio.Group onChange={onChange} value={value}>
-            <Radio value={1}>清空座位</Radio>
-            <Radio value={2}>清空布局</Radio>
-          </Radio.Group>
-        </Form.Item>
+        <div className="studio-choice-row">
+          {[
+            { label: "清空座位", copy: "保留场地结构，只移除已安排人员。", nextValue: 1 },
+            { label: "清空布局", copy: "移除全部节点与布局配置，回到空白画布。", nextValue: 2 },
+          ].map((item) => (
+            <button
+              key={item.nextValue}
+              type="button"
+              onClick={() => setValue(item.nextValue)}
+              aria-pressed={value === item.nextValue}
+              className={`studio-choice-button${value === item.nextValue ? " is-active" : ""}`}
+            >
+              <span className="studio-choice-title">{item.label}</span>
+              <span className="studio-choice-copy">{item.copy}</span>
+            </button>
+          ))}
+        </div>
       </Form>
     </div>
   );

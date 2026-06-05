@@ -7,13 +7,14 @@ import circleToolsConfig from "./config/Tools/circleToolsConfig";
 import { chairSvg } from "./config/Markup/chair";
 import { generatePersonnel, updateGraphics, updateNode } from "./utils/apiParams";
 import { handleCpApi } from "./api";
-import { Session, getGraph } from "./config";
+import { Session } from "./config";
 import { patternSeat } from "./assets";
 import store from "./store";
 import { showCircleUpdateAction } from "./store/actionCreators";
 import { showCard } from "./Components/ChairCard";
-import { changeSeatChair, isOutChair, sliceText } from "./utils/util";
+import { changeSeatChair, getNodeChildren, isOutChair, sliceText } from "./utils/util";
 import { message } from "antd";
+import { isLargeGraphMode, syncGraphPerformanceMode } from "./utils/graphPerformance";
 
 type C = {
   e?: Event | any;
@@ -25,6 +26,70 @@ type C = {
   previous?: any;
 };
 
+type MatrixNodeIndex = {
+  chairsByColumn: Map<number, Node[]>;
+  chairsByRow: Map<number, Node[]>;
+  columnBottomTextByIdx: Map<number, Node>;
+  columnTopTextByIdx: Map<number, Node>;
+  rowTextByIdx: Map<number, Node>;
+  rowTextEnByIdx: Map<number, Node>;
+};
+
+const buildMatrixNodeIndex = (parent: Node | null | undefined): MatrixNodeIndex => {
+  const index: MatrixNodeIndex = {
+    chairsByColumn: new Map(),
+    chairsByRow: new Map(),
+    columnBottomTextByIdx: new Map(),
+    columnTopTextByIdx: new Map(),
+    rowTextByIdx: new Map(),
+    rowTextEnByIdx: new Map(),
+  };
+
+  const children = getNodeChildren(parent);
+  for (const child of children) {
+    const childNode = child as Node;
+    const nodeData = childNode.data;
+    const idx = Number(nodeData?.idx);
+
+    switch (nodeData?.nodeType) {
+      case "matrixRows":
+        index.rowTextByIdx.set(idx, childNode);
+        break;
+      case "matrixRowsEn":
+        index.rowTextEnByIdx.set(idx, childNode);
+        break;
+      case "matrixColumnTopNum":
+        index.columnTopTextByIdx.set(idx, childNode);
+        break;
+      case "matrixColumnBottomNum":
+        index.columnBottomTextByIdx.set(idx, childNode);
+        break;
+      case "matrixChair": {
+        const [rowKey, columnKey] = String(nodeData.idt ?? "-").split("-");
+        const rowIndex = Number(rowKey);
+        const columnIndex = Number(columnKey);
+
+        if (!Number.isNaN(rowIndex)) {
+          const currentRow = index.chairsByRow.get(rowIndex) ?? [];
+          currentRow.push(childNode);
+          index.chairsByRow.set(rowIndex, currentRow);
+        }
+
+        if (!Number.isNaN(columnIndex)) {
+          const currentColumn = index.chairsByColumn.get(columnIndex) ?? [];
+          currentColumn.push(childNode);
+          index.chairsByColumn.set(columnIndex, currentColumn);
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  return index;
+};
+
 export const GraphBehavior = (): any => {
   const graph = useGraphInstance();
   // 获取场次Id
@@ -34,8 +99,23 @@ export const GraphBehavior = (): any => {
   useMemo(() => {
     const added = (): void => undefined;
     const removed = (): void => undefined;
+    let pendingPerformanceSync = false;
+
+    const schedulePerformanceSync = () => {
+      if (pendingPerformanceSync) {
+        return;
+      }
+
+      pendingPerformanceSync = true;
+      requestAnimationFrame(() => {
+        pendingPerformanceSync = false;
+        syncGraphPerformanceMode(graph);
+      });
+    };
 
     graph.on("cell:removed", removed);
+    graph.on("cell:added", schedulePerformanceSync);
+    graph.on("cell:removed", schedulePerformanceSync);
 
     graph.on("node:change:size", ({ node, options }) => {
       if (options.skipParentHandler) {
@@ -58,7 +138,7 @@ export const GraphBehavior = (): any => {
 
     let pendingTransitionCleanup = false;
     graph.on("node:mousemove", ({ e, node, view }: C) => {
-      if (pendingTransitionCleanup) return;
+      if (pendingTransitionCleanup || isLargeGraphMode(graph)) return;
 
       pendingTransitionCleanup = true;
       requestAnimationFrame(() => {
@@ -85,27 +165,15 @@ export const GraphBehavior = (): any => {
         node.data.nodeType == "matrixColumnTopNum" ||
         node.data.nodeType == "matrixColumnBottomNum"
       ) {
-        const graph = getGraph();
-        const nodes = graph.getNodes();
-
         const { nodeType } = node.data;
-
-        // 更新文字
-        // const nodeParams = updateNode([node], sessionId, node.parent);
-        // await handleCpApi({ params: nodeParams, code: "seat" }, true);
+        const parentNode = (node.parent as Node | undefined) ?? null;
+        const matrixIndex = buildMatrixNodeIndex(parentNode);
 
         if (node.data.nodeType == "matrixRows" || node.data.nodeType == "matrixRowsEn") {
-          const currentMatrixRows = nodes.filter(
-            (ite: Node) => ite.data.nodeType === "matrixRows" && ite.data.idx === node.data.idx
-          );
-          const currentMatrixRowsEn = nodes.filter(
-            (ite: Node) => ite.data.nodeType === "matrixRowsEn" && ite.data.idx === node.data.idx
-          );
-          // 单行
-          const currentRowChair = nodes.filter(
-            (item) => item.data.nodeType === "matrixChair" && item.data.idt.split("-")[0] === String(node.data.idx)
-          );
-          // let rowColumnArr = node.data.idt.split("-");
+          const rowIndex = Number(node.data.idx);
+          const currentMatrixRow = matrixIndex.rowTextByIdx.get(rowIndex);
+          const currentMatrixRowEn = matrixIndex.rowTextEnByIdx.get(rowIndex);
+          const currentRowChair = matrixIndex.chairsByRow.get(rowIndex) ?? [];
 
           let arr: any = [];
           currentRowChair.forEach((element) => {
@@ -126,29 +194,21 @@ export const GraphBehavior = (): any => {
             await handleCpApi({ params: personParams, code: "seat" }, true);
           }
 
-          const allUpdateNode = [...currentRowChair, ...currentMatrixRows, ...currentMatrixRowsEn];
+          const allUpdateNode = [currentMatrixRow, currentMatrixRowEn, ...currentRowChair].filter(Boolean) as Node[];
 
           // 更新文字
           const otherNodeParams = updateNode(allUpdateNode, sessionId, node.parent);
           await handleCpApi({ params: otherNodeParams, code: "seat" }, true);
         } else if (node.data.nodeType == "matrixColumnTopNum" || node.data.nodeType == "matrixColumnBottomNum") {
-          const currentColumnChair: any[] = nodes.filter(
-            (ite: Node) => ite.data.nodeType === "matrixChair" && ite.data.idt.split("-")[1] === String(node.data.idx)
-          );
+          const columnIndex = Number(node.data.idx);
+          const currentColumnChair = matrixIndex.chairsByColumn.get(columnIndex) ?? [];
 
-          // if (node.data.nodeType == "matrixColumnTopNum") {
-          const currentColumnBottomText = nodes.find(
-            (ite: Node) => ite.data.nodeType === "matrixColumnBottomNum" && ite.data.idx === node.data.idx
-          );
+          const currentColumnBottomText = matrixIndex.columnBottomTextByIdx.get(columnIndex);
 
-          currentColumnBottomText.attr("text/text", node.attrs.text.text);
-          // } else {
-          const currentColumnTopText = nodes.find(
-            (ite: Node) => ite.data.nodeType === "matrixColumnTopNum" && ite.data.idx === node.data.idx
-          );
+          currentColumnBottomText?.attr("text/text", node.attrs.text.text);
+          const currentColumnTopText = matrixIndex.columnTopTextByIdx.get(columnIndex);
 
-          currentColumnTopText.attr("text/text", node.attrs.text.text);
-          // }
+          currentColumnTopText?.attr("text/text", node.attrs.text.text);
 
           let arr: any = [];
           currentColumnChair.forEach((element) => {
@@ -169,7 +229,9 @@ export const GraphBehavior = (): any => {
             await handleCpApi({ params: personParams, code: "seat" }, true);
           }
 
-          const allUpdateNode = [currentColumnBottomText, currentColumnTopText, ...currentColumnChair];
+          const allUpdateNode = [currentColumnBottomText, currentColumnTopText, ...currentColumnChair].filter(
+            Boolean
+          ) as Node[];
           // 更新文字
           const otherNodeParams = updateNode(allUpdateNode, sessionId, node.parent);
           await handleCpApi({ params: otherNodeParams, code: "seat" }, true);
@@ -409,7 +471,7 @@ export const GraphBehavior = (): any => {
         await handleCpApi({ params: graphicsParams, code: "seat" }, true);
 
         // 更新子节点
-        const nodeParams = updateNode(node.children, sessionId, node);
+        const nodeParams = updateNode(getNodeChildren(node), sessionId, node);
         await handleCpApi({ params: nodeParams, code: "seat" }, true);
       } else if (
         node.data.nodeType === "windowNode" ||

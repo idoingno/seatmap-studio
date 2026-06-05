@@ -1,6 +1,6 @@
 import { Checkbox } from "antd";
 import React from "react";
-import { TreeDataType } from ".";
+import type { TreeDataType } from "./types";
 import { defaultAvatar, sitOutAvatar, patternPerson, patternSitOutAvatar } from "../../assets";
 
 const getAvatar = (item: any) => {

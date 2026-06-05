@@ -1,6 +1,6 @@
-import { Button, Checkbox, Form, FormInstance, Input, Upload, UploadFile, UploadProps, message } from "antd";
-import React, { useState } from "react";
-import { ResponseType, handleCpApi } from "../../api";
+import { Checkbox, Form, FormInstance, message } from "antd";
+import React, { useRef, useState } from "react";
+import { handleCpApi } from "../../api";
 import { Session, getGraph } from "../../config";
 import { LoadingOutlined, UploadOutlined } from "@ant-design/icons";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
@@ -9,11 +9,13 @@ import { emptyAction, isLoadAction } from "../../store/actionCreators";
 import { delPersonnel } from "../../utils/apiParams";
 import { chairSvg } from "../../config/Markup/chair";
 import { patternSeat } from "../../assets";
+import { importSeatAssignments } from "../../utils/excel/importSeatAssignments";
 
 interface UploadFileFormPropsType {
   //   mapUrl?: string;
   setRefresh?: (val: boolean) => void;
   getData?: () => void;
+  refreshPeople?: () => void;
   beforeSubmit?: (values: any) => void;
   //   afterSubmit?: (values: any, form: FormInstance<any>) => void;
   afterSubmit?: () => void;
@@ -25,88 +27,33 @@ const UploadFileForm = (
 ) => {
   const [form] = Form.useForm();
   const [upLoading, setUpLoading] = useState(false);
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [checked, setChecked] = useState(true);
-
-  const uploadProps: UploadProps = {
-    name: "file",
-    accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel",
-    action: "/",
-    maxCount: 1,
-    onChange: ({ file }) => {
-      if (file.status === "removed") {
-        setFileList([]);
-      } else {
-        setFileList([file]);
-      }
-    },
-    beforeUpload: (file) => {
-      setFileList([file]);
-      return false;
-    },
-    fileList,
-  };
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const onImportExcel = (file: File) => {
     setUpLoading(true);
-    // 获取场次Id
-    const sessionId = Session.getDataId;
-    // 创建FileReader 对象读取
-
-    const fileReader = new FileReader();
-    fileReader.readAsArrayBuffer(file);
-    fileReader.onload = async (e) => {
-      const { default: ExcelJs } = await import("exceljs");
-      const workbook = new ExcelJs.Workbook();
-      // load 方法读取 ArrayBuffer 类型 具体参考文档
-      workbook.xlsx.load(e.target.result as ArrayBuffer).then(async () => {
-        const sheet = workbook.getWorksheet("Sheet1"); // 这里只读取了Sheet1的内容
-
-        const imputData: any = [];
-
-        const v_type = sheet.getCell("A5").text;
-
-        const row_5: any = sheet.getRow(5);
-        sheet.eachRow((row: any, idx: any) => {
-          if (row.values && idx > 5) {
-            let arr = [];
-            for (let i = 1; i < row._cells.length; i++) {
-              const element = row._cells[i];
-              let obj = {
-                name: element.text,
-                idt: `${element.row - 6}-${element.col - 2}`,
-                seat:
-                  v_type !== "人数/桌数"
-                    ? `${row.values[1]}-${row_5._cells[element.col - 1].text}座`
-                    : `${row_5._cells[element.col - 1].text}-${row.values[1]}座`,
-              };
-              arr.push(obj);
-            }
-            imputData.push(...arr);
-          }
-        });
-        // 这里 imputData 就是 Sheet1中的内容了
-        const uploadArr = imputData.filter((item: { name: string; idt: string; seat: string }) => item.name !== "");
-
-        const params = {
-          type: "upload",
-          sessionId,
-          uploadData: JSON.stringify(uploadArr),
-        };
-
-        const { code, subMsgType }: ResponseType = await handleCpApi({ params: params, code: "template" });
+    importSeatAssignments(file)
+      .then(async ({ code, subMsgType }) => {
         if (code === 200 && subMsgType === "success") {
           message.success("操作完成~");
-          props.setRefresh(true);
-          props.getData();
+          props.setRefresh?.(true);
+          if (props.refreshPeople) {
+            props.refreshPeople();
+          } else {
+            props.getData?.();
+          }
         } else {
           message.error("操作失败~");
         }
-
+      })
+      .catch(() => {
+        message.error("Excel 解析失败，请检查模板后重试");
+      })
+      .finally(() => {
         setUpLoading(false);
         props.afterSubmit?.();
       });
-    };
   };
 
   const onCheckChange = (e: CheckboxChangeEvent) => {
@@ -118,6 +65,11 @@ const UploadFileForm = (
     const sessionId = Session.getDataId;
 
     props.beforeSubmit?.(values);
+
+    if (!selectedFile) {
+      message.error("请上传文件");
+      return;
+    }
 
     if (checked) {
       store.dispatch(emptyAction());
@@ -178,12 +130,17 @@ const UploadFileForm = (
       });
     }
 
-    onImportExcel(values.uFile.file);
+    onImportExcel(selectedFile);
 
     form.resetFields();
+    setSelectedFile(null);
   };
   return (
-    <div className="form">
+    <div className="form studio-form-shell">
+      <div className="studio-form-intro">
+        <span className="studio-form-kicker">Import</span>
+        <span className="studio-form-copy">导入 Excel 座位名单。默认会先清掉当前排座，避免旧数据混入。</span>
+      </div>
       <Form onFinish={onSubmit} ref={ref} form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 14 }}>
         {upLoading ? (
           <>
@@ -191,24 +148,30 @@ const UploadFileForm = (
           </>
         ) : (
           <>
-            <Form.Item
-              label="文件上传"
-              name="uFile"
-              rules={[
-                { required: true, message: "请上传文件" },
-                {
-                  validator: (itemProps, value) => {
-                    if (value.fileList.length === 0) {
-                      return Promise.reject(new Error("请上传文件"));
-                    }
-                    return Promise.resolve();
-                  },
-                },
-              ]}
-            >
-              <Upload {...uploadProps} className="upload-file">
-                {fileList.length === 0 ? <Button icon={<UploadOutlined />}>上传座位</Button> : null}
-              </Upload>
+            <Form.Item label="文件上传">
+              <div className="studio-upload-stack">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                  style={{ display: "none" }}
+                  onChange={(event) => {
+                    const nextFile = event.target.files?.[0] ?? null;
+                    setSelectedFile(nextFile);
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="studio-upload-button"
+                >
+                  <UploadOutlined style={{ marginRight: 6 }} />
+                  {selectedFile ? "重新选择文件" : "上传座位"}
+                </button>
+                <span className={`studio-upload-file${selectedFile ? " is-selected" : ""}`}>
+                  {selectedFile ? selectedFile.name : "请选择 Excel 座位文件"}
+                </span>
+              </div>
             </Form.Item>
             <Form.Item label="">
               <Checkbox checked={checked} onChange={onCheckChange}>

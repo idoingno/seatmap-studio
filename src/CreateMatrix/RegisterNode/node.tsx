@@ -6,9 +6,7 @@ import { Graph } from "@antv/x6";
 import { CHAIR_SIZE, PARENTTOPANDBOTTOMHEIGHT, SPACE_SIZE } from "../../GlobalVar";
 import { patternSeat } from "../../assets";
 
-// import { Menu, Dropdown } from "@antv/x6-react-components";
-import "@antv/x6-react-components/es/menu/style/index.css";
-import "@antv/x6-react-components/es/dropdown/style/index.css";
+const NODE_FONT_FAMILY = '"Helvetica Neue", "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
 // import type { CellView } from "@antv/x6";
 
 // const SyncNode = memo(() => {
@@ -73,7 +71,7 @@ Graph.registerNode(
         height: 34,
         x: 3,
         y: 3,
-        fill: "#FFFFFF",
+        fill: "#fb7299",
       },
       image: {
         width: 40,
@@ -85,6 +83,9 @@ Graph.registerNode(
       },
       text: {
         "font-size": "12",
+        fill: "#ffffff",
+        fontFamily: NODE_FONT_FAMILY,
+        fontWeight: 700,
       },
     },
   },
@@ -153,7 +154,7 @@ Graph.registerNode(
     attrs: {
       body: {
         stroke: "transparent",
-        fill: "rgba(255,255,255,.2)", //rgba(255,255,255,.6)
+        fill: "rgba(129, 181, 255, 0.14)",
       },
     },
   },
@@ -176,7 +177,7 @@ Graph.registerNode(
     attrs: {
       body: {
         stroke: "transparent",
-        fill: "rgba(255,255,255,.2)", //rgba(255,255,255,.6)
+        fill: "rgba(129, 181, 255, 0.14)",
       },
     },
   },
@@ -244,8 +245,17 @@ Graph.registerNode(
     // path: "M0 0h3242.666667v716.8c-540.4416 204.8-1080.891733 307.2-1621.333334 307.2S540.4416 921.6 0 716.8V0z",
     attrs: {
       body: {
-        stroke: "rgba(0,0,0,0.25)",
-        fill: "#fff",
+        stroke: "rgba(251, 114, 153, 0.34)",
+        strokeWidth: 1.8,
+        fill: "rgba(251, 114, 153, 0.1)",
+        rx: 20,
+        ry: 20,
+      },
+      text: {
+        fill: "#c44973",
+        fontSize: 14,
+        fontWeight: 700,
+        fontFamily: NODE_FONT_FAMILY,
       },
     },
     tools: ["node-editor"],
@@ -267,8 +277,17 @@ Graph.registerNode(
     label: "窗户",
     attrs: {
       body: {
-        stroke: "rgba(0,0,0,0.25)",
-        fill: "#fff",
+        stroke: "rgba(129, 181, 255, 0.42)",
+        strokeWidth: 1.6,
+        fill: "rgba(129, 181, 255, 0.12)",
+        rx: 18,
+        ry: 18,
+      },
+      text: {
+        fill: "#5d8fc9",
+        fontSize: 13,
+        fontWeight: 700,
+        fontFamily: NODE_FONT_FAMILY,
       },
       // text: {
       //   writingMode: "vertical-rl",
@@ -295,8 +314,17 @@ Graph.registerNode(
     label: "门 Door",
     attrs: {
       body: {
-        stroke: "rgba(0,0,0,0.25)",
-        fill: "#fff",
+        stroke: "rgba(251, 114, 153, 0.26)",
+        strokeWidth: 1.6,
+        fill: "rgba(251, 114, 153, 0.08)",
+        rx: 18,
+        ry: 18,
+      },
+      text: {
+        fill: "#c45d83",
+        fontSize: 13,
+        fontWeight: 700,
+        fontFamily: NODE_FONT_FAMILY,
       },
       // text: {
       //   writingMode: "vertical-rl",
@@ -357,11 +385,15 @@ Graph.registerNode(
       text1: {
         text: "1号桌",
         fontSize: 18,
+        fill: "#6d4f82",
+        fontWeight: 700,
+        fontFamily: NODE_FONT_FAMILY,
       },
       text2: {
         text: "Table 1",
-
         fontSize: 14,
+        fill: "rgba(109, 92, 126, 0.6)",
+        fontFamily: NODE_FONT_FAMILY,
       },
     },
   },
@@ -416,7 +448,7 @@ Graph.registerNode(
         height: 34,
         x: 3,
         y: 3,
-        fill: "#FFFFFF",
+        fill: "#fb7299",
       },
 
       image: {
@@ -429,6 +461,9 @@ Graph.registerNode(
       },
       text: {
         "font-size": "12",
+        fill: "#ffffff",
+        fontFamily: NODE_FONT_FAMILY,
+        fontWeight: 700,
       },
     },
   },

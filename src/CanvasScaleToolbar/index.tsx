@@ -1,9 +1,6 @@
 import React, { ReactNode } from "react";
-// import { Graph } from '@antv/x6'
 import { useGraphInstance } from "x6-graph/react";
-import { ZoomInOutlined, ZoomOutOutlined, OneToOneOutlined, CompressOutlined, ExpandOutlined } from "@ant-design/icons";
-import { Toolbar } from "@antv/x6-react-components";
-import classnames from "classnames";
+import AppIcon from "../Components/AppIcon";
 import "./index.less";
 
 interface CommandsType {
@@ -19,31 +16,31 @@ const commands: CommandsType[] = [
     key: "zoomIn",
     label: "ZoomIn(0.2)",
     title: "放大",
-    icon: <ZoomInOutlined />,
+    icon: <AppIcon name="zoomIn" />,
   },
   {
     key: "zoomOut",
     label: "ZoomOut(-0.2)",
     title: "缩小",
-    icon: <ZoomOutOutlined />,
+    icon: <AppIcon name="zoomOut" />,
   },
   {
     key: "zoomTo",
     label: "ZoomTo(1)",
     title: "缩小到1：1",
-    icon: <OneToOneOutlined />,
+    icon: <AppIcon name="scaleReset" />,
   },
   {
     key: "zoomToFit",
     label: "ZoomToFit",
     title: "缩放到适应屏幕",
-    icon: <CompressOutlined />,
+    icon: <AppIcon name="fitView" />,
   },
   {
     key: "centerContent",
     label: "CenterContent",
     title: "居中",
-    icon: <ExpandOutlined />,
+    icon: <AppIcon name="centerView" />,
   },
 ];
 
@@ -74,31 +71,22 @@ const CanvasScaleToolbar: React.FC = () => {
     }
   };
 
-  const clz = classnames({
-    ["canvas-toolbar-group"]: true,
-  });
-
-  const clzi = classnames({
-    ["canvas-toolbar-item"]: true,
-  });
-
-  const placement = "left";
-
   return (
     <div className="canvas-toolbar">
-      <Toolbar.Group className={clz} key="toolBar">
+      <div className="canvas-toolbar-group">
         {commands.map((item) => (
-          <Toolbar.Item
-            {...item}
-            icon={item.icon}
+          <button
+            type="button"
             key={item.key}
-            tooltip={item.title}
-            className={clzi}
-            tooltipProps={{ placement: "left", ...item.tooltipProps }}
+            className="canvas-toolbar-item"
+            title={item.title}
+            aria-label={item.title}
             onClick={() => transform(item.key, graph)}
-          />
+          >
+            {item.icon}
+          </button>
         ))}
-      </Toolbar.Group>
+      </div>
     </div>
   );
 };

@@ -8,11 +8,41 @@ const martixParentAttrs = {
   label: {
     refY: 120,
     fontSize: 12,
+    fill: "rgba(122, 84, 106, 0.74)",
   },
   body: {
-    fill: "rgba(255,255,255,.3)", //
-    stroke: "#ffe7ba", //
+    fill: "rgba(251, 114, 153, 0.045)",
+    stroke: "rgba(251, 114, 153, 0.24)",
+    strokeWidth: 1.4,
+    rx: 24,
+    ry: 24,
   },
+};
+
+const TEXT_FONT_FAMILY = '"Helvetica Neue", "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
+
+const STAGE_BODY_ATTRS = {
+  stroke: "rgba(251, 114, 153, 0.34)",
+  strokeWidth: 1.8,
+  fill: "rgba(251, 114, 153, 0.1)",
+  rx: 20,
+  ry: 20,
+};
+
+const WINDOW_BODY_ATTRS = {
+  stroke: "rgba(129, 181, 255, 0.42)",
+  strokeWidth: 1.6,
+  fill: "rgba(129, 181, 255, 0.12)",
+  rx: 18,
+  ry: 18,
+};
+
+const DOOR_BODY_ATTRS = {
+  stroke: "rgba(251, 114, 153, 0.26)",
+  strokeWidth: 1.6,
+  fill: "rgba(251, 114, 153, 0.08)",
+  rx: 18,
+  ry: 18,
 };
 
 const chairNoMarkup = [
@@ -168,7 +198,7 @@ export const renderGraph = (nodes: ItemType[]) => {
       item.type === "windowNode" ||
       item.type === "doorNode"
     ) {
-      obj.attrs = getTextAttrs(item.name);
+      obj.attrs = getTextAttrs(item);
     } else if (item.type === "aisleRowSpace") {
       obj.attrs = getRowSpaceAttrs(item.data.isExist);
     } else if (item.type === "corridorColumnSpace") {
@@ -183,11 +213,85 @@ export const renderGraph = (nodes: ItemType[]) => {
   });
 };
 
-const getTextAttrs = (name: string) => {
+const getTextAttrs = (item: any) => {
+  const baseText = {
+    text: item.name,
+    fontFamily: TEXT_FONT_FAMILY,
+    textAnchor: "middle",
+    textVerticalAnchor: "middle",
+  };
+
+  if (item.type === "matrixRows") {
+    return {
+      text: {
+        ...baseText,
+        fill: "#7a4d68",
+        fontSize: 13,
+        fontWeight: 700,
+      },
+    };
+  }
+
+  if (item.type === "matrixRowsEn") {
+    return {
+      text: {
+        ...baseText,
+        fill: "rgba(123, 95, 120, 0.52)",
+        fontSize: 10.5,
+        fontStyle: "italic",
+      },
+    };
+  }
+
+  if (item.type === "matrixColumnTopNum" || item.type === "matrixColumnBottomNum") {
+    return {
+      text: {
+        ...baseText,
+        fill: "rgba(121, 86, 113, 0.78)",
+        fontSize: 12,
+        fontWeight: 700,
+      },
+    };
+  }
+
+  if (item.type === "prosceniumNode") {
+    return {
+      body: STAGE_BODY_ATTRS,
+      text: {
+        ...baseText,
+        fill: "#c44973",
+        fontSize: 14,
+        fontWeight: 700,
+      },
+    };
+  }
+
+  if (item.type === "windowNode") {
+    return {
+      body: WINDOW_BODY_ATTRS,
+      text: {
+        ...baseText,
+        fill: "#5d8fc9",
+        fontSize: 13,
+        fontWeight: 700,
+      },
+    };
+  }
+
+  if (item.type === "doorNode") {
+    return {
+      body: DOOR_BODY_ATTRS,
+      text: {
+        ...baseText,
+        fill: "#c45d83",
+        fontSize: 13,
+        fontWeight: 700,
+      },
+    };
+  }
+
   return {
-    text: {
-      text: name,
-    },
+    text: baseText,
   };
 };
 
@@ -196,19 +300,21 @@ const getRowSpaceAttrs = (flag: boolean) => {
     return {
       body: {
         stroke: "transparent",
-        fill: "transparent",
+        fill: "rgba(129, 181, 255, 0.14)",
       },
       label: {
         text: "过道 Aisle",
-        fill: "#000",
-        fontSize: 14,
+        fill: "rgba(94, 132, 183, 0.7)",
+        fontSize: 12,
+        fontWeight: 700,
+        fontFamily: TEXT_FONT_FAMILY,
       },
     };
   } else {
     return {
       body: {
         stroke: "transparent",
-        fill: "transparent",
+        fill: "rgba(129, 181, 255, 0.09)",
       },
     };
   }
@@ -217,7 +323,7 @@ const getRowSpaceAttrs = (flag: boolean) => {
 const getColumnSpaceAttrs = () => {
   return {
     body: {
-      fill: "transparent",
+      fill: "rgba(129, 181, 255, 0.09)",
     },
   };
 };
@@ -241,20 +347,28 @@ const getChairAttrs = (flag: boolean, personByNodeId: Map<string, any>, item: an
         // fill: "rgba(0, 0, 0, 0.25)",
         // },
         rect: {
-          fill: item.color ? findColor(item.color) : "transparent",
-          stroke: "transparent",
+          fill: item.color ? findColor(item.color) : "rgba(251, 114, 153, 0.04)",
+          stroke: "rgba(251, 114, 153, 0.08)",
+          strokeWidth: 1,
+          rx: 12,
+          ry: 12,
         },
       };
     } else {
       return {
         text: {
           fill: "#FFFFFF",
-          "font-size": "12",
+          "font-size": "11.5",
+          fontWeight: 700,
+          fontFamily: TEXT_FONT_FAMILY,
           text: sliceText(person.name),
         },
         rect: {
           fill: item.color ? findColor(item.color) : "transparent",
-          stroke: "transparent",
+          stroke: "rgba(251, 114, 153, 0.08)",
+          strokeWidth: 1,
+          rx: 12,
+          ry: 12,
         },
         body: {
           stroke: "transparent",
@@ -264,7 +378,7 @@ const getChairAttrs = (flag: boolean, personByNodeId: Map<string, any>, item: an
           height: 34,
           x: 3,
           y: 3,
-          fill: "#B39372",
+          fill: "#fb7299",
           // style: "display:block",
           style: person.orgType === "org" && person.isAttend ? "display:block" : "display:none",
         },
@@ -298,10 +412,15 @@ const getCircleTableAttrs = (item: any) => {
     text1: {
       text: item.data.tableName,
       fontSize: 18,
+      fill: "#6d4f82",
+      fontWeight: 700,
+      fontFamily: TEXT_FONT_FAMILY,
     },
     text2: {
       text: item.data.tableNameEn,
       fontSize: 14,
+      fill: "rgba(109, 92, 126, 0.6)",
+      fontFamily: TEXT_FONT_FAMILY,
     },
   };
 };

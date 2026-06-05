@@ -1,31 +1,18 @@
-import React, { useEffect, useRef, useState } from "react";
-import { ArrowLeftOutlined, CheckCircleOutlined, LoadingOutlined } from "@ant-design/icons";
-
-import { img_export_seat, img_seat_empty, img_seat_download, img_seat_upload, img_seat_save } from "../assets";
+import React, { useEffect, useState } from "react";
+import { LoadingOutlined } from "@ant-design/icons";
 import "./index.less";
 import { message } from "antd";
-import {
-  AlphabeticSerialNumber,
-  CPForm,
-  LoadingStatus,
-  Session,
-  getCurrentColumn,
-  getCurrentRow,
-  getGraph,
-} from "../config";
+import { AlphabeticSerialNumber, CPForm, getGraph } from "../config";
 // import { emptyGraph } from "../utils/apiParams";
-import { ResponseType, handleCpApi } from "../api";
-import store from "../store";
 import { Graph, Node } from "@antv/x6";
-import { base64ToFile, sortCompareFn3 } from "../utils/util";
+import { sortCompareFn3 } from "../utils/util";
 // import { time } from "../utils/util";
-import { getHasPersonSeatImg } from "../utils/oss";
-import { useGetState, useUpdateEffect } from "ahooks";
 import useFormModal from "../Components/useFormModal";
 import { useSelector } from "react-redux";
 import { useCallbackState } from "../hooks/useCallbackState";
-import { ensureGraphExportPlugin, loadDomToImage } from "../utils/exportRuntime";
 import { lazyForm } from "../Components/useFormModal/lazyForm";
+import { exportSeatTemplate } from "../utils/excel/exportSeatTemplate";
+import AppIcon from "../Components/AppIcon";
 
 const LayoutClearForm = lazyForm(() => import("../Components/useFormModal/LayoutClearForm"));
 const UploadFileForm = lazyForm(() => import("../Components/useFormModal/UploadFileForm"));
@@ -37,6 +24,7 @@ interface PageLoadingProps {
   // setMapUrl: (val: string) => void;
   setRefresh?: (val: boolean) => void;
   getData?: () => void;
+  refreshPeople?: () => void;
   closeApp?: () => void;
 }
 
@@ -46,16 +34,12 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
   // setMapUrl,
   setRefresh,
   getData,
+  refreshPeople,
   closeApp,
 }) => {
   const [loading, setLoading] = useState(false);
   const [time, setTime] = useState("");
-  const [colorImgPng, setColorImgPng] = useState("");
-  const [graphImgPng, setGraphImgPng] = useState("");
   const [imgLoading, setImgLoading] = useCallbackState(false);
-  // const [imgLoading, setImgLoading, getImgLoading] = useGetState<boolean>(false);
-  // const [venueMapUrl, setVenueMapUrl, getVenueMapUrl] = useGetState<string>("");
-  const [templateStatus, setTemplateStatus] = useState(false);
   const [templateLoading, setTemplateLoading] = useState(false);
   // const [upLoading, setUpLoading] = useState(false);
   // const [tempFile, setTempFile] = useState<string>("");
@@ -133,6 +117,84 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
     setImgDom();
   };
 
+  const waitForFrames = async (count = 2) => {
+    for (let i = 0; i < count; i++) {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    }
+  };
+
+  const captureGraphPng = async (graph: Graph) => {
+    await waitForFrames();
+
+    const graphRoot = graph.container?.querySelector("svg");
+    if (!(graphRoot instanceof SVGSVGElement)) {
+      throw new Error("graph-root-missing");
+    }
+
+    const clonedGraphRoot = graphRoot.cloneNode(true) as SVGSVGElement;
+    const contentBox = graph.getContentBBox();
+    const exportWidth = Math.max(Math.ceil(contentBox.width), 1);
+    const exportHeight = Math.max(Math.ceil(contentBox.height), 1);
+
+    clonedGraphRoot.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    clonedGraphRoot.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+    clonedGraphRoot.setAttribute("viewBox", `${contentBox.x} ${contentBox.y} ${contentBox.width} ${contentBox.height}`);
+    clonedGraphRoot.setAttribute("width", `${exportWidth}`);
+    clonedGraphRoot.setAttribute("height", `${exportHeight}`);
+
+    clonedGraphRoot.querySelectorAll("image").forEach((imageNode) => {
+      const href = imageNode.getAttribute("xlink:href") || imageNode.getAttribute("href");
+      if (!href || href.startsWith("data:")) {
+        return;
+      }
+
+      const absoluteHref = new URL(href, window.location.href).href;
+      imageNode.setAttribute("href", absoluteHref);
+      imageNode.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", absoluteHref);
+    });
+
+    const svgMarkup = new XMLSerializer().serializeToString(clonedGraphRoot);
+    const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgMarkup)}`;
+
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const nextImage = new Image();
+      nextImage.onload = () => resolve(nextImage);
+      nextImage.onerror = () => reject(new Error("svg-image-load-failed"));
+      nextImage.src = svgUrl;
+    });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = exportWidth;
+    canvas.height = exportHeight;
+
+    const context = canvas.getContext("2d");
+    if (!context) {
+      throw new Error("canvas-context-missing");
+    }
+
+    context.fillStyle = "#FFF";
+    context.fillRect(0, 0, exportWidth, exportHeight);
+    context.drawImage(image, 0, 0, exportWidth, exportHeight);
+
+    return canvas.toDataURL("image/png");
+  };
+
+  const finishExport = async (oper: string, seatMapUrl: string) => {
+    if (oper !== "download") {
+      UserModalRef.current?.open({ mapUrl: seatMapUrl });
+      return;
+    }
+
+    const cpForm = CPForm.getForm;
+    const venueName = cpForm["K2582458"].text;
+    const link = document.createElement("a");
+    link.href = seatMapUrl;
+    link.download = `${venueName}-场地座位图.png`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+
   const setImgDom = async (oper = "download") => {
     const grpah: Graph = getGraph();
     if (oper !== "download" && grpah.getNodes().length === 0) {
@@ -149,13 +211,11 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
     };
 
     if (oper !== "download") {
-      setTemplateStatus(false);
       setTemplateLoading(true);
     }
 
     const finishCapture = () => {
       if (oper !== "download") {
-        setTemplateStatus(true);
         setTemplateLoading(false);
       }
       restoreVirtualRender();
@@ -163,83 +223,18 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
     };
 
     try {
-      await ensureGraphExportPlugin(grpah);
-    } catch {
-      message.error("导出插件加载失败，请稍后重试");
-      finishCapture();
-      return;
-    }
-
-    setTimeout(() => {
       if (shouldRestoreVirtualRender) {
         grpah.disableVirtualRender();
       }
 
-      grpah.toPNG((base64Img: string) => {
-        const colorImgDom = document.querySelector(".color-edit-in");
-        setGraphImgPng(base64Img);
+      const graphPng = await captureGraphPng(grpah);
 
-        if (!colorImgDom?.hasChildNodes()) {
-          setColorImgPng("");
-
-          downloadImg(oper).finally(finishCapture);
-        } else {
-          loadDomToImage()
-            .then((domtoimage) => {
-              return domtoimage.toPng(colorImgDom, { bgcolor: "#FFF" });
-            })
-            .then((val: any) => {
-              setColorImgPng(val);
-              return downloadImg(oper);
-            })
-            .catch(() => {
-              message.error("导出座位图失败，请稍后重试");
-            })
-            .finally(finishCapture);
-        }
-      });
-    }, 600);
-  };
-
-  const downloadImg = async (oper: string) => {
-    const cpForm = CPForm.getForm;
-
-    const v_name = cpForm["K2582458"].text;
-
-    // 获取场次Id
-    const sessionId = Session.getDataId;
-    const downloadImgDom = document.querySelector("#download_img");
-
-    const domtoimage = await loadDomToImage();
-    const canvas = await domtoimage.toPng(downloadImgDom, { bgcolor: "#FFF" });
-
-    const imgFile = base64ToFile(canvas);
-
-    // 获取ossKey 并上传图片
-    const mapUrl = await getHasPersonSeatImg(`${v_name}-场地座位图.png`, imgFile);
-    if (oper !== "download") {
-      // setVenueMapUrl(mapUrl);
-      // setMapUrl(mapUrl);
-      UserModalRef.current?.open({ mapUrl });
-      return;
+      await finishExport(oper, graphPng);
+    } catch (error) {
+      message.error("导出座位图失败，请稍后重试");
+    } finally {
+      finishCapture();
     }
-
-    const link = document.createElement("a");
-    const blob = new Blob([imgFile], { type: "image/png" });
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.download = `${v_name}-场地座位图.png`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-
-    await handleCpApi({
-      params: { id: sessionId, venueMap: mapUrl },
-      code: "mapPicture",
-    });
-
-    setImgLoading(false);
   };
 
   const saveTemplate = () => {
@@ -247,193 +242,12 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
     setImgDom("imgUrl");
   };
 
-  useUpdateEffect(() => {
-    if (templateStatus) {
-      // setShowTemplate(true);
-      setTemplateStatus(false);
-    }
-  }, [templateStatus]);
-
-  // 导出excel文件
   const exportToExcel = async () => {
-    const cpForm = CPForm.getForm;
-
-    const v_name = cpForm["K2582458"].text;
-    const v_time_s = cpForm["K2460125"].value;
-    const v_time_e = cpForm["K2460124"].value;
-    const v_position = cpForm["K2460459"].text;
-
-    let sheetName = "Sheet1";
-    let fileName = `${v_name}-人员排座模板.xlsx`;
-    let headerName = "RequestsList";
-    let headerColumnArr: { name: string }[] = [];
-
-    const graph = getGraph();
-    const nodes = graph.getNodes();
-
-    const container = nodes.find((item) => item.data?.nodeType?.includes("Container"));
-    if (!container) {
-      message.warning("请先创建一个布局，再下载 Excel 模板");
-      return;
+    try {
+      await exportSeatTemplate();
+    } catch (error) {
+      message.error("导出 Excel 模板失败，请稍后重试");
     }
-    const { default: ExcelJs } = await import("exceljs");
-
-    let rowArr = [];
-
-    // 矩阵节点
-    if (container.data.nodeType === "matrixContainer") {
-      headerColumnArr = [{ name: "排数/座位号" }];
-
-      const matrixChildrenRows = container.children
-        .filter((item) => item.data.nodeType === "matrixRows")
-        .sort(sortCompareFn3)
-        .map((node: Node) => node.attrs.text.text);
-
-      const matrixChildrenNums: any = container.children
-        .filter((item) => item.data.nodeType === "matrixColumnTopNum")
-        .sort(sortCompareFn3)
-        .map((node: Node) => {
-          return { name: node.attrs.text.text };
-        });
-
-      headerColumnArr = headerColumnArr.concat(matrixChildrenNums);
-
-      const total = matrixChildrenRows.length;
-      for (let i = 0; i < total; i++) {
-        let a = matrixChildrenRows.slice(i, i + 1);
-        rowArr.push(a);
-      }
-    } else {
-      // 圆桌
-      headerColumnArr = [{ name: "人数/桌数" }];
-
-      const circleContainer = nodes.filter((item) => item.data.nodeType === "circleContainer");
-
-      const circleNumsArr = circleContainer.map((item) => item.data.circleChairNum);
-      const circleRowsArr = circleContainer.map((item) => item.data.tableName);
-      const maxNums = Math.max(...circleNumsArr);
-
-      for (let i = 0; i < maxNums; i++) {
-        let arr = [];
-        arr.push(i + 1);
-        rowArr.push(arr);
-      }
-
-      for (let j = 0; j < circleRowsArr.length; j++) {
-        let tempObj = { name: "" };
-        tempObj.name = `${circleRowsArr[j]}`;
-        headerColumnArr.push(tempObj);
-      }
-    }
-
-    // 获取sheet对象，设置当前sheet的样式
-    // showGridLines: false 表示不显示表格边框
-    let workbook = new ExcelJs.Workbook();
-    let sheet: any = workbook.addWorksheet(sheetName, {
-      views: [{ showGridLines: false }],
-    });
-    // let sheet2 = workbook.addWorksheet("Second sheet", { views: [{ showGridLines: false }] });
-
-    sheet.properties.defaultRowHeight = 30;
-    sheet.properties.defaultColWidth = 15;
-
-    // 设置表格的头部信息，可以用来设置标题，说明或者注意事项
-    sheet.addTable({
-      name: `Header`,
-      ref: "A1", // 头部信息从A1单元格开始显示
-      headerRow: true,
-      totalsRow: false,
-      style: {
-        theme: "",
-        showRowStripes: false,
-        showFirstColumn: true,
-        width: 20,
-        center: true,
-      },
-      columns: [{ name: "会场布局图" }],
-      rows: [[`会场名称：${v_name}`], [`会场时间：${v_time_s} ~ ${v_time_e}`], [`会场地点：${v_position}`]],
-    });
-
-    // 设置表格的主要数据部分
-    sheet.addTable({
-      name: headerName,
-      ref: "A5", // 主要数据从A5单元格开始
-      headerRow: true,
-      totalsRow: false,
-      style: {
-        theme: "TableStyleMedium2",
-        showRowStripes: false,
-        width: 20,
-      },
-      columns: headerColumnArr ? headerColumnArr : [{ name: "" }],
-      rows: rowArr,
-    });
-
-    sheet.getCell("A1").font = { size: 18, bold: true }; // 设置单元格的文字样式
-    sheet.getCell("A2").font = { size: 16, bold: true }; // 设置单元格的文字样式
-    sheet.getCell("A3").font = { size: 16, bold: true }; // 设置单元格的文字样式
-    sheet.getCell("A4").font = { size: 16, bold: true }; // 设置单元格的文字样式
-    sheet.mergeCells(`A1:${AlphabeticSerialNumber[headerColumnArr.length - 1]}1`);
-    sheet.mergeCells(`A2:${AlphabeticSerialNumber[headerColumnArr.length - 1]}2`);
-    sheet.mergeCells(`A3:${AlphabeticSerialNumber[headerColumnArr.length - 1]}3`);
-    sheet.mergeCells(`A4:${AlphabeticSerialNumber[headerColumnArr.length - 1]}4`);
-    sheet.getCell("A1").alignment = { vertical: "middle", horizontal: "center" };
-
-    const row = sheet.getRow(1);
-
-    const row2 = sheet.getRows(2, 3);
-    const row3 = sheet.getRow(5);
-    row2.alignment = { vertical: "middle" };
-
-    row.height = 30;
-    row2.height = 20;
-    row3.height = 20;
-
-    const table = sheet.getTable(headerName);
-    for (let i = 0; i < table.table.columns.length; i++) {
-      // 表格主体数据是从A5开始绘制的，一共有三列。这里是获取A5到，B5，C5单元格，定义表格的头部样式
-      sheet.getCell(`${AlphabeticSerialNumber[i]}5`).font = { size: 12, bold: true };
-      sheet.getCell(`${AlphabeticSerialNumber[i]}5`).alignment = { vertical: "middle" };
-      sheet.getCell(`${AlphabeticSerialNumber[i]}5`).fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "c5d9f1" },
-      };
-
-      // 获取表格数据部分，定义其样式
-      for (let j = 0; j < table.table.rows.length; j++) {
-        let rowCell = sheet.getCell(`${AlphabeticSerialNumber[i]}${j + 6}`);
-        rowCell.font = { size: 12 };
-        rowCell.alignment = { wrapText: true, vertical: "middle" };
-
-        rowCell.border = {
-          bottom: {
-            style: "thin",
-            color: { argb: "a6a6a6" },
-          },
-          right: {
-            style: "thin",
-            color: { argb: "a6a6a6" },
-          },
-        };
-      }
-    }
-    table.commit();
-
-    const writeFile = (fileName: string, content: string) => {
-      const link = document.createElement("a");
-      const blob = new Blob([content], {
-        type: "application/vnd.ms-excel;charset=utf-8;",
-      });
-      link.download = fileName;
-      link.href = URL.createObjectURL(blob);
-      link.click();
-    };
-
-    // 表格的数据绘制完成，定义下载方法，将数据导出到Excel文件
-    workbook.xlsx.writeBuffer().then((buffer: any) => {
-      writeFile(fileName, buffer);
-    });
   };
 
   // const onImportExcel = (file: File) => {
@@ -511,73 +325,83 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
   // };
 
   return (
-    <header>
-      <div className="container-header">
-        <div className="left">
-          {closeApp ? <ArrowLeftOutlined onClick={closeApp} style={{ marginRight: "20px" }} /> : null}
-          <span className="text">会议室布局</span>
-
+    <>
+      <header className="container-header">
+        <div className="left header-block">
+          {closeApp ? (
+            <button type="button" className="back-button" aria-label="返回" onClick={closeApp}>
+              <AppIcon name="arrowLeft" />
+            </button>
+          ) : null}
+          <div className="brand-lockup">
+            <span className="eyebrow">Seatmap Studio</span>
+            <span className="text">会议室布局编辑台</span>
+          </div>
           <div className="save-status">
+            <span className={`status-dot ${loading ? "is-loading" : "is-ready"}`} />
             {loading ? (
               <>
-                <LoadingOutlined /> <span className="save-status-text">自动保存中…</span>
+                <LoadingOutlined /> <span className="save-status-text">自动保存中</span>
               </>
             ) : (
               <>
-                <CheckCircleOutlined />
-                <span className="save-status-text">{time ? `已保存 ${time}` : `已加载最新版本`}</span>
+                <AppIcon name="statusReady" className="save-status-icon" />
+                <span className="save-status-text">{time ? `已保存 ${time}` : `已同步到最新版本`}</span>
               </>
             )}
           </div>
         </div>
-        <div className="middle">
-          <div onClick={toEmpty}>
-            <img src={img_seat_empty} />
-            清空
-          </div>
-          <div onClick={exportToExcel}>
-            <img src={img_seat_download} />
-            下载Excel模板
-          </div>
-          <div onClick={toUpload}>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <img src={img_seat_upload} />
-              <span>上传座位</span>
-            </div>
-          </div>
+        <div className="middle header-block">
+          <button type="button" className="header-tool" onClick={toEmpty}>
+            <AppIcon name="clearCanvas" className="tool-icon" />
+            <span>清空画布</span>
+          </button>
+          <button type="button" className="header-tool" onClick={exportToExcel}>
+            <AppIcon name="downloadSheet" className="tool-icon" />
+            <span>下载 Excel 模板</span>
+          </button>
+          <button type="button" className="header-tool" onClick={toUpload}>
+            <AppIcon name="uploadSheet" className="tool-icon" />
+            <span>上传座位配置</span>
+          </button>
         </div>
-        <div className="right">
-          <div>
-            <img src={img_export_seat} />
+        <div className="right header-block">
+          <button type="button" className="action-button" data-testid="export-seatmap-button" onClick={exportSeat}>
+            <AppIcon name="exportImage" className="action-icon" />
+            <span className="action-text-group">
+              <span className="action-eyebrow">Export</span>
+              <span className="action-label">
             {imgLoading ? (
               <>
-                <LoadingOutlined style={{ marginRight: "5px" }} /> 导出中...
+                    <LoadingOutlined style={{ marginRight: "5px" }} /> 导出中...
               </>
             ) : (
-              <span onClick={exportSeat}>导出座位图</span>
+                    <span>导出座位图</span>
             )}
-          </div>
-          <div>
-            <img src={img_seat_save} />
+              </span>
+            </span>
+          </button>
+          <button type="button" className="action-button" data-testid="save-template-button" onClick={saveTemplate}>
+            <AppIcon name="saveTemplate" className="action-icon" />
+            <span className="action-text-group">
+              <span className="action-eyebrow">Template</span>
+              <span className="action-label">
             {templateLoading ? (
               <>
-                <LoadingOutlined style={{ marginRight: "5px" }} /> 获取图像...
+                    <LoadingOutlined style={{ marginRight: "5px" }} /> 获取图像...
               </>
             ) : (
-              <span onClick={saveTemplate}>另存为模板</span>
+                    <span>另存为模板</span>
             )}
-          </div>
+              </span>
+            </span>
+          </button>
         </div>
-      </div>
-
-      <div id="download_img">
-        {colorImgPng ? <img id="color_img" src={colorImgPng} /> : <></>}
-        <img src={graphImgPng} />
-      </div>
+      </header>
       <LayoutClearModal />
-      <UploadFileModal setRefresh={setRefresh} getData={getData} />
+      <UploadFileModal setRefresh={setRefresh} getData={getData} refreshPeople={refreshPeople} />
       <UserModal />
-    </header>
+    </>
   );
 };
 

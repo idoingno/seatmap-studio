@@ -6,6 +6,7 @@ import { delGraphics, delNode, updateGraphics, updateNode } from "../../utils/ap
 import { handleCpApi } from "../../api";
 import store from "../../store";
 import { addDargAction, subAction } from "../../store/actionCreators";
+import { getNodeChildren } from "../../utils/util";
 
 interface ConfigProps {
   e?: Event | any;
@@ -86,7 +87,7 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
               await handleCpApi({ params: graphicsParams, code: "seat" }, true);
 
               // 更新子节点
-              const nodeParams = updateNode(node.children, sessionId, node);
+              const nodeParams = updateNode(getNodeChildren(node), sessionId, node);
               await handleCpApi({ params: nodeParams, code: "seat" }, true);
             }
           } else if (e.target.innerHTML === "-") {
@@ -116,7 +117,7 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
               await handleCpApi({ params: graphicsParams, code: "seat" }, true);
 
               // 更新子节点
-              const nodeParams = updateNode(node.children, sessionId, node);
+              const nodeParams = updateNode(getNodeChildren(node), sessionId, node);
               await handleCpApi({ params: nodeParams, code: "seat" }, true);
             }
           } else if (e.target.innerHTML === "✕") {
