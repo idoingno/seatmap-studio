@@ -277,10 +277,10 @@ const App = ({ closeApp }: AppProps) => {
                     ref={handleGraphRef}
                   >
                     <GraphBehavior />
-                    <CanvasScaleToolbar />
                   </Graph>
                 ) : null}
               </div>
+              <CanvasScaleToolbar graph={graphInstance} />
               <div className="seatmap-stage-chrome">
                 <div className="stage-chrome-copy">
                   <span className="stage-kicker">

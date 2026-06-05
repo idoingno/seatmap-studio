@@ -1,5 +1,4 @@
 import React, { ReactNode } from "react";
-import { useGraphInstance } from "x6-graph/react";
 import AppIcon from "../Components/AppIcon";
 import "./index.less";
 
@@ -44,9 +43,16 @@ const commands: CommandsType[] = [
   },
 ];
 
-const CanvasScaleToolbar: React.FC = () => {
-  const graph = useGraphInstance();
+interface CanvasScaleToolbarProps {
+  graph?: any;
+}
+
+const CanvasScaleToolbar: React.FC<CanvasScaleToolbarProps> = ({ graph }) => {
   const transform = (command: string, graph: any) => {
+    if (!graph) {
+      return;
+    }
+
     switch (command) {
       case "translate":
         graph.translate(20, 20);
