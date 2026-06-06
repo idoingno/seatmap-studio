@@ -71,7 +71,7 @@ Graph.registerNode(
         height: 34,
         x: 3,
         y: 3,
-        fill: "#fb7299",
+        fill: "#FFFFFF",
       },
       image: {
         width: 40,
@@ -154,7 +154,7 @@ Graph.registerNode(
     attrs: {
       body: {
         stroke: "transparent",
-        fill: "rgba(129, 181, 255, 0.14)",
+        fill: "transparent",
       },
     },
   },
@@ -177,7 +177,7 @@ Graph.registerNode(
     attrs: {
       body: {
         stroke: "transparent",
-        fill: "rgba(129, 181, 255, 0.14)",
+        fill: "transparent",
       },
     },
   },

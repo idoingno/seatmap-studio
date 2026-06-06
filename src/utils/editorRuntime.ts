@@ -80,7 +80,7 @@ export const ensureEditorInteractionRuntime = async (graph: Graph) => {
       multipleSelectionModifiers: ["ctrl", "meta"],
       strict: true,
       pointerEvents: "none",
-      rubberband: true,
+      rubberband: false,
       movable: true,
       showNodeSelectionBox: true,
     })

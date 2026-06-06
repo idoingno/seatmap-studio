@@ -21,6 +21,10 @@ import { runGraphBatch } from "../../utils/graphBatch";
 import { syncGraphPerformanceMode } from "../../utils/graphPerformance";
 import AppIcon from "../../Components/AppIcon";
 
+const hasAllMatrixAnchors = (...groups: Node[][]) => {
+  return groups.every((group) => group.length > 0);
+};
+
 export const AddMenuNode = memo(() => {
   const [show, setShow] = useState(true);
   const upRef = useRef(null);
@@ -61,6 +65,10 @@ export const AddMenuNode = memo(() => {
       const firstRowEnText = [matrixIndex.rowTextEnByIdx.get(0)].filter(Boolean) as Node[];
       const firstRowChair = matrixIndex.chairsByRow.get(0) ?? [];
       const firstRowSpace = [matrixIndex.rowSpaceByIdx.get(0)].filter(Boolean) as Node[];
+
+      if (!hasAllMatrixAnchors(firstRowText, firstRowEnText, firstRowChair, firstRowSpace)) {
+        return;
+      }
 
       createdNodes.push(
         parentAddText({
@@ -158,6 +166,10 @@ export const AddMenuNode = memo(() => {
       const firstColumnBottomText = [matrixIndex.columnBottomTextByIdx.get(0)].filter(Boolean) as Node[];
       const firstColumnChair = matrixIndex.chairsByColumn.get(0) ?? [];
       const firstColumnsSpace = [matrixIndex.columnSpaceByIdx.get(0)].filter(Boolean) as Node[];
+
+      if (!hasAllMatrixAnchors(firstColumnTopText, firstColumnBottomText, firstColumnChair, firstColumnsSpace)) {
+        return;
+      }
 
       createdNodes.push(
         parentAddText({
@@ -295,6 +307,10 @@ export const AddMenuNode = memo(() => {
         const lastRowChair = matrixIndex.chairsByRow.get(rows - 1) ?? [];
         const lastRowSpace = [matrixIndex.rowSpaceByIdx.get(rows - 2)].filter(Boolean) as Node[];
 
+        if (!hasAllMatrixAnchors(lastMatrixBottomNum, lastRowText, lastRowEnText, lastRowChair, lastRowSpace)) {
+          return;
+        }
+
         createdNodes.push(
           parentAddText({
             data: lastRowText,
@@ -394,6 +410,10 @@ export const AddMenuNode = memo(() => {
         const lastColumnsBottomText = [matrixIndex.columnBottomTextByIdx.get(columns - 1)].filter(Boolean) as Node[];
         const lastRowChair = matrixIndex.chairsByColumn.get(columns - 1) ?? [];
         const lastRowSpace = [matrixIndex.columnSpaceByIdx.get(columns - 2)].filter(Boolean) as Node[];
+
+        if (!hasAllMatrixAnchors(lastColumns, lastColumnsTopText, lastColumnsBottomText, lastRowChair, lastRowSpace)) {
+          return;
+        }
 
         createdNodes.push(
           parentAddText({

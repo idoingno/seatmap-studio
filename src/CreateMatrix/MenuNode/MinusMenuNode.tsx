@@ -15,6 +15,10 @@ import { subAction } from "../../store/actionCreators";
 import { runGraphBatch } from "../../utils/graphBatch";
 import { syncGraphPerformanceMode } from "../../utils/graphPerformance";
 
+const hasAllMatrixAnchors = (...groups: Node[][]) => {
+  return groups.every((group) => group.length > 0);
+};
+
 export const MinusMenuNode = memo(() => {
   const [show, setShow] = useState(true);
   const upRef = useRef(null);
@@ -43,6 +47,10 @@ export const MinusMenuNode = memo(() => {
     const hasPeronArr = matrixIndex.allChildren.filter(
       (item) => item.attrs.xnode && item.data.nodeType === "matrixChair" && item.data.idt.split("-")[0] === "0"
     );
+
+    if (!hasAllMatrixAnchors(firstRowText, firstRowEnText, firstRowChair, firstRowSpace)) {
+      return;
+    }
 
     const removeArr = [...firstRowText, ...firstRowEnText, ...firstRowChair, ...firstRowSpace];
     const fs = firstRowSpace[0].size();
@@ -132,6 +140,10 @@ export const MinusMenuNode = memo(() => {
     const firstColumnBottomText = [matrixIndex.columnBottomTextByIdx.get(0)].filter(Boolean) as Node[];
     const firstColumnChair = matrixIndex.chairsByColumn.get(0) ?? [];
     const firstColumnsSpace = [matrixIndex.columnSpaceByIdx.get(0)].filter(Boolean) as Node[];
+
+    if (!hasAllMatrixAnchors(firstColumnTopText, firstColumnBottomText, firstColumnChair, firstColumnsSpace)) {
+      return;
+    }
 
     const hasPeronArr = matrixIndex.allChildren.filter(
       (item) => item.attrs.xnode && item.data.nodeType === "matrixChair" && item.data.idt.split("-")[1] === "0"
@@ -259,6 +271,10 @@ export const MinusMenuNode = memo(() => {
       const lastRowChair = matrixIndex.chairsByRow.get(rows - 1) ?? [];
       const lastRowSpace = [matrixIndex.rowSpaceByIdx.get(rows - 2)].filter(Boolean) as Node[];
 
+      if (!hasAllMatrixAnchors(lastMatrixBottomNum, lastRowText, lastRowEnText, lastRowChair, lastRowSpace)) {
+        return;
+      }
+
       // 过滤出添加过人的节点
       const hasPeronArr = matrixIndex.allChildren.filter(
         (item) =>
@@ -360,6 +376,10 @@ export const MinusMenuNode = memo(() => {
       const lastColumnsBottomText = [matrixIndex.columnBottomTextByIdx.get(columns - 1)].filter(Boolean) as Node[];
       const lastRowChair = matrixIndex.chairsByColumn.get(columns - 1) ?? [];
       const lastRowSpace = [matrixIndex.columnSpaceByIdx.get(columns - 2)].filter(Boolean) as Node[];
+
+      if (!hasAllMatrixAnchors(lastColumns, lastColumnsTopText, lastColumnsBottomText, lastRowChair, lastRowSpace)) {
+        return;
+      }
       // 过滤出添加过人的节点
       const hasPeronArr = matrixIndex.allChildren.filter(
         (item) =>
