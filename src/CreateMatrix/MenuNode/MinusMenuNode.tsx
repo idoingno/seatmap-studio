@@ -1,9 +1,8 @@
 import { register } from "x6-html-shape";
 import createRender from "x6-html-shape/dist/react17";
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useLayoutEffect, useRef, useState } from "react";
 import { MATRIX_OFFSET_DISTANCE, MATRIX_OFFSET_SIZE_DISTANCE } from "../../GlobalVar";
-import { useClickAway, useEventListener } from "ahooks";
-import { MatrixAllRowsOrColumns, MatrixSize, Session, getGraph } from "../../config";
+import { MatrixSize, Session, getGraph } from "../../config";
 import type { Node } from "@antv/x6";
 import { buildMatrixMenuIndex, getNodeChildren, resizeProscenium, resizeWindow, setAllCorridorColumnH } from "../../utils/util";
 import AppIcon from "../../Components/AppIcon";
@@ -14,6 +13,7 @@ import store from "../../store/index";
 import { subAction } from "../../store/actionCreators";
 import { runGraphBatch } from "../../utils/graphBatch";
 import { syncGraphPerformanceMode } from "../../utils/graphPerformance";
+import { markLocalGraphMutation } from "../../utils/querySync";
 
 const hasAllMatrixAnchors = (...groups: Node[][]) => {
   return groups.every((group) => group.length > 0);
@@ -21,11 +21,14 @@ const hasAllMatrixAnchors = (...groups: Node[][]) => {
 
 export const MinusMenuNode = memo(() => {
   const [show, setShow] = useState(true);
-  const upRef = useRef(null);
-  const downRef = useRef(null);
-  const leftRef = useRef(null);
-  const rightRef = useRef(null);
-  const awayRef = useRef(null);
+  const upRef = useRef<HTMLDivElement | null>(null);
+  const downRef = useRef<HTMLDivElement | null>(null);
+  const leftRef = useRef<HTMLDivElement | null>(null);
+  const rightRef = useRef<HTMLDivElement | null>(null);
+  const awayRef = useRef<HTMLDivElement | null>(null);
+  const closeMenu = () => {
+    setShow(false);
+  };
 
   const removeTopRow = async () => {
     const sessionId = Session.getDataId;
@@ -34,6 +37,7 @@ export const MinusMenuNode = memo(() => {
     const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
     const matrixIndex = buildMatrixMenuIndex(parent);
     const rows = parent.data.rows;
+    markLocalGraphMutation();
 
     if (rows <= 2) {
       message.error("至少保留二行");
@@ -48,13 +52,13 @@ export const MinusMenuNode = memo(() => {
       (item) => item.attrs.xnode && item.data.nodeType === "matrixChair" && item.data.idt.split("-")[0] === "0"
     );
 
-    if (!hasAllMatrixAnchors(firstRowText, firstRowEnText, firstRowChair, firstRowSpace)) {
+    if (!hasAllMatrixAnchors(firstRowText, firstRowEnText, firstRowChair)) {
       return;
     }
 
     const removeArr = [...firstRowText, ...firstRowEnText, ...firstRowChair, ...firstRowSpace];
-    const fs = firstRowSpace[0].size();
-    const offset = fs.height > 6 ? MATRIX_OFFSET_SIZE_DISTANCE : MATRIX_OFFSET_DISTANCE;
+    const fs = firstRowSpace[0]?.size?.();
+    const offset = fs && fs.height > 6 ? MATRIX_OFFSET_SIZE_DISTANCE : MATRIX_OFFSET_DISTANCE;
 
     runGraphBatch(graph, "matrix-remove-row-top", () => {
       for (let i = 0; i < removeArr.length; i++) {
@@ -130,6 +134,7 @@ export const MinusMenuNode = memo(() => {
     const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
     const matrixIndex = buildMatrixMenuIndex(parent);
     const columns = parent.data.columns;
+    markLocalGraphMutation();
 
     if (columns <= 2) {
       message.error("至少保留2列");
@@ -141,7 +146,7 @@ export const MinusMenuNode = memo(() => {
     const firstColumnChair = matrixIndex.chairsByColumn.get(0) ?? [];
     const firstColumnsSpace = [matrixIndex.columnSpaceByIdx.get(0)].filter(Boolean) as Node[];
 
-    if (!hasAllMatrixAnchors(firstColumnTopText, firstColumnBottomText, firstColumnChair, firstColumnsSpace)) {
+    if (!hasAllMatrixAnchors(firstColumnTopText, firstColumnBottomText, firstColumnChair)) {
       return;
     }
 
@@ -150,8 +155,8 @@ export const MinusMenuNode = memo(() => {
     );
 
     const removeArr = [...firstColumnTopText, ...firstColumnBottomText, ...firstColumnChair, ...firstColumnsSpace];
-    const fs = firstColumnsSpace[0].size();
-    const offset = fs.width > 6 ? MATRIX_OFFSET_SIZE_DISTANCE : MATRIX_OFFSET_DISTANCE;
+    const fs = firstColumnsSpace[0]?.size?.();
+    const offset = fs && fs.width > 6 ? MATRIX_OFFSET_SIZE_DISTANCE : MATRIX_OFFSET_DISTANCE;
 
     runGraphBatch(graph, "matrix-remove-column-left", () => {
       for (let i = 0; i < removeArr.length; i++) {
@@ -219,143 +224,92 @@ export const MinusMenuNode = memo(() => {
     }
   };
 
-  useEffect(() => {
-    const debugWindow = window as Window & {
-      __SEATMAP_STUDIO_REMOVE_COLUMN_LEFT__?: () => Promise<void>;
-      __SEATMAP_STUDIO_REMOVE_ROW_TOP__?: () => Promise<void>;
-    };
+  const removeBottomRow = async () => {
+    const sessionId = Session.getDataId;
+    const graph = getGraph();
 
-    if (!["127.0.0.1", "localhost"].includes(window.location.hostname)) {
+    const nodes = graph.getNodes();
+    const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
+    const matrixIndex = buildMatrixMenuIndex(parent);
+
+    const rows = parent.data.rows;
+    markLocalGraphMutation();
+
+    if (rows <= 2) {
+      message.error("至少保留二行");
       return;
     }
 
-    debugWindow.__SEATMAP_STUDIO_REMOVE_ROW_TOP__ = removeTopRow;
-    debugWindow.__SEATMAP_STUDIO_REMOVE_COLUMN_LEFT__ = removeLeftColumn;
+    const lastMatrixBottomNum = matrixIndex.columnBottomNodes;
+    const lastRowText = [matrixIndex.rowTextByIdx.get(rows - 1)].filter(Boolean) as Node[];
+    const lastRowEnText = [matrixIndex.rowTextEnByIdx.get(rows - 1)].filter(Boolean) as Node[];
+    const lastRowChair = matrixIndex.chairsByRow.get(rows - 1) ?? [];
+    const lastRowSpace = [matrixIndex.rowSpaceByIdx.get(rows - 2)].filter(Boolean) as Node[];
 
-    return () => {
-      delete debugWindow.__SEATMAP_STUDIO_REMOVE_ROW_TOP__;
-      delete debugWindow.__SEATMAP_STUDIO_REMOVE_COLUMN_LEFT__;
-    };
-  });
+    if (!hasAllMatrixAnchors(lastMatrixBottomNum, lastRowText, lastRowEnText, lastRowChair)) {
+      return;
+    }
 
-  useEventListener(
-    "click",
-    removeTopRow,
-    { target: upRef }
-  );
+    const hasPeronArr = matrixIndex.allChildren.filter(
+      (item) =>
+        item.attrs.xnode &&
+        item.data.nodeType === "matrixChair" &&
+        item.data.idt.split("-")[0] === (rows - 1).toString()
+    );
 
-  useEventListener(
-    "click",
-    async () => {
-      // 获取场次Id
-      const sessionId = Session.getDataId;
+    const removeArr = [...lastRowText, ...lastRowEnText, ...lastRowChair, ...lastRowSpace];
+    const fs = lastRowSpace[0]?.size?.();
+    const offset = fs && fs.height > 6 ? MATRIX_OFFSET_SIZE_DISTANCE : MATRIX_OFFSET_DISTANCE;
 
-      const graph = getGraph();
-
-      // 获取所有节点
-      const nodes = graph.getNodes();
-      const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
-      const matrixIndex = buildMatrixMenuIndex(parent);
-
-      // 获取所有行
-      const rows = parent.data.rows;
-
-      if (rows <= 2) {
-        message.error("至少保留二行");
-        return;
+    runGraphBatch(graph, "matrix-remove-row-bottom", () => {
+      for (let i = 0; i < removeArr.length; i++) {
+        const element = removeArr[i];
+        parent.removeChild(element);
       }
 
-      const lastMatrixBottomNum = matrixIndex.columnBottomNodes;
-      const lastRowText = [matrixIndex.rowTextByIdx.get(rows - 1)].filter(Boolean) as Node[];
-      const lastRowEnText = [matrixIndex.rowTextEnByIdx.get(rows - 1)].filter(Boolean) as Node[];
-      const lastRowChair = matrixIndex.chairsByRow.get(rows - 1) ?? [];
-      const lastRowSpace = [matrixIndex.rowSpaceByIdx.get(rows - 2)].filter(Boolean) as Node[];
-
-      if (!hasAllMatrixAnchors(lastMatrixBottomNum, lastRowText, lastRowEnText, lastRowChair, lastRowSpace)) {
-        return;
-      }
-
-      // 过滤出添加过人的节点
-      const hasPeronArr = matrixIndex.allChildren.filter(
-        (item) =>
-          item.attrs.xnode &&
-          item.data.nodeType === "matrixChair" &&
-          item.data.idt.split("-")[0] === (rows - 1).toString()
-      );
-
-      const removeArr = [...lastRowText, ...lastRowEnText, ...lastRowChair, ...lastRowSpace];
-      const fs = lastRowSpace[0].size();
-      const offset = fs.height > 6 ? MATRIX_OFFSET_SIZE_DISTANCE : MATRIX_OFFSET_DISTANCE;
-
-      runGraphBatch(graph, "matrix-remove-row-bottom", () => {
-        for (let i = 0; i < removeArr.length; i++) {
-          const element = removeArr[i];
-          parent.removeChild(element);
-        }
-
-        const { width, height } = parent.size();
-        const pHeight = height - offset;
-        parent.setProp({
-          size: {
-            width: width,
-            height: pHeight,
-          },
-        });
-
-        MatrixSize.setMh = pHeight;
-        setAllCorridorColumnH(nodes, "corridorColumnSpace", pHeight);
-
-        lastMatrixBottomNum.forEach((element) => {
-          const { x, y } = element.getPosition();
-          element.position(x, y - offset);
-        });
-
-        parent.setData({
-          rows: rows - 1,
-        });
+      const { width, height } = parent.size();
+      const pHeight = height - offset;
+      parent.setProp({
+        size: {
+          width: width,
+          height: pHeight,
+        },
       });
-      syncGraphPerformanceMode(graph);
 
-      // const nodesss = graph.getNodes();
-      // 更新图形组 父节点
-      const graphicsParams = updateGraphics(parent, sessionId);
-      await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+      MatrixSize.setMh = pHeight;
+      setAllCorridorColumnH(nodes, "corridorColumnSpace", pHeight);
 
-      // 更新子节点
-      const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
-      await handleCpApi({ params: nodeParams, code: "seat" }, true);
+      lastMatrixBottomNum.forEach((element) => {
+        const { x, y } = element.getPosition();
+        element.position(x, y - offset);
+      });
 
-      // 删除节点
-      const delNodeParams = delNode(removeArr, sessionId);
-      await handleCpApi({ params: delNodeParams, code: "seat" }, true);
+      parent.setData({
+        rows: rows - 1,
+      });
+    });
+    syncGraphPerformanceMode(graph);
 
-      if (hasPeronArr && hasPeronArr.length > 0) {
-        // 人员删除
-        // const personParams = delPersonnel(hasPeronArr);
-        // handleCpApi({ params: personParams, code: "seat" }, true);
+    const graphicsParams = updateGraphics(parent, sessionId);
+    await handleCpApi({ params: graphicsParams, code: "seat" }, true);
 
-        for (let i = 0; i < hasPeronArr.length; i++) {
-          const element: any = hasPeronArr[i];
-          store.dispatch(subAction(element.attrs.xnode.key));
-        }
+    const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
+    await handleCpApi({ params: nodeParams, code: "seat" }, true);
+
+    const delNodeParams = delNode(removeArr, sessionId);
+    await handleCpApi({ params: delNodeParams, code: "seat" }, true);
+
+    if (hasPeronArr && hasPeronArr.length > 0) {
+      for (let i = 0; i < hasPeronArr.length; i++) {
+        const element: any = hasPeronArr[i];
+        store.dispatch(subAction(element.attrs.xnode.key));
       }
-    },
-    { target: downRef }
-  );
+    }
+  };
 
-  useEventListener(
-    "click",
-    removeLeftColumn,
-    { target: leftRef }
-  );
-
-  useEventListener(
-    "click",
-    async () => {
+  const removeRightColumn = async () => {
       // 获取场次Id
       const sessionId = Session.getDataId;
-
-      // const columns = MatrixAllRowsOrColumns.getAllColumns;
 
       const graph = getGraph();
 
@@ -365,6 +319,7 @@ export const MinusMenuNode = memo(() => {
       const matrixIndex = buildMatrixMenuIndex(parent);
       // 获取所有列
       const columns = parent.data.columns;
+      markLocalGraphMutation();
 
       if (columns <= 2) {
         message.error("至少保留2列");
@@ -377,7 +332,7 @@ export const MinusMenuNode = memo(() => {
       const lastRowChair = matrixIndex.chairsByColumn.get(columns - 1) ?? [];
       const lastRowSpace = [matrixIndex.columnSpaceByIdx.get(columns - 2)].filter(Boolean) as Node[];
 
-      if (!hasAllMatrixAnchors(lastColumns, lastColumnsTopText, lastColumnsBottomText, lastRowChair, lastRowSpace)) {
+      if (!hasAllMatrixAnchors(lastColumns, lastColumnsTopText, lastColumnsBottomText, lastRowChair)) {
         return;
       }
       // 过滤出添加过人的节点
@@ -389,8 +344,8 @@ export const MinusMenuNode = memo(() => {
       );
 
       const removeArr = [...lastColumnsTopText, ...lastColumnsBottomText, ...lastRowChair, ...lastRowSpace];
-      const fs = lastRowSpace[0].size();
-      const offset = fs.width > 6 ? MATRIX_OFFSET_SIZE_DISTANCE : MATRIX_OFFSET_DISTANCE;
+      const fs = lastRowSpace[0]?.size?.();
+      const offset = fs && fs.width > 6 ? MATRIX_OFFSET_SIZE_DISTANCE : MATRIX_OFFSET_DISTANCE;
 
       runGraphBatch(graph, "matrix-remove-column-right", () => {
         for (let i = 0; i < removeArr.length; i++) {
@@ -419,38 +374,58 @@ export const MinusMenuNode = memo(() => {
       });
       syncGraphPerformanceMode(graph);
 
-      // 更新图形组 父节点
       const graphicsParams = updateGraphics(parent, sessionId);
       await handleCpApi({ params: graphicsParams, code: "seat" }, true);
 
-      // 更新子节点
       const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
       await handleCpApi({ params: nodeParams, code: "seat" }, true);
 
-      // 删除节点
       const delNodeParams = delNode(removeArr, sessionId);
       await handleCpApi({ params: delNodeParams, code: "seat" }, true);
 
       if (hasPeronArr && hasPeronArr.length > 0) {
-        // 人员删除
-        // const personParams = delPersonnel(hasPeronArr);
-        // handleCpApi({ params: personParams, code: "seat" }, true);
-
         for (let i = 0; i < hasPeronArr.length; i++) {
           const element: any = hasPeronArr[i];
           store.dispatch(subAction(element.attrs.xnode.key));
         }
       }
-    },
-    { target: rightRef }
-  );
+  };
 
-  useClickAway(() => {
-    setShow(false);
-  }, awayRef);
+  useLayoutEffect(() => {
+    const bindAction = (element: HTMLDivElement | null, action: () => Promise<void>): (() => void) => {
+      if (!element) {
+        return () => undefined;
+      }
+
+      const handler = () => {
+        void action().then(closeMenu);
+      };
+
+      element.addEventListener("click", handler);
+      return () => {
+        element.removeEventListener("click", handler);
+      };
+    };
+
+    const cleanups = [
+      bindAction(upRef.current, removeTopRow),
+      bindAction(downRef.current, removeBottomRow),
+      bindAction(leftRef.current, removeLeftColumn),
+      bindAction(rightRef.current, removeRightColumn),
+    ];
+
+    return () => {
+      cleanups.forEach((cleanup) => cleanup());
+    };
+  }, []);
 
   return show ? (
-    <div className="menu-dialog" ref={awayRef}>
+    <div
+      className="menu-dialog"
+      ref={awayRef}
+      onMouseDown={(event) => event.stopPropagation()}
+      onClick={(event) => event.stopPropagation()}
+    >
       <div className="items" ref={upRef}>
         <AppIcon name="removeTop" className="menu-item-icon" /> 删除最上 1 行
       </div>
@@ -474,6 +449,8 @@ const render = createRender(MinusMenuNode);
 register({
   shape: "minus-menu-react-node",
   render,
+  width: 152,
+  height: 160,
   data: {
     nodeType: "menuNode",
   },

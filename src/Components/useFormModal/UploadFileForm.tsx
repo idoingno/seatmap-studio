@@ -14,7 +14,7 @@ import { importSeatAssignments } from "../../utils/excel/importSeatAssignments";
 interface UploadFileFormPropsType {
   //   mapUrl?: string;
   setRefresh?: (val: boolean) => void;
-  getData?: () => void;
+  getData?: () => void | Promise<void>;
   refreshPeople?: () => void;
   beforeSubmit?: (values: any) => void;
   //   afterSubmit?: (values: any, form: FormInstance<any>) => void;
@@ -36,13 +36,13 @@ const UploadFileForm = (
     importSeatAssignments(file)
       .then(async ({ code, subMsgType }) => {
         if (code === 200 && subMsgType === "success") {
-          message.success("操作完成~");
           props.setRefresh?.(true);
           if (props.refreshPeople) {
             props.refreshPeople();
           } else {
-            props.getData?.();
+            await props.getData?.();
           }
+          message.success("操作完成~");
         } else {
           message.error("操作失败~");
         }

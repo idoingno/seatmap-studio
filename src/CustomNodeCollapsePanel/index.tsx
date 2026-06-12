@@ -32,7 +32,7 @@ const SelectTemplateForm = lazyForm(() => import("../Components/useFormModal/Sel
 interface PersonTreeType {
   onRef: any;
   loadTree$: EventEmitter<void>;
-  getData: () => void;
+  getData: () => void | Promise<void>;
   setRefresh: (value: boolean) => void;
 }
 

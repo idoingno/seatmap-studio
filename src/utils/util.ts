@@ -51,27 +51,30 @@ export interface MatrixMenuIndex {
 }
 
 export const getNodeChildren = (parent: Node | null | undefined): Node[] => {
-  const directChildren = (parent as Node & { children?: Node[] } | null | undefined)?.children;
-  if (Array.isArray(directChildren) && directChildren.length) {
-    return directChildren.filter(Boolean) as Node[];
-  }
-
-  const nestedChildren = (((parent?.getChildren() as unknown as Node[] | null) ?? []).filter(Boolean) as Node[]);
-  if (nestedChildren.length) {
-    return nestedChildren;
-  }
-
   if (!parent) {
     return [];
   }
 
-  return getGraph()
+  const allChildren = new Map<string, Node>();
+  const directChildren = ((parent as Node & { children?: Node[] } | null | undefined)?.children ?? []).filter(
+    Boolean
+  ) as Node[];
+  const nestedChildren = (((parent.getChildren() as unknown as Node[] | null) ?? []).filter(Boolean) as Node[]);
+  const scannedChildren = getGraph()
     .getNodes()
     .filter((node) => {
       const currentNode = node as Node;
       const currentParent = currentNode.getParent?.() ?? ((currentNode as Node & { parent?: Node }).parent ?? null);
       return currentParent?.id === parent.id;
     }) as Node[];
+
+  [...directChildren, ...nestedChildren, ...scannedChildren].forEach((node) => {
+    if (node?.id) {
+      allChildren.set(node.id, node);
+    }
+  });
+
+  return [...allChildren.values()];
 };
 
 export const buildMatrixMenuIndex = (parent: Node): MatrixMenuIndex => {

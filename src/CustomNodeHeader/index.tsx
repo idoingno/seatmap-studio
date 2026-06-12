@@ -23,7 +23,7 @@ interface PageLoadingProps {
   // setShowTemplate: (val: boolean) => void;
   // setMapUrl: (val: string) => void;
   setRefresh?: (val: boolean) => void;
-  getData?: () => void;
+  getData?: () => void | Promise<void>;
   refreshPeople?: () => void;
   closeApp?: () => void;
 }

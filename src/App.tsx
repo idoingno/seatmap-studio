@@ -21,6 +21,7 @@ import { useSelector } from "react-redux";
 import { runGraphBatch } from "./utils/graphBatch";
 import { syncGraphPerformanceMode } from "./utils/graphPerformance";
 import { ensureEditorInteractionRuntime, ensureEditorNodeRuntime } from "./utils/editorRuntime";
+import { hasNewerLocalGraphMutation } from "./utils/querySync";
 import AppIcon from "./Components/AppIcon";
 import "./style.less";
 
@@ -116,11 +117,18 @@ const App = ({ closeApp }: AppProps) => {
   }, []);
 
   const query = async () => {
+    const startedAt = Date.now();
     setLoading(true);
 
     const params = querySeatInfo(sessionId);
     try {
       const { code, data, subMsgType }: ResponseType = await handleCpApi({ params, code: "seat" });
+
+      if (hasNewerLocalGraphMutation(startedAt)) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(false);
 
       if (code === 200 && subMsgType === "success") {
@@ -165,13 +173,13 @@ const App = ({ closeApp }: AppProps) => {
   //   }
   // }, [selectFullScreenLoading])
 
-  const getAllData = () => {
+  const getAllData = async () => {
     setLoading(true);
     store.dispatch(emptyAction());
     store.dispatch(isLoadAction(false));
     store.dispatch(addDargAction(""));
 
-    query();
+    await query();
     forceUpdate();
   };
 

@@ -176,6 +176,48 @@ test.describe("Seatmap Studio", () => {
     await expect(page.getByText("模板配置")).not.toBeVisible();
   });
 
+  test("keeps core layout and upload modal usable on a mobile viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+
+    await expect(page.getByText("会议室布局编辑台")).toBeVisible();
+    await expect(page.getByRole("button", { name: /上传座位配置/ })).toBeVisible();
+
+    const pageMetrics = await page.evaluate(() => {
+      const doc = document.documentElement;
+      return {
+        hasHorizontalOverflow: doc.scrollWidth > window.innerWidth,
+        viewportWidth: window.innerWidth,
+        scrollWidth: doc.scrollWidth,
+      };
+    });
+
+    expect(pageMetrics).toEqual({
+      hasHorizontalOverflow: false,
+      viewportWidth: 390,
+      scrollWidth: 390,
+    });
+
+    await page.getByRole("button", { name: /上传座位配置/ }).click();
+    const uploadModal = page.locator(".ant-modal").filter({ hasText: "上传配置" });
+    await expect(uploadModal).toBeVisible();
+    await expect(uploadModal.getByText("请选择 Excel 座位文件")).toBeVisible();
+    await expect(uploadModal.getByRole("button", { name: /提\s*交/ })).toBeVisible();
+
+    const modalMetrics = await uploadModal.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        bottom: rect.bottom,
+        right: rect.right,
+        width: rect.width,
+      };
+    });
+
+    expect(modalMetrics.width).toBeGreaterThan(280);
+    expect(modalMetrics.right).toBeLessThanOrEqual(390);
+    expect(modalMetrics.bottom).toBeLessThanOrEqual(844);
+  });
+
   test("exports a seat map without runtime errors", async ({ page }) => {
     const pageErrors: string[] = [];
     page.on("pageerror", (error) => {

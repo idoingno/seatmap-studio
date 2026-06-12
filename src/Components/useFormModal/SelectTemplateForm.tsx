@@ -10,7 +10,7 @@ interface SelectTemplateFormPropsType {
   // mapUrl?: string;
   beforeSubmit?: (values: any) => void;
   afterSubmit?: (values: any, form: FormInstance<any>) => void;
-  getData?: () => void;
+  getData?: () => void | Promise<void>;
   setRefresh?: (val: boolean) => void;
 }
 
@@ -49,9 +49,9 @@ const SelectTemplateForm = (
     };
     const { code, subMsgType }: ResponseType = await handleCpApi({ params: params, code: "template" });
     if (code === 200 && subMsgType === "success") {
+      await props.getData?.();
+      props.setRefresh?.(true);
       message.success("操作完成~");
-      props.getData();
-      props.setRefresh(true);
     } else {
       message.error("操作失败~");
     }

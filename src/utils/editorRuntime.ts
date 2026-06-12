@@ -65,8 +65,7 @@ export const ensureEditorInteractionRuntime = async (graph: Graph) => {
     } as any)
   );
 
-  graph.use(
-    new Selection({
+  const selection = new Selection({
       enabled: true,
       filter(node: any) {
         return (
@@ -80,11 +79,31 @@ export const ensureEditorInteractionRuntime = async (graph: Graph) => {
       multipleSelectionModifiers: ["ctrl", "meta"],
       strict: true,
       pointerEvents: "none",
-      rubberband: false,
+      rubberband: true,
       movable: true,
       showNodeSelectionBox: true,
-    })
-  );
+    });
+
+  graph.use(selection);
+
+  const selectionPlugin = graph.getPlugin?.("selection") as
+    | {
+        allowRubberband?: (event?: MouseEvent, strict?: boolean) => boolean;
+        __seatmapSafeAllowRubberband__?: boolean;
+      }
+    | undefined;
+
+  if (selectionPlugin && !selectionPlugin.__seatmapSafeAllowRubberband__ && selectionPlugin.allowRubberband) {
+    const originalAllowRubberband = selectionPlugin.allowRubberband.bind(selectionPlugin);
+    selectionPlugin.allowRubberband = (event?: MouseEvent, strict?: boolean) => {
+      if (!event) {
+        return false;
+      }
+
+      return originalAllowRubberband(event, strict);
+    };
+    selectionPlugin.__seatmapSafeAllowRubberband__ = true;
+  }
 
   graph.use(
     new Transform({

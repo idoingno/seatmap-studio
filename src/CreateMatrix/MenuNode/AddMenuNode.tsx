@@ -1,9 +1,8 @@
 import { register } from "x6-html-shape";
 import createRender from "x6-html-shape/dist/react17";
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useLayoutEffect, useRef, useState } from "react";
 import { MATRIX_OFFSET_DISTANCE } from "../../GlobalVar";
-import { useClickAway, useEventListener } from "ahooks";
-import { MatrixAllRowsOrColumns, MatrixSize, Session, getGraph } from "../../config";
+import { MatrixSize, Session, getGraph } from "../../config";
 import type { Node } from "@antv/x6";
 import {
   buildMatrixMenuIndex,
@@ -19,6 +18,7 @@ import { updateGraphics, updateNode } from "../../utils/apiParams";
 import { handleCpApi } from "../../api";
 import { runGraphBatch } from "../../utils/graphBatch";
 import { syncGraphPerformanceMode } from "../../utils/graphPerformance";
+import { markLocalGraphMutation } from "../../utils/querySync";
 import AppIcon from "../../Components/AppIcon";
 
 const hasAllMatrixAnchors = (...groups: Node[][]) => {
@@ -27,11 +27,14 @@ const hasAllMatrixAnchors = (...groups: Node[][]) => {
 
 export const AddMenuNode = memo(() => {
   const [show, setShow] = useState(true);
-  const upRef = useRef(null);
-  const downRef = useRef(null);
-  const leftRef = useRef(null);
-  const rightRef = useRef(null);
-  const awayRef = useRef(null);
+  const upRef = useRef<HTMLDivElement | null>(null);
+  const downRef = useRef<HTMLDivElement | null>(null);
+  const leftRef = useRef<HTMLDivElement | null>(null);
+  const rightRef = useRef<HTMLDivElement | null>(null);
+  const awayRef = useRef<HTMLDivElement | null>(null);
+  const closeMenu = () => {
+    setShow(false);
+  };
 
   const addTopRow = async () => {
     // 获取场次Id
@@ -43,6 +46,7 @@ export const AddMenuNode = memo(() => {
     const nodes = graph.getNodes();
     const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
     const matrixIndex = buildMatrixMenuIndex(parent);
+    markLocalGraphMutation();
 
     // 获取所有行
     const rows = parent.data.rows;
@@ -66,7 +70,7 @@ export const AddMenuNode = memo(() => {
       const firstRowChair = matrixIndex.chairsByRow.get(0) ?? [];
       const firstRowSpace = [matrixIndex.rowSpaceByIdx.get(0)].filter(Boolean) as Node[];
 
-      if (!hasAllMatrixAnchors(firstRowText, firstRowEnText, firstRowChair, firstRowSpace)) {
+      if (!hasAllMatrixAnchors(firstRowText, firstRowEnText, firstRowChair)) {
         return;
       }
 
@@ -91,15 +95,17 @@ export const AddMenuNode = memo(() => {
         })
       );
       createdNodes.push(...parentAddChair(firstRowChair, 0, "top"));
-      createdNodes.push(
-        parentAddRoworColumn({
-          data: firstRowSpace,
-          shape: "row-space-node",
-          idt: "aisleRowSpace-0",
-          idx: 0,
-          direction: "top",
-        })
-      );
+      if (firstRowSpace.length > 0) {
+        createdNodes.push(
+          parentAddRoworColumn({
+            data: firstRowSpace,
+            shape: "row-space-node",
+            idt: "aisleRowSpace-0",
+            idx: 0,
+            direction: "top",
+          })
+        );
+      }
       graph.addNodes(createdNodes, { async: true });
       setAllCorridorColumnH(nodes, "corridorColumnSpace", pHeight);
 
@@ -140,6 +146,100 @@ export const AddMenuNode = memo(() => {
     await handleCpApi({ params: nodeParams, code: "seat" }, true);
   };
 
+  const addBottomRow = async () => {
+    // 获取场次Id
+    const sessionId = Session.getDataId;
+
+    const graph = getGraph();
+
+    // 获取所有节点
+    const nodes = graph.getNodes();
+    const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
+    const matrixIndex = buildMatrixMenuIndex(parent);
+    markLocalGraphMutation();
+
+    runGraphBatch(graph, "matrix-add-row-bottom", () => {
+      const createdNodes: Node[] = [];
+
+      // 更改父节点高度
+      const { width, height } = parent.size();
+      const pHeight = height + MATRIX_OFFSET_DISTANCE;
+      parent.setProp({
+        size: {
+          width: width,
+          height: pHeight,
+        },
+      });
+
+      MatrixSize.setMh = pHeight;
+
+      // 获取所有行
+      const rows = parent.data.rows;
+
+      const lastMatrixBottomNum = matrixIndex.columnBottomNodes;
+      const lastRowText = [matrixIndex.rowTextByIdx.get(rows - 1)].filter(Boolean) as Node[];
+      const lastRowEnText = [matrixIndex.rowTextEnByIdx.get(rows - 1)].filter(Boolean) as Node[];
+      const lastRowChair = matrixIndex.chairsByRow.get(rows - 1) ?? [];
+      const lastRowSpace = [matrixIndex.rowSpaceByIdx.get(rows - 2)].filter(Boolean) as Node[];
+
+      if (!hasAllMatrixAnchors(lastMatrixBottomNum, lastRowText, lastRowEnText, lastRowChair)) {
+        return;
+      }
+
+      createdNodes.push(
+        parentAddText({
+          data: lastRowText,
+          shape: "row-text-cn",
+          label: `新增行`,
+          idt: `row-${rows}`,
+          idx: rows,
+          direction: "bottom",
+        })
+      );
+
+      createdNodes.push(
+        parentAddText({
+          data: lastRowEnText,
+          shape: "row-text-en",
+          label: `新增行`,
+          idt: `rowEn-${rows}`,
+          idx: rows,
+          direction: "bottom",
+        })
+      );
+      createdNodes.push(...parentAddChair(lastRowChair, rows, "bottom"));
+
+      if (lastRowSpace.length > 0) {
+        createdNodes.push(
+          parentAddRoworColumn({
+            data: lastRowSpace,
+            shape: "row-space-node",
+            idt: `aisleRowSpace-${rows - 1}`,
+            idx: rows - 1,
+            direction: "bottom",
+          })
+        );
+      }
+      graph.addNodes(createdNodes, { async: true });
+
+      setAllCorridorColumnH(nodes, "corridorColumnSpace", pHeight);
+
+      lastMatrixBottomNum.forEach((element) => {
+        const { x, y } = element.getPosition();
+        element.position(x, y + MATRIX_OFFSET_DISTANCE);
+      });
+
+      parent.setData({ rows: rows + 1 });
+    });
+    syncGraphPerformanceMode(graph);
+
+    const graphicsParams = updateGraphics(parent, sessionId);
+    await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+
+    const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
+    await handleCpApi({ params: nodeParams, code: "seat" }, true);
+  };
+
   const addLeftColumn = async () => {
     const sessionId = Session.getDataId;
     const graph = getGraph();
@@ -147,6 +247,7 @@ export const AddMenuNode = memo(() => {
     const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
     const matrixIndex = buildMatrixMenuIndex(parent);
     const columns = parent.data.columns;
+    markLocalGraphMutation();
 
     runGraphBatch(graph, "matrix-add-column-left", () => {
       const createdNodes: Node[] = [];
@@ -167,7 +268,7 @@ export const AddMenuNode = memo(() => {
       const firstColumnChair = matrixIndex.chairsByColumn.get(0) ?? [];
       const firstColumnsSpace = [matrixIndex.columnSpaceByIdx.get(0)].filter(Boolean) as Node[];
 
-      if (!hasAllMatrixAnchors(firstColumnTopText, firstColumnBottomText, firstColumnChair, firstColumnsSpace)) {
+      if (!hasAllMatrixAnchors(firstColumnTopText, firstColumnBottomText, firstColumnChair)) {
         return;
       }
 
@@ -195,15 +296,17 @@ export const AddMenuNode = memo(() => {
 
       createdNodes.push(...parentAddChair(firstColumnChair, 0, "left"));
 
-      createdNodes.push(
-        parentAddRoworColumn({
-          data: firstColumnsSpace,
-          shape: "column-space-node",
-          idt: "corridorColumnSpace-0",
-          idx: 0,
-          direction: "left",
-        })
-      );
+      if (firstColumnsSpace.length > 0) {
+        createdNodes.push(
+          parentAddRoworColumn({
+            data: firstColumnsSpace,
+            shape: "column-space-node",
+            idt: "corridorColumnSpace-0",
+            idx: 0,
+            direction: "left",
+          })
+        );
+      }
       graph.addNodes(createdNodes, { async: true });
 
       const filterNode = matrixIndex.allChildren.filter((ite: Node) => {
@@ -245,199 +348,69 @@ export const AddMenuNode = memo(() => {
     await handleCpApi({ params: nodeParams, code: "seat" }, true);
   };
 
-  useEffect(() => {
-    const debugWindow = window as Window & {
-      __SEATMAP_STUDIO_ADD_COLUMN_LEFT__?: () => Promise<void>;
-      __SEATMAP_STUDIO_ADD_ROW_TOP__?: () => Promise<void>;
-    };
+  const addRightColumn = async () => {
+    // 获取场次Id
+    const sessionId = Session.getDataId;
 
-    if (!["127.0.0.1", "localhost"].includes(window.location.hostname)) {
-      return;
-    }
+    const graph = getGraph();
 
-    debugWindow.__SEATMAP_STUDIO_ADD_ROW_TOP__ = addTopRow;
-    debugWindow.__SEATMAP_STUDIO_ADD_COLUMN_LEFT__ = addLeftColumn;
+    // 获取所有节点
+    const nodes = graph.getNodes();
+    const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
+    const matrixIndex = buildMatrixMenuIndex(parent);
 
-    return () => {
-      delete debugWindow.__SEATMAP_STUDIO_ADD_ROW_TOP__;
-      delete debugWindow.__SEATMAP_STUDIO_ADD_COLUMN_LEFT__;
-    };
-  });
+    // 获取所有列
+    const columns = parent.data.columns;
+    markLocalGraphMutation();
 
-  useEventListener(
-    "click",
-    addTopRow,
-    { target: upRef }
-  );
+    runGraphBatch(graph, "matrix-add-column-right", () => {
+      const createdNodes: Node[] = [];
 
-  useEventListener(
-    "click",
-    async () => {
-      // 获取场次Id
-      const sessionId = Session.getDataId;
-
-      const graph = getGraph();
-
-      // 获取所有节点
-      const nodes = graph.getNodes();
-      const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
-      const matrixIndex = buildMatrixMenuIndex(parent);
-
-      runGraphBatch(graph, "matrix-add-row-bottom", () => {
-        const createdNodes: Node[] = [];
-
-        // 更改父节点高度
-        const { width, height } = parent.size();
-        const pHeight = height + MATRIX_OFFSET_DISTANCE;
-        parent.setProp({
-          size: {
-            width: width,
-            height: pHeight,
-          },
-        });
-
-        MatrixSize.setMh = pHeight;
-
-        // 获取所有行
-        const rows = parent.data.rows;
-
-        const lastMatrixBottomNum = matrixIndex.columnBottomNodes;
-        const lastRowText = [matrixIndex.rowTextByIdx.get(rows - 1)].filter(Boolean) as Node[];
-        const lastRowEnText = [matrixIndex.rowTextEnByIdx.get(rows - 1)].filter(Boolean) as Node[];
-        const lastRowChair = matrixIndex.chairsByRow.get(rows - 1) ?? [];
-        const lastRowSpace = [matrixIndex.rowSpaceByIdx.get(rows - 2)].filter(Boolean) as Node[];
-
-        if (!hasAllMatrixAnchors(lastMatrixBottomNum, lastRowText, lastRowEnText, lastRowChair, lastRowSpace)) {
-          return;
-        }
-
-        createdNodes.push(
-          parentAddText({
-            data: lastRowText,
-            shape: "row-text-cn",
-            label: `新增行`,
-            idt: `row-${rows}`,
-            idx: rows,
-            direction: "bottom",
-          })
-        );
-
-        createdNodes.push(
-          parentAddText({
-            data: lastRowEnText,
-            shape: "row-text-en",
-            label: `新增行`,
-            idt: `rowEn-${rows}`,
-            idx: rows,
-            direction: "bottom",
-          })
-        );
-        createdNodes.push(...parentAddChair(lastRowChair, rows, "bottom"));
-
-        createdNodes.push(
-          parentAddRoworColumn({
-            data: lastRowSpace,
-            shape: "row-space-node",
-            idt: `aisleRowSpace-${rows - 1}`,
-            idx: rows - 1,
-            direction: "bottom",
-          })
-        );
-        graph.addNodes(createdNodes, { async: true });
-
-        setAllCorridorColumnH(nodes, "corridorColumnSpace", pHeight);
-
-        lastMatrixBottomNum.forEach((element) => {
-          const { x, y } = element.getPosition();
-          element.position(x, y + MATRIX_OFFSET_DISTANCE);
-        });
-
-        parent.setData({ rows: rows + 1 });
+      const { width, height } = parent.size();
+      const pWidth = width + MATRIX_OFFSET_DISTANCE;
+      parent.setProp({
+        size: {
+          width: pWidth,
+          height: height,
+        },
       });
-      syncGraphPerformanceMode(graph);
 
-      // const nodesss = graph.getNodes();
-      // 更新图形组 父节点
-      const graphicsParams = updateGraphics(parent, sessionId);
-      await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+      MatrixSize.setMw = pWidth;
 
-      // 更新子节点
-      const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
-      await handleCpApi({ params: nodeParams, code: "seat" }, true);
-    },
-    { target: downRef }
-  );
+      const lastColumns = matrixIndex.rowEnNodes;
+      const lastColumnsTopText = [matrixIndex.columnTopTextByIdx.get(columns - 1)].filter(Boolean) as Node[];
+      const lastColumnsBottomText = [matrixIndex.columnBottomTextByIdx.get(columns - 1)].filter(Boolean) as Node[];
+      const lastRowChair = matrixIndex.chairsByColumn.get(columns - 1) ?? [];
+      const lastRowSpace = [matrixIndex.columnSpaceByIdx.get(columns - 2)].filter(Boolean) as Node[];
 
-  useEventListener(
-    "click",
-    addLeftColumn,
-    { target: leftRef }
-  );
+      if (!hasAllMatrixAnchors(lastColumns, lastColumnsTopText, lastColumnsBottomText, lastRowChair)) {
+        return;
+      }
 
-  useEventListener(
-    "click",
-    async () => {
-      // 获取场次Id
-      const sessionId = Session.getDataId;
+      createdNodes.push(
+        parentAddText({
+          data: lastColumnsTopText,
+          shape: "top-number-node",
+          label: `新增列`,
+          idt: `matrixColumnTopNum-${columns}`,
+          idx: columns,
+          direction: "right",
+        })
+      );
 
-      const graph = getGraph();
-      // const columns = MatrixAllRowsOrColumns.getAllColumns;
+      createdNodes.push(
+        parentAddText({
+          data: lastColumnsBottomText,
+          shape: "bottom-number-node",
+          label: `新增列`,
+          idt: `matrixColumnBottomNum-${columns}`,
+          idx: columns,
+          direction: "right",
+        })
+      );
+      createdNodes.push(...parentAddChair(lastRowChair, columns, "right"));
 
-      // 获取所有节点
-      const nodes = graph.getNodes();
-      const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
-      const matrixIndex = buildMatrixMenuIndex(parent);
-
-      // 获取所有列
-      const columns = parent.data.columns;
-
-      runGraphBatch(graph, "matrix-add-column-right", () => {
-        const createdNodes: Node[] = [];
-
-        const { width, height } = parent.size();
-        const pWidth = width + MATRIX_OFFSET_DISTANCE;
-        parent.setProp({
-          size: {
-            width: pWidth,
-            height: height,
-          },
-        });
-
-        MatrixSize.setMw = pWidth;
-
-        const lastColumns = matrixIndex.rowEnNodes;
-        const lastColumnsTopText = [matrixIndex.columnTopTextByIdx.get(columns - 1)].filter(Boolean) as Node[];
-        const lastColumnsBottomText = [matrixIndex.columnBottomTextByIdx.get(columns - 1)].filter(Boolean) as Node[];
-        const lastRowChair = matrixIndex.chairsByColumn.get(columns - 1) ?? [];
-        const lastRowSpace = [matrixIndex.columnSpaceByIdx.get(columns - 2)].filter(Boolean) as Node[];
-
-        if (!hasAllMatrixAnchors(lastColumns, lastColumnsTopText, lastColumnsBottomText, lastRowChair, lastRowSpace)) {
-          return;
-        }
-
-        createdNodes.push(
-          parentAddText({
-            data: lastColumnsTopText,
-            shape: "top-number-node",
-            label: `新增列`,
-            idt: `matrixColumnTopNum-${columns}`,
-            idx: columns,
-            direction: "right",
-          })
-        );
-
-        createdNodes.push(
-          parentAddText({
-            data: lastColumnsBottomText,
-            shape: "bottom-number-node",
-            label: `新增列`,
-            idt: `matrixColumnBottomNum-${columns}`,
-            idx: columns,
-            direction: "right",
-          })
-        );
-        createdNodes.push(...parentAddChair(lastRowChair, columns, "right"));
-
+      if (lastRowSpace.length > 0) {
         createdNodes.push(
           parentAddRoworColumn({
             data: lastRowSpace,
@@ -447,37 +420,62 @@ export const AddMenuNode = memo(() => {
             direction: "right",
           })
         );
-        graph.addNodes(createdNodes, { async: true });
+      }
+      graph.addNodes(createdNodes, { async: true });
 
-        setAllCorridorColumnH(nodes, "aisleRowSpace", pWidth);
+      setAllCorridorColumnH(nodes, "aisleRowSpace", pWidth);
 
-        lastColumns.forEach((element) => {
-          const { x, y } = element.getPosition();
-          element.position(x + MATRIX_OFFSET_DISTANCE, y);
-        });
-
-        parent.setData({ columns: columns + 1 });
+      lastColumns.forEach((element) => {
+        const { x, y } = element.getPosition();
+        element.position(x + MATRIX_OFFSET_DISTANCE, y);
       });
-      syncGraphPerformanceMode(graph);
 
-      // const nodesss = graph.getNodes();
-      // 更新图形组 父节点
-      const graphicsParams = updateGraphics(parent, sessionId);
-      await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+      parent.setData({ columns: columns + 1 });
+    });
+    syncGraphPerformanceMode(graph);
 
-      // 更新子节点
-      const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
-      await handleCpApi({ params: nodeParams, code: "seat" }, true);
-    },
-    { target: rightRef }
-  );
+    const graphicsParams = updateGraphics(parent, sessionId);
+    await handleCpApi({ params: graphicsParams, code: "seat" }, true);
 
-  useClickAway(() => {
-    setShow(false);
-  }, awayRef);
+    const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
+    await handleCpApi({ params: nodeParams, code: "seat" }, true);
+  };
+
+  useLayoutEffect(() => {
+    const bindAction = (element: HTMLDivElement | null, action: () => Promise<void>): (() => void) => {
+      if (!element) {
+        return () => undefined;
+      }
+
+      const handler = () => {
+        void action().then(closeMenu);
+      };
+
+      element.addEventListener("click", handler);
+      return () => {
+        element.removeEventListener("click", handler);
+      };
+    };
+
+    const cleanups = [
+      bindAction(upRef.current, addTopRow),
+      bindAction(downRef.current, addBottomRow),
+      bindAction(leftRef.current, addLeftColumn),
+      bindAction(rightRef.current, addRightColumn),
+    ];
+
+    return () => {
+      cleanups.forEach((cleanup) => cleanup());
+    };
+  }, []);
 
   return show ? (
-    <div className="menu-dialog" ref={awayRef}>
+    <div
+      className="menu-dialog"
+      ref={awayRef}
+      onMouseDown={(event) => event.stopPropagation()}
+      onClick={(event) => event.stopPropagation()}
+    >
       <div className="items" ref={upRef}>
         <AppIcon name="addTop" className="menu-item-icon" /> 插入最上 1 行
       </div>
@@ -501,6 +499,8 @@ const render = createRender(AddMenuNode);
 register({
   shape: "add-menu-react-node",
   render,
+  width: 152,
+  height: 160,
   data: {
     nodeType: "menuNode",
   },

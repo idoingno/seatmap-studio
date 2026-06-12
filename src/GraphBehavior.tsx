@@ -1,5 +1,5 @@
 import { Cell, CellView, Node, NodeView } from "@antv/x6";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useGraphInstance } from "x6-graph/react";
 import matrixToolsConfig from "./config/Tools/matrixToolsConfig";
 import removeToolsConfig from "./config/Tools/removeToolsConfig";
@@ -33,29 +33,6 @@ type MatrixNodeIndex = {
   columnTopTextByIdx: Map<number, Node>;
   rowTextByIdx: Map<number, Node>;
   rowTextEnByIdx: Map<number, Node>;
-};
-
-const SEATMAP_RUBBERBAND_BOX_CLASS = "seatmap-rubberband-box";
-const RUBBERBAND_DRAG_THRESHOLD = 6;
-
-const isSelectableSeatNode = (node: Node | null | undefined) => {
-  const nodeData = node?.data;
-
-  return Boolean(
-    node &&
-      nodeData &&
-      nodeData.visible &&
-      (nodeData.nodeType === "matrixChair" || nodeData.nodeType === "circleChair")
-  );
-};
-
-const isNodeInsideClientRect = (rect: DOMRect, nodeRect: DOMRect) => {
-  return (
-    nodeRect.left >= rect.left &&
-    nodeRect.right <= rect.right &&
-    nodeRect.top >= rect.top &&
-    nodeRect.bottom <= rect.bottom
-  );
 };
 
 const buildMatrixNodeIndex = (parent: Node | null | undefined): MatrixNodeIndex => {
@@ -119,15 +96,10 @@ export const GraphBehavior = (): any => {
   const sessionId = Session.getDataId;
 
   // TODO 这里拿到graph对象处理自己的逻辑（例如使用后端数据初始化画布，增加事件监听...）
-  useMemo(() => {
+  useEffect(() => {
     const added = (): void => undefined;
     const removed = (): void => undefined;
     let pendingPerformanceSync = false;
-    let rubberbandBox: HTMLDivElement | null = null;
-    let rubberbandStartX = 0;
-    let rubberbandStartY = 0;
-    let rubberbandDragging = false;
-    let removeRubberbandListeners: (() => void) | null = null;
 
     const schedulePerformanceSync = () => {
       if (pendingPerformanceSync) {
@@ -140,115 +112,7 @@ export const GraphBehavior = (): any => {
         syncGraphPerformanceMode(graph);
       });
     };
-
-    const clearRubberbandBox = () => {
-      rubberbandBox?.remove();
-      rubberbandBox = null;
-    };
-
-    const stopCustomRubberband = (event: MouseEvent) => {
-      removeRubberbandListeners?.();
-      removeRubberbandListeners = null;
-
-      if (!rubberbandDragging || !rubberbandBox) {
-        clearRubberbandBox();
-        return;
-      }
-
-      const selectionRect = new DOMRect(
-        Math.min(rubberbandStartX, event.clientX),
-        Math.min(rubberbandStartY, event.clientY),
-        Math.abs(event.clientX - rubberbandStartX),
-        Math.abs(event.clientY - rubberbandStartY)
-      );
-      clearRubberbandBox();
-      rubberbandDragging = false;
-
-      if (selectionRect.width < RUBBERBAND_DRAG_THRESHOLD || selectionRect.height < RUBBERBAND_DRAG_THRESHOLD) {
-        return;
-      }
-
-      const selectableSeats = graph.getNodes().filter((node) => isSelectableSeatNode(node));
-      const selectedSeats = selectableSeats.filter((node) => {
-        const view = graph.findViewByCell(node);
-        const nodeRect = view?.container?.getBoundingClientRect?.();
-
-        return Boolean(nodeRect && isNodeInsideClientRect(selectionRect, nodeRect));
-      });
-
-      requestAnimationFrame(() => {
-        graph.resetSelection(selectedSeats, { batch: true });
-      });
-    };
-
-    const updateRubberbandBox = (event: MouseEvent) => {
-      if (!rubberbandBox) {
-        return;
-      }
-
-      const nextLeft = Math.min(rubberbandStartX, event.clientX);
-      const nextTop = Math.min(rubberbandStartY, event.clientY);
-      const nextWidth = Math.abs(event.clientX - rubberbandStartX);
-      const nextHeight = Math.abs(event.clientY - rubberbandStartY);
-
-      rubberbandDragging =
-        nextWidth >= RUBBERBAND_DRAG_THRESHOLD || nextHeight >= RUBBERBAND_DRAG_THRESHOLD;
-
-      rubberbandBox.style.left = `${nextLeft}px`;
-      rubberbandBox.style.top = `${nextTop}px`;
-      rubberbandBox.style.width = `${nextWidth}px`;
-      rubberbandBox.style.height = `${nextHeight}px`;
-    };
-
-    const startCustomRubberband = (event: MouseEvent) => {
-      if (isLargeGraphMode(graph) || !graph.container || event.button !== 0) {
-        return;
-      }
-
-      if (!event.ctrlKey && !event.metaKey) {
-        return;
-      }
-
-      clearRubberbandBox();
-
-      rubberbandStartX = event.clientX;
-      rubberbandStartY = event.clientY;
-      rubberbandDragging = false;
-
-      rubberbandBox = document.createElement("div");
-      rubberbandBox.className = SEATMAP_RUBBERBAND_BOX_CLASS;
-      graph.container.appendChild(rubberbandBox);
-      updateRubberbandBox(event);
-
-      const handleMouseMove = (moveEvent: MouseEvent) => {
-        updateRubberbandBox(moveEvent);
-      };
-
-      const handleMouseUp = (upEvent: MouseEvent) => {
-        stopCustomRubberband(upEvent);
-      };
-
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp, { once: true });
-
-      removeRubberbandListeners = () => {
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-      };
-    };
-
-    const blankMouseDown = ({ e }: C) => {
-      if (e && typeof e.clientX === "number" && typeof e.clientY === "number") {
-        startCustomRubberband(e as MouseEvent);
-      }
-    };
-
-    graph.on("cell:removed", removed);
-    graph.on("cell:added", schedulePerformanceSync);
-    graph.on("cell:removed", schedulePerformanceSync);
-    graph.on("blank:mousedown", blankMouseDown);
-
-    graph.on("node:change:size", ({ node, options }) => {
+    const handleNodeChangeSize = ({ node, options }: any) => {
       if (options.skipParentHandler) {
         return;
       }
@@ -257,18 +121,18 @@ export const GraphBehavior = (): any => {
       if (children && children.length) {
         node.prop("originSize", node.getSize());
       }
-    });
+    };
 
-    graph.on("node:mousedown", ({ e, node, view }: C) => {
+    const handleNodeMouseDown = ({ e, node, view }: C) => {
       graph.disablePanning();
       // e.dataTransfer.effectAllowed = "copy";
       if (node.hasTool("button-remove")) {
         node.removeTool("button-remove");
       }
-    });
+    };
 
     let pendingTransitionCleanup = false;
-    graph.on("node:mousemove", ({ e, node, view }: C) => {
+    const handleNodeMouseMove = ({ e, node, view }: C) => {
       if (pendingTransitionCleanup || isLargeGraphMode(graph)) return;
 
       pendingTransitionCleanup = true;
@@ -280,7 +144,14 @@ export const GraphBehavior = (): any => {
         }
         pendingTransitionCleanup = false;
       });
-    });
+    };
+
+    graph.on("cell:removed", removed);
+    graph.on("cell:added", schedulePerformanceSync);
+    graph.on("cell:removed", schedulePerformanceSync);
+    graph.on("node:change:size", handleNodeChangeSize);
+    graph.on("node:mousedown", handleNodeMouseDown);
+    graph.on("node:mousemove", handleNodeMouseMove);
 
     const nodeResized = async ({ node }: C) => {
       // 更新图形组 父节点
@@ -667,11 +538,13 @@ export const GraphBehavior = (): any => {
 
     // 移除监听
     return () => {
-      removeRubberbandListeners?.();
-      clearRubberbandBox();
       graph.off("cell:added", added);
       graph.off("cell:removed", removed);
-      graph.off("blank:mousedown", blankMouseDown);
+      graph.off("cell:added", schedulePerformanceSync);
+      graph.off("cell:removed", schedulePerformanceSync);
+      graph.off("node:change:size", handleNodeChangeSize);
+      graph.off("node:mousedown", handleNodeMouseDown);
+      graph.off("node:mousemove", handleNodeMouseMove);
       // graph.off("cell:change:*", change);
       // graph.off("node:added", nodeAdded);
       graph.off("node:click", nodeClick);

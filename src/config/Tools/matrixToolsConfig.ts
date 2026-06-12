@@ -37,7 +37,13 @@ const matrixToolsConfig = ({ e, node }: ConfigProps) => {
         // offset: { x: 20, y: 20 },
         onClick({ e, cell }: any) {
           const graph = getGraph();
-          const p1 = graph.pageToLocal(e.clientX, e.clientY);
+          graph
+            .getNodes()
+            .filter((item: Node) => item.data?.nodeType === "menuNode")
+            .forEach((item: Node) => {
+              graph.removeNode(item.id);
+            });
+          const p1 = graph.clientToLocal(e.clientX, e.clientY);
 
           graph.addNode({
             shape: "add-menu-react-node",
@@ -78,7 +84,13 @@ const matrixToolsConfig = ({ e, node }: ConfigProps) => {
         // offset: { x: 20, y: 20 },
         onClick({ e, cell }: any) {
           const graph = getGraph();
-          const p1 = graph.pageToLocal(e.clientX, e.clientY);
+          graph
+            .getNodes()
+            .filter((item: Node) => item.data?.nodeType === "menuNode")
+            .forEach((item: Node) => {
+              graph.removeNode(item.id);
+            });
+          const p1 = graph.clientToLocal(e.clientX, e.clientY);
 
           graph.addNode({
             shape: "minus-menu-react-node",
