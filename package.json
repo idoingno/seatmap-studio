@@ -3,6 +3,7 @@
   "description": "Open-source visual editor for meeting rooms, event seating, and space layout planning.",
   "name": "seatmap-studio",
   "private": false,
+  "packageManager": "pnpm@9.0.0",
   "scripts": {
     "build": "webpack --mode=production --node-env=production",
     "build:dev": "webpack --mode=development",

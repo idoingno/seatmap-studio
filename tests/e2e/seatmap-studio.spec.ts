@@ -203,6 +203,16 @@ test.describe("Seatmap Studio", () => {
     await expect(uploadModal).toBeVisible();
     await expect(uploadModal.getByText("请选择 Excel 座位文件")).toBeVisible();
     await expect(uploadModal.getByRole("button", { name: /提\s*交/ })).toBeVisible();
+    await page.waitForFunction(() => {
+      const modal = document.querySelector(".ant-modal");
+      if (!(modal instanceof HTMLElement)) {
+        return false;
+      }
+
+      const styles = window.getComputedStyle(modal);
+      const rect = modal.getBoundingClientRect();
+      return styles.opacity === "1" && styles.transform === "none" && rect.width > 280;
+    });
 
     const modalMetrics = await uploadModal.evaluate((element) => {
       const rect = element.getBoundingClientRect();
