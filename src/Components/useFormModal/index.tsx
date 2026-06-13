@@ -1,8 +1,8 @@
+import { LoadingOutlined } from "@ant-design/icons";
 import type { FormInstance, ModalProps } from "antd";
-import React, { PropsWithoutRef, Suspense, forwardRef, useCallback, useImperativeHandle, useRef, useState } from "react";
+import React, { PropsWithoutRef, Suspense, forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import "./index.less";
-
-const ModalShell = React.lazy(() => import("./ModalShell"));
+import ModalShell from "./ModalShell";
 
 type ModalRefType<T> = { open: (initProp?: Partial<T>) => void; close: () => void } | undefined;
 
@@ -10,18 +10,36 @@ const useFormModal = function <T>(modalProps: Partial<ModalProps>, Slot: React.C
   const modalRef = useRef<ModalRefType<T>>();
   const SlotComponent = Slot as React.ComponentType<any>;
 
+  const FormLoading = () => (
+    <div className="studio-form-loading" role="status" aria-live="polite">
+      <LoadingOutlined />
+      <span>正在加载表单...</span>
+    </div>
+  );
+
+  const SlotReadyBoundary: React.FC<React.PropsWithChildren<{ onReady: () => void }>> = ({ onReady, children }) => {
+    useEffect(() => {
+      onReady();
+    }, [onReady]);
+
+    return <>{children}</>;
+  };
+
   const FormModal = forwardRef<ModalRefType<T>, T>((slotProps, mRef) => {
     const [visiable, setVisiable] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [slotLoading, setSlotLoading] = useState(true);
     const [slotInitProp, setSlotInitProp] = useState<Partial<T>>();
     const open = (initProp?: Partial<T>) => {
       if (initProp) {
         setSlotInitProp(initProp);
       }
+      setSlotLoading(true);
       setVisiable(true);
     };
     const close = () => {
       setVisiable(false);
+      setSlotLoading(true);
     };
     useImperativeHandle(mRef, () => ({ open, close }));
     const onCancel: NonNullable<ModalProps["onCancel"]> = () => {
@@ -31,10 +49,20 @@ const useFormModal = function <T>(modalProps: Partial<ModalProps>, Slot: React.C
     const ok: NonNullable<ModalProps["onOk"]> = () => {
       formRef.current?.submit();
     };
-    return (
-      visiable ? (
-        <Suspense fallback={null}>
-          <ModalShell onCancel={onCancel} onOk={ok} open={visiable} confirmLoading={loading} {...modalProps}>
+    return visiable ? (
+      <ModalShell
+        onCancel={onCancel}
+        onOk={ok}
+        open={visiable}
+        confirmLoading={loading}
+        {...modalProps}
+        okButtonProps={{
+          ...modalProps.okButtonProps,
+          disabled: slotLoading || modalProps.okButtonProps?.disabled,
+        }}
+      >
+        <Suspense fallback={<FormLoading />}>
+          <SlotReadyBoundary onReady={() => setSlotLoading(false)}>
             <SlotComponent
               ref={formRef}
               {...slotProps}
@@ -45,10 +73,10 @@ const useFormModal = function <T>(modalProps: Partial<ModalProps>, Slot: React.C
               }}
               beforeSubmit={() => setLoading(true)}
             />
-          </ModalShell>
+          </SlotReadyBoundary>
         </Suspense>
-      ) : null
-    );
+      </ModalShell>
+    ) : null;
   });
   return {
     FormModal: useCallback((props: PropsWithoutRef<T>) => {
