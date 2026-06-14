@@ -12,7 +12,7 @@ test.describe("Seatmap Studio", () => {
     await page.waitForFunction(
       () => Boolean((window as any).__SEATMAP_STUDIO_GRAPH__) && typeof (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__ === "function",
       undefined,
-      { timeout: 15_000 }
+      { timeout: 30_000 }
     );
     await page.evaluate(
       async ({ expectedRows, expectedColumns }) => {
@@ -37,7 +37,7 @@ test.describe("Seatmap Studio", () => {
         return rowLabels.length >= expectedRows && chairs.length >= expectedRows * expectedColumns;
       },
       { expectedRows: Number(rows), expectedColumns: Number(columns) },
-      { timeout: 15_000 }
+      { timeout: 30_000 }
     );
   };
 

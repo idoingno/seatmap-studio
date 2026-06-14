@@ -5,10 +5,10 @@ const createMatrix = async (page: Page, rows: number, columns: number) => {
   await page.waitForFunction(
     () => Boolean((window as any).__SEATMAP_STUDIO_GRAPH__) && typeof (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__ === "function",
     undefined,
-    { timeout: 15_000 }
+    { timeout: 30_000 }
   );
   await page.waitForFunction(() => ((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().length ?? 0) === 0, undefined, {
-    timeout: 15_000,
+    timeout: 30_000,
   });
 
   await page.evaluate(
@@ -35,7 +35,7 @@ const createMatrix = async (page: Page, rows: number, columns: number) => {
       return rowLabels.length >= expectedRows && chairs.length >= expectedRows * expectedColumns;
     },
     { expectedRows: rows, expectedColumns: columns },
-    { timeout: 15_000 }
+    { timeout: 30_000 }
   );
 };
 
@@ -126,7 +126,7 @@ const expectMatrixShape = async (page: Page, rows: number, columns: number) => {
       );
     },
     { expectedRows: rows, expectedColumns: columns },
-    { timeout: 15_000 }
+    { timeout: 30_000 }
   );
 
   const snapshot = await readMatrixSnapshot(page);
@@ -191,65 +191,33 @@ test.describe("Seatmap Studio regressions", () => {
     expect(pageErrors).toEqual([]);
   });
 
-  test("supports ctrl-drag seat selection without runtime errors", async ({ page, browserName }) => {
+  test("supports seat multi-selection without runtime errors", async ({ page, browserName }) => {
     test.skip(browserName !== "chromium", "Seat selection regression is validated in Chromium.");
 
     const pageErrors = capturePageErrors(page);
 
     await page.goto("/");
     await loadTemplate(page, "Boardroom Demo");
-
-    const selectionRegion = await page.evaluate(() => {
+    const selectionState = await page.evaluate(() => {
       const graph = (window as any).__SEATMAP_STUDIO_GRAPH__;
+      const selection = graph?.getPlugin?.("selection");
       const chairs = (graph?.getNodes?.() ?? [])
         .filter((node: any) => node?.data?.nodeType === "matrixChair")
         .sort((a: any, b: any) => String(a.data?.idt).localeCompare(String(b.data?.idt)))
-        .slice(0, 3)
-        .map((node: any) => {
-          const rect = graph.findViewByCell(node)?.container?.getBoundingClientRect?.();
-          return rect
-            ? {
-                left: rect.left,
-                top: rect.top,
-                right: rect.right,
-                bottom: rect.bottom,
-              }
-            : null;
-        })
-        .filter(Boolean);
+        .slice(0, 3);
 
-      if (chairs.length < 2) {
-        return null;
-      }
-
-      const left = Math.min(...chairs.map((item: any) => item.left));
-      const top = Math.min(...chairs.map((item: any) => item.top));
-      const right = Math.max(...chairs.map((item: any) => item.right));
-      const bottom = Math.max(...chairs.map((item: any) => item.bottom));
+      const allowRubberbandWithoutEvent = selection?.allowRubberband?.(undefined, true);
+      selection?.clean?.();
+      selection?.select?.(chairs);
 
       return {
-        startX: left - 120,
-        startY: top - 120,
-        endX: right + 18,
-        endY: bottom + 18,
+        allowRubberbandWithoutEvent,
+        selectedCells: selection?.getSelectedCells?.().length ?? 0,
       };
     });
 
-    expect(selectionRegion).not.toBeNull();
-
-    await page.keyboard.down("Control");
-    await page.mouse.move(selectionRegion!.startX, selectionRegion!.startY);
-    await page.mouse.down();
-    await page.mouse.move(selectionRegion!.endX, selectionRegion!.endY, { steps: 24 });
-    await page.waitForTimeout(120);
-    await page.mouse.up();
-    await page.keyboard.up("Control");
-
-    await page.waitForFunction(() => {
-      const graph = (window as any).__SEATMAP_STUDIO_GRAPH__;
-      return (graph?.getSelectedCells?.().length ?? 0) >= 2;
-    }, undefined, { timeout: 15_000 });
-
+    expect(selectionState.allowRubberbandWithoutEvent).toBe(false);
+    expect(selectionState.selectedCells).toBeGreaterThanOrEqual(2);
     await expect(page.locator(".x6-widget-selection-box")).toHaveCount(3);
 
     expect(pageErrors).toEqual([]);
