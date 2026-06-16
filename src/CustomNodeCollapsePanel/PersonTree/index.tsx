@@ -1,4 +1,4 @@
-import { Checkbox, Input, Tree, message } from "antd";
+import { Checkbox, Input, Tree } from "antd";
 import React, { useEffect, useImperativeHandle, useState } from "react";
 import "./index.less";
 import { tabItems, tabItems2 } from "./data";
@@ -23,6 +23,7 @@ import { defaultAvatar } from "../../assets";
 import { useUpdateEffect } from "ahooks";
 import { useSelector } from "react-redux";
 import { EventEmitter } from "ahooks/lib/useEventEmitter";
+import { message } from "../../utils/message";
 
 const getArrangeSeat = (item: any, key: string) => {
   if (key === "hasArrange") {

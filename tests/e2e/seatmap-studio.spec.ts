@@ -7,6 +7,57 @@ import ExcelJs from "exceljs";
 test.describe("Seatmap Studio", () => {
   test.describe.configure({ mode: "serial" });
 
+  const collectRuntimeIssues = (page: Page) => {
+    const issues: string[] = [];
+
+    page.on("console", (message) => {
+      const text = message.text();
+      const isExpectedNoise =
+        text.includes("[webpack-dev-server]") ||
+        text.includes("[HMR]") ||
+        text.includes("Download the React DevTools") ||
+        text.includes("Support for defaultProps will be removed");
+
+      if (!isExpectedNoise && (message.type() === "warning" || message.type() === "error")) {
+        issues.push(`${message.type()}: ${text}`);
+      }
+    });
+
+    page.on("pageerror", (error) => {
+      issues.push(`pageerror: ${error.message}`);
+    });
+
+    return issues;
+  };
+
+  const expectNoRuntimeIssues = (issues: string[]) => {
+    expect(issues).toEqual([]);
+  };
+
+  const readModalMetrics = async (page: Page, text: string) => {
+    return page.evaluate((modalText) => {
+      const modal = Array.from(document.querySelectorAll(".ant-modal")).find((node) =>
+        (node.textContent || "").includes(modalText)
+      );
+
+      if (!(modal instanceof HTMLElement)) {
+        return null;
+      }
+
+      const rect = modal.getBoundingClientRect();
+
+      return {
+        top: rect.top,
+        left: rect.left,
+        right: rect.right,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+        withinViewport: rect.top >= 0 && rect.left >= 0 && rect.right <= window.innerWidth && rect.bottom <= window.innerHeight,
+      };
+    }, text);
+  };
+
   const createMatrix = async (page: Page, rows: string, columns: string) => {
     await expect(page.getByText("已同步到最新版本")).toBeVisible();
     await page.waitForFunction(
@@ -177,6 +228,8 @@ test.describe("Seatmap Studio", () => {
   });
 
   test("keeps core layout and upload modal usable on a mobile viewport", async ({ page }) => {
+    const runtimeIssues = collectRuntimeIssues(page);
+
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
 
@@ -226,6 +279,40 @@ test.describe("Seatmap Studio", () => {
     expect(modalMetrics.width).toBeGreaterThan(280);
     expect(modalMetrics.right).toBeLessThanOrEqual(390);
     expect(modalMetrics.bottom).toBeLessThanOrEqual(844);
+    expectNoRuntimeIssues(runtimeIssues);
+  });
+
+  test("keeps key UI surfaces aligned and free of console regressions", async ({ page }) => {
+    const runtimeIssues = collectRuntimeIssues(page);
+
+    await page.goto("/");
+
+    await page.getByText("引入模板").click();
+    const templateModal = page.locator(".ant-modal").filter({ hasText: "模板选择" });
+    await expect(templateModal).toBeVisible();
+    const templateMetrics = await readModalMetrics(page, "模板选择");
+    expect(templateMetrics?.withinViewport).toBe(true);
+    await expect(templateModal.getByRole("button", { name: /Boardroom Demo/ })).toBeVisible();
+    await templateModal.getByRole("button", { name: /取\s*消/ }).click();
+
+    await page.getByRole("button", { name: /上传座位配置/ }).click();
+    const uploadModal = page.locator(".ant-modal").filter({ hasText: "上传配置" });
+    await expect(uploadModal).toBeVisible();
+    const uploadMetrics = await readModalMetrics(page, "上传配置");
+    expect(uploadMetrics?.withinViewport).toBe(true);
+    await expect(uploadModal.getByText("请选择 Excel 座位文件")).toBeVisible();
+    await uploadModal.getByRole("button", { name: /取\s*消/ }).click();
+
+    await createMatrix(page, "2", "3");
+    await page.getByTestId("save-template-button").click();
+    const saveTemplateModal = page.locator(".ant-modal").filter({ hasText: "模板配置" });
+    const saveTemplateInput = saveTemplateModal.locator('input[placeholder="请输入模板名称"]');
+    await expect(saveTemplateInput).toBeVisible();
+    const saveTemplateMetrics = await readModalMetrics(page, "模板配置");
+    expect(saveTemplateMetrics?.withinViewport).toBe(true);
+    await saveTemplateModal.getByRole("button", { name: /取\s*消/ }).click();
+
+    expectNoRuntimeIssues(runtimeIssues);
   });
 
   test("exports a seat map without runtime errors", async ({ page }) => {

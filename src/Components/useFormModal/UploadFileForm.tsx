@@ -1,4 +1,4 @@
-import { Checkbox, Form, FormInstance, message } from "antd";
+import { Checkbox, Form, FormInstance } from "antd";
 import React, { useRef, useState } from "react";
 import { handleCpApi } from "../../api";
 import { Session, getGraph } from "../../config";
@@ -10,6 +10,7 @@ import { delPersonnel } from "../../utils/apiParams";
 import { chairSvg } from "../../config/Markup/chair";
 import { patternSeat } from "../../assets";
 import { importSeatAssignments } from "../../utils/excel/importSeatAssignments";
+import { message } from "../../utils/message";
 
 interface UploadFileFormPropsType {
   //   mapUrl?: string;

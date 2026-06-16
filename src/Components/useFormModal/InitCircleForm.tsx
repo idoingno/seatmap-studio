@@ -1,4 +1,4 @@
-import { Form, FormInstance, Input, message } from "antd";
+import { Form, FormInstance, Input } from "antd";
 import React from "react";
 import { CircleAllCount } from "../../config";
 import { Graph } from "@antv/x6";

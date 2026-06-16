@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 import "./index.less";
-import { message } from "antd";
 import { AlphabeticSerialNumber, CPForm, getGraph } from "../config";
 // import { emptyGraph } from "../utils/apiParams";
 import { Graph, Node } from "@antv/x6";
@@ -12,6 +11,7 @@ import { useSelector } from "react-redux";
 import { useCallbackState } from "../hooks/useCallbackState";
 import { lazyForm } from "../Components/useFormModal/lazyForm";
 import { exportSeatTemplate } from "../utils/excel/exportSeatTemplate";
+import { message } from "../utils/message";
 import AppIcon from "../Components/AppIcon";
 
 const LayoutClearForm = lazyForm(() => import("../Components/useFormModal/LayoutClearForm"));

@@ -6,7 +6,6 @@ import { MatrixSize, Session, getGraph } from "../../config";
 import type { Node } from "@antv/x6";
 import { buildMatrixMenuIndex, getNodeChildren, resizeProscenium, resizeWindow, setAllCorridorColumnH } from "../../utils/util";
 import AppIcon from "../../Components/AppIcon";
-import { message } from "antd";
 import { delNode, delPersonnel, updateGraphics, updateNode } from "../../utils/apiParams";
 import { handleCpApi } from "../../api";
 import store from "../../store/index";
@@ -14,6 +13,7 @@ import { subAction } from "../../store/actionCreators";
 import { runGraphBatch } from "../../utils/graphBatch";
 import { syncGraphPerformanceMode } from "../../utils/graphPerformance";
 import { markLocalGraphMutation } from "../../utils/querySync";
+import { message } from "../../utils/message";
 
 const hasAllMatrixAnchors = (...groups: Node[][]) => {
   return groups.every((group) => group.length > 0);

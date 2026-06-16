@@ -4,10 +4,11 @@ import "./index.less";
 import { ColorArr, Session, getGraph } from "../../config";
 import { Node } from "@antv/x6";
 import { ColorItemType } from "./ColorEdit";
-import { Spin, message } from "antd";
+import { Spin } from "antd";
 import { updateNodeRegion } from "../../utils/apiParams";
 import { handleCpApi } from "../../api";
 import AppIcon from "../AppIcon";
+import { message } from "../../utils/message";
 
 interface ItemType {
   color?: string;

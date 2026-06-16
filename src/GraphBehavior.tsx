@@ -13,8 +13,8 @@ import store from "./store";
 import { showCircleUpdateAction } from "./store/actionCreators";
 import { showCard } from "./Components/ChairCard";
 import { changeSeatChair, getNodeChildren, isOutChair, sliceText } from "./utils/util";
-import { message } from "antd";
 import { isLargeGraphMode, syncGraphPerformanceMode } from "./utils/graphPerformance";
+import { message } from "./utils/message";
 
 type C = {
   e?: Event | any;

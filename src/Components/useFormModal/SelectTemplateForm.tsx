@@ -1,10 +1,11 @@
-import { Form, FormInstance, Input, message } from "antd";
+import { Form, FormInstance, Input } from "antd";
 import React, { useMemo, useState } from "react";
 import { ResponseType, handleCpApi } from "../../api";
 import { Session } from "../../config";
 import { SearchOutlined } from "@ant-design/icons";
 import { useDebounceEffect } from "ahooks";
 import "./SelectTemplateForm.less";
+import { message } from "../../utils/message";
 
 interface SelectTemplateFormPropsType {
   // mapUrl?: string;

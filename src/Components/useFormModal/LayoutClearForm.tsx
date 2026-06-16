@@ -1,4 +1,4 @@
-import { Form, FormInstance, message } from "antd";
+import { Form, FormInstance } from "antd";
 import React, { useState } from "react";
 import { ResponseType, handleCpApi } from "../../api";
 import { Session, getGraph } from "../../config";
@@ -7,6 +7,7 @@ import { addDargAction, emptyAction, isLoadAction } from "../../store/actionCrea
 import { delPersonnel, emptyGraph } from "../../utils/apiParams";
 import { chairSvg } from "../../config/Markup/chair";
 import { patternSeat } from "../../assets";
+import { message } from "../../utils/message";
 
 interface UserFormPropsType {
   // mapUrl?: string;

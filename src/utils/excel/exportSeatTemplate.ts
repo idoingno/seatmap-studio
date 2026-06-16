@@ -1,8 +1,8 @@
-import { message } from "antd";
 import { Graph, Node } from "@antv/x6";
 import { AlphabeticSerialNumber, CPForm, getGraph } from "../../config";
 import { sortCompareFn3 } from "../util";
 import { loadExcelRuntime } from "./loadExcelRuntime";
+import { message } from "../message";
 
 const writeExcelFile = (fileName: string, content: BlobPart) => {
   const link = document.createElement("a");

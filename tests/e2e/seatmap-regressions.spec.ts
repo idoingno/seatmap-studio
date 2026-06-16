@@ -87,6 +87,42 @@ const openMatrixMenu = async (
   expect(Math.abs(menuBox!.x - anchor.x)).toBeLessThan(140);
   expect(Math.abs(menuBox!.y - anchor.y)).toBeLessThan(140);
 
+  const itemMetrics = await page.evaluate(() => {
+    const menu = document.querySelector(".menu-dialog");
+    if (!(menu instanceof HTMLElement)) {
+      return null;
+    }
+
+    const menuRect = menu.getBoundingClientRect();
+    const items = Array.from(menu.querySelectorAll("div"))
+      .map((node) => {
+        if (!(node instanceof HTMLElement)) {
+          return null;
+        }
+
+        const text = (node.textContent || "").trim();
+        if (!text) {
+          return null;
+        }
+
+        const rect = node.getBoundingClientRect();
+        return {
+          text,
+          fullyVisible:
+            rect.top >= menuRect.top &&
+            rect.left >= menuRect.left &&
+            rect.right <= menuRect.right &&
+            rect.bottom <= menuRect.bottom,
+        };
+      })
+      .filter(Boolean);
+
+    return items;
+  });
+
+  expect(itemMetrics?.length).toBeGreaterThanOrEqual(4);
+  expect(itemMetrics?.every((item: any) => item.fullyVisible)).toBe(true);
+
   return menu;
 };
 

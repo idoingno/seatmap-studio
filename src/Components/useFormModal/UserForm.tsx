@@ -1,7 +1,8 @@
-import { Form, FormInstance, Input, message } from "antd";
+import { Form, FormInstance, Input } from "antd";
 import React from "react";
 import { ResponseType, handleCpApi } from "../../api";
 import { Session } from "../../config";
+import { message } from "../../utils/message";
 
 interface UserFormPropsType {
   mapUrl?: string;
