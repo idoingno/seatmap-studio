@@ -8,6 +8,7 @@ import store from "../../store";
 import { addDargAction, subAction } from "../../store/actionCreators";
 import { getNodeChildren } from "../../utils/util";
 import { message } from "../../utils/message";
+import { markLocalGraphMutation } from "../../utils/querySync";
 
 interface ConfigProps {
   e?: Event | any;
@@ -26,12 +27,12 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
           {
             tagName: "text",
             textContent: "+",
-            class: "circle_chair_increase_icon",
             attrs: {
+              class: "circle_chair_increase_icon",
               fontSize: 20, //10
               cursor: "pointer",
               x: -75,
-              fill: "#ff0000",
+              fill: "#19766f",
               // textAnchor: 'middle',
               // pointerEvents: 'none',
             },
@@ -39,26 +40,26 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
           {
             tagName: "text",
             textContent: "-",
-            class: "circle_chair_decrease_icon",
             attrs: {
+              class: "circle_chair_decrease_icon",
               fontSize: 20,
               cursor: "pointer",
               x: -50,
               y: 0,
-              fill: "#ff0000",
+              fill: "#19766f",
             },
           },
           {
             tagName: "text",
             textContent: "✕",
-            class: "circle_chair_remove_icon",
             attrs: {
+              class: "circle_chair_remove_icon",
               fontSize: 12,
               fontWeight: "bold",
               cursor: "pointer",
               x: -25,
               y: 0,
-              fill: "#ff0000",
+              fill: "#a64f48",
             },
           },
         ],
@@ -71,6 +72,7 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
           const graph = getGraph();
 
           if (e.target.innerHTML === "+") {
+            markLocalGraphMutation();
             let { tableName, tablezIndex, circleChairNum, tableNameIdx, tableRealIdx } = node.data;
             if (circleChairNum >= 30) {
               message.warning("椅子最多30个");
@@ -92,6 +94,7 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
               await handleCpApi({ params: nodeParams, code: "seat" }, true);
             }
           } else if (e.target.innerHTML === "-") {
+            markLocalGraphMutation();
             // let { x, y } = node.getPosition();
 
             let { tableName, tablezIndex, circleChairNum, tableNameIdx, tableRealIdx } = node.data;
@@ -99,14 +102,22 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
               message.warning("椅子至少一个!");
               return;
             } else {
-              const lastChildren = node.children.lastItem;
+              const circleChairs = getNodeChildren(node).filter(
+                (child) => child.data?.nodeType === "circleChair"
+              );
+              const lastChildren = circleChairs[circleChairs.length - 1];
+              if (!lastChildren) {
+                return;
+              }
+
               node.removeChild(lastChildren);
 
               // 删除人员
               if (lastChildren.attrs.xnode) {
-                store.dispatch(subAction(lastChildren.attrs.xnode.key));
+                store.dispatch(subAction(String(lastChildren.attrs.xnode.key)));
               }
 
+              graph.removeNode(lastChildren.id);
               computeCirclePosition(graph, node, "minus", circleChairNum);
 
               // 删除节点
@@ -122,6 +133,7 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
               await handleCpApi({ params: nodeParams, code: "seat" }, true);
             }
           } else if (e.target.innerHTML === "✕") {
+            markLocalGraphMutation();
             let { tableName, tablezIndex, circleChairNum, tableNameIdx, tableRealIdx } = node.data;
 
             let modal = Modal.confirm({
@@ -138,9 +150,9 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
                 const nodeParams = delGraphics(node);
                 await handleCpApi({ params: nodeParams, code: "seat" }, true);
 
-                const hasPeronArr =
-                  node.children &&
-                  node.children.filter((item: any) => item.attrs.xnode && item.data.nodeType === "circleChair");
+                const hasPeronArr = getNodeChildren(node).filter(
+                  (item: any) => item.attrs.xnode && item.data.nodeType === "circleChair"
+                );
 
                 if (hasPeronArr && hasPeronArr.length > 0) {
                   // 人员删除
@@ -210,8 +222,8 @@ const computeCirclePosition = (graph: Graph, node: Node, type: string, circleCha
         cy: ((minChairNUm / 2) * CHAIR_SIZE) / 2,
         r: ((minChairNUm / 2) * CHAIR_SIZE) / 2,
         text: node.data.tableName,
-        fill: "transparent",
-        stroke: "#333",
+        fill: "rgba(25, 118, 111, 0.05)",
+        stroke: "rgba(25, 118, 111, 0.26)",
         fontSize: 18,
       },
     },

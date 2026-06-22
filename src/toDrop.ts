@@ -28,7 +28,7 @@ const toDrop = (dropRef: any) => {
           (item: any) => item.data.idt && item.data.idt.includes("corridorColumnSpace-")
         );
         const findIdx = corridorColumnspaceArr.find((ite: any) => ite.data.idx === currentColumn);
-        if (currentColumn > -1) {
+        if (currentColumn > -1 && findIdx) {
           // columnSpaceArr[currentColumn].hit = true;
           // corridorColumnspaceArr[currentColumn].data.isExist = true;
           findIdx.data.isExist = true;
@@ -45,7 +45,7 @@ const toDrop = (dropRef: any) => {
         // const rowSpaceArr = getRowSpaceArr();
         const aisleRowSpaceArr = nodes.filter((item: any) => item.data.idt && item.data.idt.includes("aisleRowSpace-"));
         const findIdx = aisleRowSpaceArr.find((ite: any) => ite.data.idx === currentRow);
-        if (currentRow > -1) {
+        if (currentRow > -1 && findIdx) {
           // rowSpaceArr[currentRow].hit = true;
           findIdx.data.isExist = true;
           // aisleRowSpaceArr[currentRow].data.isExist = true;

@@ -4,7 +4,7 @@ import { useGraphState } from "x6-hooks/react";
 import { Graph } from "x6-graph/react";
 import { GraphBehavior } from "./GraphBehavior";
 import CanvasScaleToolbar from "./CanvasScaleToolbar";
-import { scaling, mousewheel, interacting, Session, background, translating, CPForm } from "./config";
+import { scaling, mousewheel, panning, interacting, Session, background, translating, CPForm } from "./config";
 import { setGraphs } from "./config/index";
 import toDrop from "./toDrop";
 
@@ -270,7 +270,7 @@ const App = ({ closeApp }: AppProps) => {
                 {stageSize.width > 0 && stageSize.height > 0 ? (
                   <Graph
                     background={background}
-                    panning
+                    panning={panning}
                     scaling={scaling}
                     mousewheel={mousewheel}
                     width={stageSize.width}
@@ -291,21 +291,17 @@ const App = ({ closeApp }: AppProps) => {
               <CanvasScaleToolbar graph={graphInstance} />
               <div className="seatmap-stage-chrome">
                 <div className="stage-chrome-copy">
-                  <span className="stage-kicker">
-                    <AppIcon name="sparkle" className="stage-kicker-icon" />
-                    Live Canvas
-                  </span>
-                  <span className="stage-title">排座画布</span>
-                  <span className="stage-copy">拖拽素材构建空间，框选座位后可直接分区与命名。</span>
+                  <span className="stage-title">空间画布</span>
+                  <span className="stage-copy">拖入素材开始规划</span>
                 </div>
                 <div className="stage-chrome-badges">
                   <span className="stage-badge">
-                    <AppIcon name="matrixLayout" className="stage-badge-icon" />
-                    Matrix / Round / Aisle
+                    <AppIcon name="drag" className="stage-badge-icon" />
+                    左键拖布局 · 中键移画布
                   </span>
                   <span className="stage-badge">
                     <AppIcon name="palette" className="stage-badge-icon" />
-                    Select to Paint
+                    Ctrl / ⌘ 框选座位
                   </span>
                 </div>
               </div>

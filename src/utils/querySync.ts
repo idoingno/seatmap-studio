@@ -1,7 +1,7 @@
 let lastLocalMutationAt = 0;
 
 export const markLocalGraphMutation = () => {
-  lastLocalMutationAt = Date.now();
+  lastLocalMutationAt = Math.max(Date.now(), lastLocalMutationAt + 1);
   return lastLocalMutationAt;
 };
 

@@ -245,14 +245,14 @@ Graph.registerNode(
     // path: "M0 0h3242.666667v716.8c-540.4416 204.8-1080.891733 307.2-1621.333334 307.2S540.4416 921.6 0 716.8V0z",
     attrs: {
       body: {
-        stroke: "rgba(251, 114, 153, 0.34)",
+        stroke: "rgba(181, 138, 58, 0.4)",
         strokeWidth: 1.8,
-        fill: "rgba(251, 114, 153, 0.1)",
+        fill: "rgba(181, 138, 58, 0.1)",
         rx: 20,
         ry: 20,
       },
       text: {
-        fill: "#c44973",
+        fill: "#86672e",
         fontSize: 14,
         fontWeight: 700,
         fontFamily: NODE_FONT_FAMILY,
@@ -314,14 +314,14 @@ Graph.registerNode(
     label: "门 Door",
     attrs: {
       body: {
-        stroke: "rgba(251, 114, 153, 0.26)",
+        stroke: "rgba(25, 118, 111, 0.26)",
         strokeWidth: 1.6,
-        fill: "rgba(251, 114, 153, 0.08)",
+        fill: "rgba(25, 118, 111, 0.08)",
         rx: 18,
         ry: 18,
       },
       text: {
-        fill: "#c45d83",
+        fill: "#19766f",
         fontSize: 13,
         fontWeight: 700,
         fontFamily: NODE_FONT_FAMILY,
@@ -385,14 +385,14 @@ Graph.registerNode(
       text1: {
         text: "1号桌",
         fontSize: 18,
-        fill: "#6d4f82",
+        fill: "#33413f",
         fontWeight: 700,
         fontFamily: NODE_FONT_FAMILY,
       },
       text2: {
         text: "Table 1",
         fontSize: 14,
-        fill: "rgba(109, 92, 126, 0.6)",
+        fill: "rgba(86, 103, 99, 0.66)",
         fontFamily: NODE_FONT_FAMILY,
       },
     },
@@ -448,7 +448,7 @@ Graph.registerNode(
         height: 34,
         x: 3,
         y: 3,
-        fill: "#fb7299",
+        fill: "#19766f",
       },
 
       image: {

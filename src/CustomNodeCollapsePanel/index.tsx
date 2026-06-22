@@ -115,8 +115,8 @@ const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, loadTree$, g
     <div className="stencil-app" ref={dndContainerRef}>
       <div className="top">
         <div className="top-copy">
-          <span className="panel-kicker">Studio Deck</span>
-          <span className="panel-title">布局素材与排座</span>
+          <span className="panel-kicker">Planning library</span>
+          <span className="panel-title">空间资源</span>
         </div>
         <button type="button" className="panel-action-button" onClick={importTemplate}>
           <AppIcon name="importTemplate" className="panel-action-icon" />
@@ -126,10 +126,15 @@ const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, loadTree$, g
       <div className="app-stencil">
         <div className="stencil-sections">
           <section className="stencil-section">
-            <button type="button" className="section-header" onClick={() => toggleSection("layout")}>
+            <button
+              type="button"
+              className="section-header"
+              onClick={() => toggleSection("layout")}
+              aria-expanded={sectionOpen("layout")}
+            >
               <span className="section-title-group">
-                <span className="section-kicker">Canvas</span>
-                <span>场景布局</span>
+                <span className="section-kicker">Objects</span>
+                <span>布局素材</span>
               </span>
               <AppIcon name="chevronRight" className={`section-chevron${sectionOpen("layout") ? " is-open" : ""}`} />
             </button>
@@ -145,10 +150,15 @@ const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, loadTree$, g
             ) : null}
           </section>
           <section className="stencil-section">
-            <button type="button" className="section-header" onClick={() => toggleSection("people")}>
+            <button
+              type="button"
+              className="section-header"
+              onClick={() => toggleSection("people")}
+              aria-expanded={sectionOpen("people")}
+            >
               <span className="section-title-group">
                 <span className="section-kicker">Roster</span>
-                <span>人员排座</span>
+                <span>人员与座位</span>
               </span>
               <AppIcon name="chevronRight" className={`section-chevron${sectionOpen("people") ? " is-open" : ""}`} />
             </button>

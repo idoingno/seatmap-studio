@@ -36,6 +36,7 @@ import { runGraphBatch } from "../utils/graphBatch";
 import { syncGraphPerformanceMode } from "../utils/graphPerformance";
 import { getNodeChildren } from "../utils/util";
 import { patternSeat } from "../assets";
+import { markLocalGraphMutation } from "../utils/querySync";
 
 const CHAIR_STEP = CHAIR_SIZE + SPACE_SIZE;
 const EDITABLE_TOOLS = ["node-editor"];
@@ -274,6 +275,7 @@ const createMatrixChildren = (graph: Graph, groupData: parentProps, parentId: st
 };
 
 export const initMatrix = async (x: number, y: number, graph: Graph) => {
+  markLocalGraphMutation();
   const columns: number = MatrixAllRowsOrColumns.getAllColumns;
   const rows: number = MatrixAllRowsOrColumns.getAllRows;
 
@@ -317,6 +319,7 @@ const reDrawMatrix = async (groupData: parentProps, parent: Node, graph: Graph) 
     const children = createMatrixChildren(graph, groupData, parent.id, rows, columns);
 
     graph.addNodes([parent, ...children], { async: true });
+    parent.setChildren(children);
     createdChildren = children;
     createdChildCount = children.length;
   });
@@ -332,6 +335,7 @@ const reDrawMatrix = async (groupData: parentProps, parent: Node, graph: Graph) 
 };
 
 export const initProscenium = async (x: number, y: number, graph: Graph) => {
+  markLocalGraphMutation();
   const mW = MatrixSize.getMw;
 
   // 获取场次Id
@@ -350,6 +354,7 @@ export const initProscenium = async (x: number, y: number, graph: Graph) => {
 };
 
 export const initWindow = async (x: number, y: number, graph: Graph) => {
+  markLocalGraphMutation();
   const mH = MatrixSize.getMh;
 
   // 获取场次Id
@@ -369,6 +374,7 @@ export const initWindow = async (x: number, y: number, graph: Graph) => {
 };
 
 export const initDoor = async (x: number, y: number, graph: Graph) => {
+  markLocalGraphMutation();
   const mH = MatrixSize.getMh;
 
   // 获取场次Id
@@ -406,6 +412,7 @@ const computeWidth = (oper: string, size: number) => {
 };
 
 export const handleOffsetCorridor = async (oper: string) => {
+  markLocalGraphMutation();
   const graph = getGraph();
   const currentColumn = getCurrentColumn();
   // 获取场次Id
@@ -474,6 +481,7 @@ export const handleOffsetCorridor = async (oper: string) => {
 };
 
 export const handleOffsetAisle = async (oper: string) => {
+  markLocalGraphMutation();
   const graph = getGraph();
   const currentRow = getCurrentRow();
   // 获取场次Id

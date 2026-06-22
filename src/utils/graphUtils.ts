@@ -8,11 +8,11 @@ const martixParentAttrs = {
   label: {
     refY: 120,
     fontSize: 12,
-    fill: "rgba(122, 84, 106, 0.74)",
+    fill: "rgba(51, 65, 63, 0.76)",
   },
   body: {
-    fill: "rgba(251, 114, 153, 0.045)",
-    stroke: "rgba(251, 114, 153, 0.24)",
+    fill: "rgba(25, 118, 111, 0.035)",
+    stroke: "rgba(25, 118, 111, 0.22)",
     strokeWidth: 1.4,
     rx: 24,
     ry: 24,
@@ -22,9 +22,9 @@ const martixParentAttrs = {
 const TEXT_FONT_FAMILY = '"Helvetica Neue", "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
 
 const STAGE_BODY_ATTRS = {
-  stroke: "rgba(251, 114, 153, 0.34)",
+  stroke: "rgba(25, 118, 111, 0.34)",
   strokeWidth: 1.8,
-  fill: "rgba(251, 114, 153, 0.1)",
+  fill: "rgba(25, 118, 111, 0.1)",
   rx: 20,
   ry: 20,
 };
@@ -38,9 +38,9 @@ const WINDOW_BODY_ATTRS = {
 };
 
 const DOOR_BODY_ATTRS = {
-  stroke: "rgba(251, 114, 153, 0.26)",
+  stroke: "rgba(25, 118, 111, 0.26)",
   strokeWidth: 1.6,
-  fill: "rgba(251, 114, 153, 0.08)",
+  fill: "rgba(25, 118, 111, 0.08)",
   rx: 18,
   ry: 18,
 };
@@ -161,6 +161,7 @@ export const renderGraph = (nodes: ItemType[]) => {
   const personByNodeId = new Map<string, any>(personArr.map((person: any) => [person.nodeId, person]));
 
   return data.map((item) => {
+    const isMovableContainer = item.type === "matrixContainer" || item.type === "circleContainer";
     let obj: any = {
       position: {
         x: item.x,
@@ -173,7 +174,7 @@ export const renderGraph = (nodes: ItemType[]) => {
       //   attrs: getAttrs(item.type, item.name),
       shape: shapeObj[item.type],
       id: item.id,
-      data: item.data,
+      data: isMovableContainer ? { ...item.data, disableMove: false } : item.data,
       name: item.name,
       parent: item.pid || null,
       //   children: !item.pid && getChildrenIds(nodes, item.pid),
@@ -259,7 +260,7 @@ const getTextAttrs = (item: any) => {
       body: STAGE_BODY_ATTRS,
       text: {
         ...baseText,
-        fill: "#c44973",
+        fill: "#86672e",
         fontSize: 14,
         fontWeight: 700,
       },
@@ -283,7 +284,7 @@ const getTextAttrs = (item: any) => {
       body: DOOR_BODY_ATTRS,
       text: {
         ...baseText,
-        fill: "#c45d83",
+        fill: "#19766f",
         fontSize: 13,
         fontWeight: 700,
       },
@@ -347,8 +348,8 @@ const getChairAttrs = (flag: boolean, personByNodeId: Map<string, any>, item: an
         // fill: "rgba(0, 0, 0, 0.25)",
         // },
         rect: {
-          fill: item.color ? findColor(item.color) : "rgba(251, 114, 153, 0.04)",
-          stroke: "rgba(251, 114, 153, 0.08)",
+          fill: item.color ? findColor(item.color) : "rgba(25, 118, 111, 0.035)",
+          stroke: "rgba(25, 118, 111, 0.08)",
           strokeWidth: 1,
           rx: 12,
           ry: 12,
@@ -365,7 +366,7 @@ const getChairAttrs = (flag: boolean, personByNodeId: Map<string, any>, item: an
         },
         rect: {
           fill: item.color ? findColor(item.color) : "transparent",
-          stroke: "rgba(251, 114, 153, 0.08)",
+          stroke: "rgba(25, 118, 111, 0.08)",
           strokeWidth: 1,
           rx: 12,
           ry: 12,
@@ -378,7 +379,7 @@ const getChairAttrs = (flag: boolean, personByNodeId: Map<string, any>, item: an
           height: 34,
           x: 3,
           y: 3,
-          fill: "#fb7299",
+          fill: "#19766f",
           // style: "display:block",
           style: person.orgType === "org" && person.isAttend ? "display:block" : "display:none",
         },
@@ -412,14 +413,14 @@ const getCircleTableAttrs = (item: any) => {
     text1: {
       text: item.data.tableName,
       fontSize: 18,
-      fill: "#6d4f82",
+      fill: "#33413f",
       fontWeight: 700,
       fontFamily: TEXT_FONT_FAMILY,
     },
     text2: {
       text: item.data.tableNameEn,
       fontSize: 14,
-      fill: "rgba(109, 92, 126, 0.6)",
+      fill: "rgba(86, 103, 99, 0.66)",
       fontFamily: TEXT_FONT_FAMILY,
     },
   };

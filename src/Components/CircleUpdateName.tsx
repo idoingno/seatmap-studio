@@ -1,17 +1,17 @@
-import { useSafeState, useUpdateEffect } from "ahooks";
+import { useSafeState } from "ahooks";
 import { Form, Input, Modal } from "antd";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import store from "../store";
 import { showCircleUpdateAction } from "../store/actionCreators";
 import { Session, getGraph } from "../config";
 import { generatePersonnel, updateGraphics, updateNode } from "../utils/apiParams";
 import { handleCpApi } from "../api";
 import { useSelector } from "react-redux";
+import { markLocalGraphMutation } from "../utils/querySync";
 
 const CircleUpdateName = () => {
   const [show, setShow] = useSafeState<boolean>(false);
-  const formRef = useRef(null);
-  const [formData, setFormData] = useSafeState(null);
+  const [form] = Form.useForm();
 
   const selectShow = useSelector((state: any) => state.other.circleUpdate);
 
@@ -25,7 +25,12 @@ const CircleUpdateName = () => {
 
     if (previousValue?.show !== currentValue?.show) {
       setShow(currentValue.show);
-      setFormData({ tableName: currentValue.tableName, tableNameEn: currentValue.tableNameEn });
+      if (currentValue.show) {
+        form.setFieldsValue({
+          tableName: currentValue.tableName,
+          tableNameEn: currentValue.tableNameEn,
+        });
+      }
     }
     // });
     // return () => {
@@ -57,16 +62,17 @@ const CircleUpdateName = () => {
   };
 
   const handleOk = (e: any) => {
-    formRef.current.submit();
+    form.submit();
   };
 
   const enterHandleOk = (e: any) => {
     if (e.keyCode === 13) {
-      formRef.current.submit();
+      form.submit();
     }
   };
 
   const onFinish = async (values: any) => {
+    markLocalGraphMutation();
     const { tableName, tableNameEn } = values;
     const { id, nodeType } = store.getState().other.circleUpdate;
     // 获取场次Id
@@ -146,9 +152,8 @@ const CircleUpdateName = () => {
       onOk={handleOk}
       okText="保存"
       cancelText="取消"
-      key={new Date().getTime()}
     >
-      <Form onKeyDown={enterHandleOk} onFinish={onFinish} ref={formRef} {...layout} initialValues={formData}>
+      <Form onKeyDown={enterHandleOk} onFinish={onFinish} form={form} {...layout}>
         <Form.Item label="桌子中文名:" name="tableName">
           <Input placeholder="请输入桌子中文名" />
         </Form.Item>

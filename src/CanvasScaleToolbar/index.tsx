@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import AppIcon from "../Components/AppIcon";
 import "./index.less";
 
@@ -48,6 +48,35 @@ interface CanvasScaleToolbarProps {
 }
 
 const CanvasScaleToolbar: React.FC<CanvasScaleToolbarProps> = ({ graph }) => {
+  const [zoom, setZoom] = useState(100);
+  const [selectedCount, setSelectedCount] = useState(0);
+
+  useEffect(() => {
+    if (!graph) {
+      return;
+    }
+
+    const syncStatus = () => {
+      const nextZoom = typeof graph.zoom === "function" ? Math.round(graph.zoom() * 100) : 100;
+      const nextSelection =
+        typeof graph.getSelectedCells === "function" ? graph.getSelectedCells().length : 0;
+
+      setZoom(nextZoom);
+      setSelectedCount(nextSelection);
+    };
+
+    syncStatus();
+    graph.on?.("scale", syncStatus);
+    graph.on?.("selection:changed", syncStatus);
+    graph.on?.("cell:removed", syncStatus);
+
+    return () => {
+      graph.off?.("scale", syncStatus);
+      graph.off?.("selection:changed", syncStatus);
+      graph.off?.("cell:removed", syncStatus);
+    };
+  }, [graph]);
+
   const transform = (command: string, graph: any) => {
     if (!graph) {
       return;
@@ -75,10 +104,20 @@ const CanvasScaleToolbar: React.FC<CanvasScaleToolbarProps> = ({ graph }) => {
       default:
         break;
     }
+
   };
 
   return (
     <div className="canvas-toolbar">
+      <div className="canvas-toolbar-status" aria-live="polite">
+        <span className="canvas-status-primary">{zoom}%</span>
+        <span className="canvas-status-divider" aria-hidden="true" />
+        <span>网格 36 px</span>
+        <span className="canvas-status-divider" aria-hidden="true" />
+        <span className={selectedCount > 0 ? "has-selection" : ""}>
+          {selectedCount > 0 ? `已选择 ${selectedCount} 个座位` : "未选择座位"}
+        </span>
+      </div>
       <div className="canvas-toolbar-group">
         {commands.map((item) => (
           <button

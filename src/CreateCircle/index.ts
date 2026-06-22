@@ -5,6 +5,7 @@ import { CircleAllCount, Session, getGraph } from "../config";
 import { generateGraphics, generateNode } from "../utils/apiParams";
 import { handleCpApi } from "../api";
 import { runGraphBatch } from "../utils/graphBatch";
+import { markLocalGraphMutation } from "../utils/querySync";
 
 // export const chairNum: number = 10;
 // export const tableNum: number = 2;
@@ -48,6 +49,7 @@ function getCircleMaxTableRealOrder() {
 }
 
 export const initCircle = (x: number, y: number, graph: Graph) => {
+  markLocalGraphMutation();
   const chairCount = CircleAllCount.getChairCount;
   const tableCount = CircleAllCount.getTableCount;
 
@@ -90,34 +92,29 @@ const initCircleSeat = async (
   sessionId: string
 ) => {
   const parent = graph.createNode(parentParams(parentData, circleData));
-  const table = graph.createNode(tableParams(circleData, circleTableData));
+  const table = graph.createNode({
+    ...tableParams(circleData, circleTableData),
+    parent: parent.id,
+  });
+  const children: Node[] = [table];
 
   runGraphBatch(graph, "create-circle", () => {
-    const children: Node[] = [table];
-
-    parent.addChild(table);
     // 椅子角度间隔
     const CHAIR_ANGLE_STEP = 360 / chairCount;
     for (let i = 0; i < chairCount; i++) {
       const angle = (CHAIR_START_ANGLE + CHAIR_ANGLE_STEP * i) * (Math.PI / 180);
-      const chair = graph.createNode(circleChairParams(circleData, circleTableData, table, angle, i));
-      parent.addChild(chair);
+      const chair = graph.createNode(circleChairParams(circleData, circleTableData, table, angle, i, parent.id));
       children.push(chair);
     }
 
-    graph.addNode(parent, { async: true });
-    graph.addNodes(children, { async: true });
+    graph.addNodes([parent, ...children], { async: true });
+    parent.setChildren(children);
   });
 
   // 添加图形组（父节点）
   const graphicsParams = generateGraphics(parent, sessionId);
   await handleCpApi({ params: graphicsParams, code: "seat" }, true);
 
-  const newNodes = graph.getNodes();
-
-  const filterNode = newNodes.filter(
-    (ite: Node) => ite.data.nodeType !== "circleContainer" && ite.parent.id === parent.id
-  );
-  const nodeParams = generateNode(filterNode, sessionId, parent);
+  const nodeParams = generateNode(children, sessionId, parent);
   await handleCpApi({ params: nodeParams, code: "seat" }, true);
 };

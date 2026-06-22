@@ -80,11 +80,11 @@ export const parentParams = (parentData: any) => {
       label: {
         // refY: 120,
         fontSize: 12,
-        fill: "rgba(122, 84, 106, 0.74)",
+        fill: "rgba(51, 65, 63, 0.76)",
       },
       body: {
-        fill: "rgba(251, 114, 153, 0.045)",
-        stroke: "rgba(251, 114, 153, 0.24)",
+        fill: "rgba(25, 118, 111, 0.035)",
+        stroke: "rgba(25, 118, 111, 0.22)",
         strokeWidth: 1.4,
         rx: 24,
         ry: 24,

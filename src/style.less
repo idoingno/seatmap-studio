@@ -1,13 +1,14 @@
 @prefixCls: clickpaas-customize-component-1691398243116;
-@headerHeight: 74px;
-@sidebarWidth: 320px;
-@accentPink: #fb7299;
-@accentPinkSoft: rgba(251, 114, 153, 0.14);
-@accentPinkBorder: rgba(251, 114, 153, 0.24);
-@accentPinkText: #d84f78;
-@panelBorder: rgba(194, 165, 178, 0.18);
-@textStrong: #352936;
-@textBody: rgba(84, 67, 83, 0.78);
+@headerHeight: 58px;
+@sidebarWidth: 286px;
+@accent: #19766f;
+@accentSoft: rgba(25, 118, 111, 0.1);
+@accentBorder: rgba(25, 118, 111, 0.26);
+@accentText: #145f59;
+@brass: #b58a3a;
+@panelBorder: #cfd7d5;
+@textStrong: #263431;
+@textBody: #667673;
 
 :root {
   color-scheme: light;
@@ -20,11 +21,10 @@ body,
   height: 100%;
   margin: 0;
   overflow: hidden;
-  background:
-    radial-gradient(circle at top, rgba(251, 114, 153, 0.16), transparent 36%),
-    radial-gradient(circle at 88% 100%, rgba(123, 181, 255, 0.14), transparent 24%),
-    linear-gradient(135deg, #fffafc 0%, #f8f3f6 44%, #f2eef4 100%);
-  font-family: "Avenir Next", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: #e8eceb;
+  font-family: "Avenir Next", "DIN Alternate", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -35,19 +35,7 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
-  background:
-    radial-gradient(circle at 15% 18%, rgba(251, 114, 153, 0.14) 0, transparent 22%),
-    radial-gradient(circle at 85% 82%, rgba(126, 187, 255, 0.16) 0, transparent 18%),
-    linear-gradient(135deg, #fffafc 0%, #f7f3f7 52%, #f2eef4 100%);
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 16px;
-    border: 1px solid rgba(175, 149, 167, 0.14);
-    border-radius: 22px;
-    pointer-events: none;
-  }
+  background: #e8eceb;
 }
 
 .seatmap-studio-shell {
@@ -64,8 +52,8 @@ body {
 .seatmap-studio-workspace {
   display: grid;
   grid-template-columns: @sidebarWidth minmax(0, 1fr);
-  gap: 18px;
-  padding: 18px 18px 20px;
+  gap: 10px;
+  padding: 10px 12px 12px;
   min-height: 0;
   flex: 1;
   box-sizing: border-box;
@@ -74,9 +62,9 @@ body {
 .seatmap-studio-workspace--refreshing {
   .seatmap-sidebar-placeholder {
     min-width: 0;
-    border-radius: 22px;
-    border: 1px solid rgba(194, 165, 178, 0.1);
-    background: linear-gradient(180deg, rgba(255, 252, 254, 0.56), rgba(248, 243, 248, 0.32));
+    border-radius: 10px;
+    border: 1px solid #d7dfdd;
+    background: #f5f7f6;
     opacity: 0;
     pointer-events: none;
   }
@@ -87,37 +75,12 @@ body {
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  border-radius: 24px;
+  border-radius: 10px;
   border: 1px solid @panelBorder;
-  background:
-    linear-gradient(180deg, rgba(255, 252, 254, 0.98), rgba(248, 243, 248, 0.98)),
-    repeating-linear-gradient(
-      90deg,
-      rgba(195, 173, 184, 0.1) 0,
-      rgba(195, 173, 184, 0.1) 1px,
-      transparent 1px,
-      transparent 36px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      rgba(195, 173, 184, 0.08) 0,
-      rgba(195, 173, 184, 0.08) 1px,
-      transparent 1px,
-      transparent 36px
-    );
-  box-shadow:
-    0 24px 60px rgba(137, 108, 129, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.84);
-
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 14px;
-    border-radius: 18px;
-    border: 1px solid rgba(185, 159, 172, 0.14);
-    pointer-events: none;
-    z-index: 0;
-  }
+  background-color: #fcfcfa;
+  background-image: radial-gradient(circle, rgba(91, 112, 108, 0.2) 0.8px, transparent 0.9px);
+  background-size: 18px 18px;
+  box-shadow: 0 8px 22px rgba(32, 45, 48, 0.08);
 }
 
 .seatmap-stage-surface {
@@ -127,72 +90,41 @@ body {
 
 .seatmap-stage-chrome {
   position: absolute;
-  top: 22px;
-  left: 22px;
-  right: 22px;
+  top: 12px;
+  left: 12px;
+  right: 12px;
   z-index: 20;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   pointer-events: none;
 }
 
 .stage-chrome-copy {
-  max-width: 360px;
-  padding: 16px 18px;
-  display: grid;
-  gap: 4px;
-  border-radius: 18px;
-  border: 1px solid @panelBorder;
-  background:
-    linear-gradient(180deg, rgba(255, 252, 254, 0.96), rgba(248, 243, 248, 0.92)),
-    rgba(255, 252, 247, 0.88);
-  backdrop-filter: blur(16px);
-  box-shadow:
-    0 16px 32px rgba(137, 108, 129, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.92);
-}
-
-.stage-kicker {
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(216, 79, 120, 0.82);
-  display: inline-flex;
+  min-height: 34px;
+  padding: 0 10px;
+  display: flex;
   align-items: center;
-  gap: 6px;
-}
-
-.stage-kicker-icon,
-.stage-badge-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  svg {
-    width: 100%;
-    height: 100%;
-  }
-}
-
-.stage-kicker-icon {
-  width: 12px;
-  height: 12px;
+  gap: 8px;
+  border: 1px solid #d7dfdd;
+  border-radius: 7px;
+  background: rgba(252, 252, 250, 0.94);
+  box-shadow: 0 4px 12px rgba(38, 52, 49, 0.06);
 }
 
 .stage-title {
-  font-family: "Baskerville", "Songti SC", serif;
-  font-size: 23px;
-  line-height: 1.1;
+  font-size: 12px;
+  line-height: 1;
   color: @textStrong;
-  font-family: "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .stage-copy {
-  font-size: 13px;
-  line-height: 1.6;
+  padding-left: 8px;
+  border-left: 1px solid #d7dfdd;
+  font-size: 10px;
+  line-height: 1;
   color: @textBody;
 }
 
@@ -201,17 +133,19 @@ body {
   gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  margin-right: 112px;
 }
 
 .stage-badge {
-  padding: 10px 14px;
-  border-radius: 999px;
-  border: 1px solid @accentPinkBorder;
-  background: rgba(255, 250, 244, 0.88);
-  color: rgba(100, 67, 83, 0.84);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  backdrop-filter: blur(12px);
+  min-height: 32px;
+  padding: 0 9px;
+  border-radius: 7px;
+  border: 1px solid #d7dfdd;
+  background: rgba(252, 252, 250, 0.94);
+  color: #5f706d;
+  font-family: "SFMono-Regular", "Roboto Mono", "PingFang SC", monospace;
+  font-size: 9px;
+  letter-spacing: 0.02em;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -220,7 +154,7 @@ body {
 .stage-badge-icon {
   width: 14px;
   height: 14px;
-  color: @accentPinkText;
+  color: @accentText;
 }
 
 .seatmap-empty-ghost {
@@ -228,17 +162,12 @@ body {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -44%);
-  width: min(440px, calc(100% - 88px));
-  padding: 28px;
-  border-radius: 24px;
-  border: 1px solid rgba(194, 165, 178, 0.18);
-  background:
-    linear-gradient(180deg, rgba(255, 252, 254, 0.96), rgba(247, 242, 247, 0.92)),
-    rgba(255, 252, 248, 0.92);
-  box-shadow:
-    0 24px 60px rgba(137, 108, 129, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(18px);
+  width: min(400px, calc(100% - 72px));
+  padding: 24px;
+  border-radius: 10px;
+  border: 1px dashed #b9c7c3;
+  background: rgba(252, 252, 250, 0.9);
+  box-shadow: 0 8px 22px rgba(32, 45, 48, 0.06);
   z-index: 1;
   pointer-events: none;
 }
@@ -249,19 +178,18 @@ body {
 }
 
 .seatmap-empty-kicker {
+  font-family: "SFMono-Regular", "Roboto Mono", "PingFang SC", monospace;
   font-size: 10px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(216, 79, 120, 0.8);
+  color: @accentText;
 }
 
 .seatmap-empty-title {
-  font-family: "Baskerville", "Songti SC", serif;
-  font-size: 30px;
+  font-size: 26px;
   line-height: 1.08;
   color: @textStrong;
-  font-family: "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .seatmap-empty-copy {
@@ -279,11 +207,11 @@ body {
 
 .seatmap-empty-pill {
   padding: 8px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(194, 165, 178, 0.18);
-  background: rgba(255, 255, 255, 0.7);
+  border-radius: 6px;
+  border: 1px solid #d8e0de;
+  background: #f7f9f8;
   font-size: 12px;
-  color: rgba(100, 67, 83, 0.8);
+  color: #60716e;
 }
 
 .react-x6-graph,
@@ -302,36 +230,47 @@ body {
     background: transparent;
   }
 
-  .x6-graph-svg-viewport {
-    .x6-graph-svg-stage {
-      g.x6-transition {
-        transition: all ease 0.35s;
-      }
-    }
+  .x6-widget-selection-box {
+    border: 1px solid @accent !important;
+    box-shadow: 0 0 0 2px rgba(25, 118, 111, 0.12) !important;
   }
+
+  .x6-widget-selection-inner {
+    border: 1px dashed @accent !important;
+    background: rgba(25, 118, 111, 0.06) !important;
+  }
+
+  .x6-cell-tool[data-tool-name="button-remove"] circle {
+    fill: #a64f48;
+  }
+}
+
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid rgba(25, 118, 111, 0.42);
+  outline-offset: 2px;
 }
 
 .seatmap-rubberband-box {
   position: fixed;
   z-index: 40;
   pointer-events: none;
-  border: 1px dashed rgba(216, 79, 120, 0.92);
-  background: rgba(251, 114, 153, 0.12);
+  border: 1px dashed rgba(25, 118, 111, 0.92);
+  background: rgba(25, 118, 111, 0.1);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.44) inset;
-  border-radius: 10px;
+  border-radius: 4px;
 }
 
 .seatmap-header-skeleton,
 .seatmap-sidebar-skeleton {
-  border-radius: 22px;
-  border: 1px solid rgba(139, 117, 83, 0.08);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(247, 241, 233, 0.72));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84);
+  border-radius: 10px;
+  border: 1px solid #d5dddb;
+  background: #f4f7f6;
 }
 
 .seatmap-header-skeleton {
   height: @headerHeight;
-  margin: 18px 18px 0;
+  margin: 10px 12px 0;
 }
 
 .seatmap-sidebar-skeleton {
@@ -354,11 +293,11 @@ body {
   }
 
   .ant-spin-dot-item {
-    background-color: @accentPink;
+    background-color: @accent;
   }
 
   .ant-spin-text {
-    color: @accentPinkText;
+    color: @accentText;
     letter-spacing: 0.04em;
   }
 
@@ -391,11 +330,11 @@ body {
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
-  border-radius: 16px;
-  border: 1px solid rgba(194, 165, 178, 0.22);
-  background: rgba(255, 252, 254, 0.96);
-  box-shadow: 0 18px 40px rgba(126, 96, 116, 0.18);
-  color: #4e3a48;
+  border-radius: 8px;
+  border: 1px solid #cfd7d5;
+  background: rgba(252, 252, 250, 0.98);
+  box-shadow: 0 10px 28px rgba(32, 45, 48, 0.14);
+  color: #33413f;
   opacity: 0;
   transform: translateY(-8px) scale(0.98);
   transition: opacity 0.18s ease, transform 0.18s ease;
@@ -442,21 +381,21 @@ body {
 
 .ant-modal-root {
   .ant-modal-mask {
-    backdrop-filter: blur(10px);
-    background: rgba(136, 93, 117, 0.18);
+    backdrop-filter: blur(4px);
+    background: rgba(38, 50, 56, 0.24);
   }
 
   .ant-modal-content {
-    border-radius: 20px;
-    border: 1px solid rgba(194, 165, 178, 0.22);
-    background: linear-gradient(180deg, rgba(255, 252, 254, 0.98), rgba(247, 242, 247, 0.98));
-    box-shadow: 0 24px 60px rgba(137, 108, 129, 0.16);
+    border-radius: 10px;
+    border: 1px solid #cfd7d5;
+    background: #fcfcfa;
+    box-shadow: 0 18px 48px rgba(32, 45, 48, 0.2);
   }
 
   .ant-modal-header {
-    border-bottom: 1px solid rgba(194, 165, 178, 0.14);
+    border-bottom: 1px solid #dfe5e3;
     background: transparent;
-    border-radius: 20px 20px 0 0;
+    border-radius: 10px 10px 0 0;
   }
 
   .ant-modal-title,
@@ -467,27 +406,27 @@ body {
   .ant-input,
   .ant-input-affix-wrapper,
   .ant-form-item-explain-error {
-    color: #4e3a48;
+    color: #33413f;
   }
 
   .ant-input,
   .ant-input-affix-wrapper {
-    border-radius: 14px;
-    border-color: rgba(194, 165, 178, 0.18);
-    background: rgba(255, 255, 255, 0.74);
+    border-radius: 7px;
+    border-color: #cfd8d5;
+    background: #fff;
   }
 
   .ant-btn-primary {
-    border-radius: 12px;
-    border-color: rgba(251, 114, 153, 0.88);
-    background: linear-gradient(135deg, #fb8cb0, #fb7299);
+    border-radius: 7px;
+    border-color: #19766f;
+    background: #19766f;
   }
 
   .ant-btn-default {
-    border-radius: 12px;
-    border-color: rgba(194, 165, 178, 0.14);
-    background: rgba(255, 255, 255, 0.74);
-    color: #5e4860;
+    border-radius: 7px;
+    border-color: #cfd8d5;
+    background: #fff;
+    color: #4e5f5c;
   }
 
   .ant-modal-confirm-btns {
@@ -511,5 +450,35 @@ body {
   .ant-row {
     display: flex;
     justify-content: center;
+  }
+}
+
+@media (max-width: 760px) {
+  .seatmap-studio-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 8px;
+  }
+
+  .stencil-app {
+    max-height: 38vh;
+  }
+
+  .seatmap-stage-shell {
+    min-height: 54vh;
+  }
+
+  .stage-chrome-badges {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

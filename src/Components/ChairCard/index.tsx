@@ -32,7 +32,12 @@ const ChairCard: React.FC = () => {
   return (
     <>
       {show ? (
-        <div className="ChairCard" style={{ left: chairData?.left, top: chairData?.top }} ref={awayRef}>
+        <div
+          className="ChairCard"
+          style={{ left: chairData?.left, top: chairData?.top }}
+          ref={awayRef}
+          role="tooltip"
+        >
           <div className="dv1">
             {chairData?.title} {chairData?.otherName ? `(${chairData?.otherName})` : ""}
           </div>

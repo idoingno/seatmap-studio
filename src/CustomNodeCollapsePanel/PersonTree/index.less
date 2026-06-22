@@ -1,11 +1,11 @@
 .leftPerson {
-  color: #5a4861;
+  color: #4e5f5c;
 
   .ant-input-affix-wrapper {
-    border-radius: 14px;
-    border-color: rgba(194, 165, 178, 0.16);
-    background: rgba(255, 255, 255, 0.74);
-    color: #5a4861;
+    border-radius: 7px;
+    border-color: #cfd8d5;
+    background: #fff;
+    color: #4e5f5c;
 
     input {
       background: transparent;
@@ -13,7 +13,7 @@
     }
 
     .anticon {
-      color: rgba(216, 79, 120, 0.56);
+      color: #6c8c87;
     }
   }
 
@@ -25,24 +25,34 @@
   .tab-dv {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-    margin: 12px 0 0;
+    gap: 6px;
+    margin: 10px 0 0;
 
     button {
-      min-height: 38px;
-      padding: 0 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(194, 165, 178, 0.14);
-      background: rgba(255, 255, 255, 0.72);
-      font-size: 12px;
-      color: rgba(98, 76, 96, 0.76);
+      min-height: 34px;
+      padding: 0 9px;
+      border: 1px solid #d8e0de;
+      border-radius: 6px;
+      background: #f8faf9;
+      font-size: 11px;
+      color: #667673;
       cursor: pointer;
-      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+
+      &:hover {
+        border-color: #a6bbb7;
+      }
 
       &.active {
-        background: rgba(251, 114, 153, 0.12);
-        border-color: rgba(251, 114, 153, 0.22);
-        color: #7a4e6a;
+        background: #e7f2f0;
+        border-color: #8fb7b1;
+        color: #19766f;
+      }
+
+      &:disabled {
+        cursor: wait;
+        color: #8a9996;
+        background: #f2f5f4;
       }
     }
   }
@@ -51,16 +61,32 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 12px;
-    padding: 10px 12px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.7);
-    color: rgba(98, 76, 96, 0.78);
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-radius: 7px;
+    background: #f4f7f6;
+    color: #667673;
+    font-size: 11px;
+  }
+
+  .person-loading-status,
+  .person-empty-status {
+    min-height: 20px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .person-loading-status {
+    color: #19766f;
+  }
+
+  .person-empty-status {
+    color: #7c8b88;
   }
 
   .tree-wrap {
-    margin-top: 12px;
-    padding-right: 4px;
+    margin-top: 10px;
+    padding-right: 3px;
 
     &::-webkit-scrollbar {
       width: 6px !important;
@@ -68,40 +94,38 @@
     }
 
     &::-webkit-scrollbar-thumb {
-      border-radius: 999px;
-    background: rgba(251, 114, 153, 0.24);
+      border-radius: 8px;
+      background: #aebdb9;
     }
 
     .myTree {
-      padding-left: 2px;
+      padding-left: 1px;
     }
   }
 
   .ant-tree {
     background: transparent;
-    color: #5a4861;
+    color: #4e5f5c;
 
-    .ant-tree-indent {
-      & + .ant-tree-switcher-noop {
-        display: none;
-      }
+    .ant-tree-indent + .ant-tree-switcher-noop {
+      display: none;
     }
   }
 
   .ant-tree-treenode {
     width: 100%;
-    padding: 4px 0;
+    padding: 3px 0;
   }
 
   .ant-tree-node-content-wrapper,
   .ant-tree-node-content-wrapper-normal {
     width: 100%;
     display: inline-block;
-    border-radius: 14px;
+    border-radius: 7px;
     color: inherit;
 
     &:hover {
-      background: rgba(216, 181, 121, 0.08) !important;
+      background: #eef4f2 !important;
     }
   }
 
@@ -111,7 +135,7 @@
     user-select: none;
 
     .person-row-level2 {
-      margin-left: 10px;
+      margin-left: 8px;
     }
   }
 
@@ -119,42 +143,34 @@
     display: flex;
     align-items: center;
     width: 100%;
-    margin-left: 10px;
-    padding: 8px 10px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.78);
+    margin-left: 6px;
+    padding: 7px 8px;
+    border-radius: 7px;
+    background: #f8faf9;
 
     .avatar {
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 242, 247, 0.82));
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      margin-right: 12px;
+      width: 32px;
+      height: 32px;
+      margin-right: 9px;
       position: relative;
       overflow: hidden;
-
-      &::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-      }
+      border-radius: 6px;
+      background: #eef2f1;
 
       img {
-        width: 34px;
-        height: 34px;
+        width: 32px;
+        height: 32px;
       }
     }
 
-    &.pattern-node {
-      .avatar {
-        background-color: transparent;
-        width: 44px;
-        height: 40px;
+    &.pattern-node .avatar {
+      width: 42px;
+      height: 38px;
+      background-color: transparent;
 
-        img {
-          width: 44px;
-          height: auto;
-        }
+      img {
+        width: 42px;
+        height: auto;
       }
     }
 
@@ -164,35 +180,34 @@
     }
 
     .main-title {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      color: #4b3850;
+      color: #33413f;
     }
 
     .sub-title {
-      font-size: 11px;
+      font-size: 10px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      color: rgba(105, 84, 102, 0.58);
+      color: #788783;
     }
   }
 
   .selectPerson,
   .x-mes {
-    background: linear-gradient(180deg, rgba(255, 252, 254, 0.98), rgba(247, 242, 247, 0.96));
-    box-shadow: 0 18px 40px rgba(137, 108, 129, 0.14);
-    border-radius: 16px;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(194, 165, 178, 0.14);
-    color: #5a4861;
+    border: 1px solid #cfd7d5;
+    border-radius: 8px;
+    background: rgba(252, 252, 250, 0.98);
+    box-shadow: 0 10px 26px rgba(32, 45, 48, 0.14);
+    color: #4e5f5c;
   }
 
   .selectPerson {
-    padding: 15px;
+    padding: 13px;
     box-sizing: border-box;
 
     .selectPerson_title {
@@ -206,13 +221,13 @@
     align-items: center;
 
     img {
-      margin-right: 15px;
+      margin-right: 12px;
       width: 32px;
       height: 32px;
     }
 
     .num {
-      margin-left: 15px;
+      margin-left: 12px;
     }
   }
 

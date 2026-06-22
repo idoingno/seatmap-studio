@@ -210,13 +210,15 @@ const ColorEdit: React.FC<any> = ({ colorObj }) => {
             colorList.map((ite: ColorItemType, index: number) => {
               return (
                 <div key={ite.color} className="color-edit-row">
-                  <span
+                  <button
+                    type="button"
                     onClick={() => {
                       updateData(index, "edit");
                     }}
                     className="color-edit-square"
                     style={{ backgroundColor: `${ite.color}` }}
-                  ></span>
+                    aria-label={`编辑区域 ${ite.name || index + 1} 的名称`}
+                  />
 
                   {ite.type === "edit" ? (
                     <Input
@@ -227,13 +229,15 @@ const ColorEdit: React.FC<any> = ({ colorObj }) => {
                       defaultValue={ite.org}
                     />
                   ) : (
-                    <span
+                    <button
+                      type="button"
+                      className="color-edit-name"
                       onClick={() => {
                         updateData(index, "edit");
                       }}
                     >
-                      {ite.org}
-                    </span>
+                      {ite.org || "点击命名"}
+                    </button>
                   )}
                 </div>
               );

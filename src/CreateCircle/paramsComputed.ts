@@ -85,10 +85,10 @@ export const parentParams = (parentData: ParentDataType, circleData: circleDataT
       label: {
         refY: 120,
         fontSize: 12,
-        fill: "rgba(122, 84, 106, 0.74)",
+        fill: "rgba(51, 65, 63, 0.76)",
       },
       body: {
-        fill: "transparent",
+        fill: "rgba(25, 118, 111, 0.02)",
         stroke: "transparent",
         // fill: '#fffbe6',
         // stroke: '#ffe7ba',
@@ -124,8 +124,8 @@ export const tableParams = (circleData: circleDataType, circleTableData: any) =>
           cy: circleTableSize / 2,
           r: circleTableSize / 2,
           text: circleData.tableName,
-          fill: "rgba(251, 114, 153, 0.06)",
-          stroke: "rgba(251, 114, 153, 0.28)",
+          fill: "rgba(25, 118, 111, 0.05)",
+          stroke: "rgba(25, 118, 111, 0.26)",
           strokeWidth: 2,
           fontSize: 18,
         },
@@ -153,7 +153,7 @@ export const tableParams = (circleData: circleDataType, circleTableData: any) =>
       text1: {
         text: circleData.tableName,
         fontSize: 18,
-        fill: "#6d4f82",
+        fill: "#33413f",
         fontWeight: 700,
         fontFamily: '"Helvetica Neue", "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
       },
@@ -164,7 +164,7 @@ export const tableParams = (circleData: circleDataType, circleTableData: any) =>
 
         text: circleData.tableNameEn,
         fontSize: 14,
-        fill: "rgba(109, 92, 126, 0.6)",
+        fill: "rgba(86, 103, 99, 0.66)",
         fontFamily: '"Helvetica Neue", "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
       },
     },
@@ -176,13 +176,15 @@ export const circleChairParams = (
   circleTableData: any,
   table: any,
   angle: number,
-  i: number
+  i: number,
+  parentId?: string
 ) => {
   const circleTableSize = circleTableData.width;
   const chairRadius = circleTableSize / 2 + CHAIR_SIZE / 2 + 5; // 椅子距离圆桌的半径
 
   return {
     shape: "circle-chair-node",
+    parent: parentId,
     x: table.getBBox().x + circleTableSize / 2 - CHAIR_SIZE / 2 + Math.cos(angle) * chairRadius,
     y: table.getBBox().y + circleTableSize / 2 - CHAIR_SIZE / 2 + Math.sin(angle) * chairRadius,
     data: {

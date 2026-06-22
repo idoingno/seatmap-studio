@@ -19,8 +19,8 @@ const matrixToolsConfig = ({ e, node }: ConfigProps) => {
         markup: [
           {
             tagName: "rect",
-            class: "circle_chair_increase_icon",
             attrs: {
+              class: "matrix-add-tool-hitbox",
               width: "24px",
               height: "24px",
               fill: "transparent",
@@ -66,8 +66,8 @@ const matrixToolsConfig = ({ e, node }: ConfigProps) => {
         markup: [
           {
             tagName: "rect",
-            class: "circle_chair_increase_icon",
             attrs: {
+              class: "matrix-minus-tool-hitbox",
               width: "24px",
               height: "24px",
               fill: "transparent",

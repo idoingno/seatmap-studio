@@ -129,6 +129,8 @@ const ColorPanel: React.FC<ColorPanelProps> = ({ setColorObj }) => {
                   key={item.color}
                   onClick={() => changeCurColor(item)}
                   className={`color-swatch${item.selected ? " is-selected" : ""}${item.color === "#FFFFFF" ? " is-empty" : ""}`}
+                  aria-label={item.name === "A" ? "清除座位背景色" : `应用区域颜色 ${item.name}`}
+                  aria-pressed={Boolean(item.selected)}
                   style={{
                     backgroundColor: `${item.color}`,
                     borderColor: `${item.color === "#FFFFFF" ? "rgba(255,255,255,0.18)" : item.color}`,
@@ -141,10 +143,10 @@ const ColorPanel: React.FC<ColorPanelProps> = ({ setColorObj }) => {
           </Spin>
         </div>
       ) : (
-        <div className="colorDv" onClick={expand}>
+        <button type="button" className="colorDv" onClick={expand} aria-label="展开背景色面板">
           <AppIcon name="palette" className="color-trigger-icon" />
           <span>背景色</span>
-        </div>
+        </button>
       )}
     </div>
   );

@@ -31,8 +31,7 @@ const render = (container: string) => {
               gap: 12,
               alignItems: "center",
               justifyContent: "center",
-              background:
-                "radial-gradient(circle at top, rgba(251, 114, 153, 0.2), transparent 28%), linear-gradient(180deg, #fffafc 0%, #fff7fb 38%, #f4f7ff 100%)",
+              background: "#e8eceb",
               color: "rgba(118, 79, 99, 0.86)",
               fontSize: 14,
               letterSpacing: "0.08em",
@@ -44,8 +43,8 @@ const render = (container: string) => {
                 width: 52,
                 height: 52,
                 borderRadius: 999,
-                border: "1px solid rgba(251, 114, 153, 0.32)",
-                boxShadow: "0 0 0 12px rgba(251, 114, 153, 0.08)",
+                border: "1px solid rgba(25, 118, 111, 0.34)",
+                boxShadow: "0 0 0 10px rgba(25, 118, 111, 0.08)",
               }}
             />
             Seatmap Studio loading...

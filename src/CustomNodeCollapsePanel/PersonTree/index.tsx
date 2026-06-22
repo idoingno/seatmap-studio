@@ -59,6 +59,7 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
   const [orgList, setOrgList] = useState([]);
   const [allList, setAllList] = useState([]);
   const [checkedListLength, setCheckedListLength] = useState(0);
+  const [peopleLoading, setPeopleLoading] = useState(true);
   // const [hasSeatArr, setHasSeatArr] = useState<any>([]);
 
   // 监听并生成人员树
@@ -105,13 +106,13 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
   useImperativeHandle(onRef, () => ({
     reload: () => {
       queryOrgInfo();
-      queryPersonInfo();
+      queryPersonInfo(true);
     },
   }));
 
   useEffect(() => {
     queryOrgInfo();
-    queryPersonInfo();
+    queryPersonInfo(false);
   }, []);
 
   const handleLeftTree = (hasSeatArr: any) => {
@@ -137,30 +138,30 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
     return data.filter((item) => item.orgType === key).length;
   };
 
-  const queryPersonInfo = async () => {
+  const queryPersonInfo = async (refreshGraph = false) => {
+    setPeopleLoading(true);
     // 获取场次Id
     const sessionId = Session.getDataId;
     const params = { sessionId };
-    const { code, data, subMsgType }: ResponseType = await handleCpApi({ params, code: "person" });
-    if (code === 200 && subMsgType === "success") {
-      const result = data.response.result;
-      const handleData = personDataMap(result);
-      // 初始化过滤
-      // if (arrangeKey === "unArrange" && orgKey === "org") {
-      const initData = handleData.filter((item: any) => item.orgType === orgKey && getArrangeSeat(item, arrangeKey));
-      setPersonList(initData);
-      setAllList([...handleData]);
-      // setAllPersonNum(initData.length);
-      // }
+    try {
+      const { code, data, subMsgType }: ResponseType = await handleCpApi({ params, code: "person" });
+      if (code === 200 && subMsgType === "success") {
+        const result = data.response.result;
+        const handleData = personDataMap(result);
+        const initData = handleData.filter((item: any) => item.orgType === orgKey && getArrangeSeat(item, arrangeKey));
+        setPersonList(initData);
+        setAllList([...handleData]);
 
-      const hasSeatArr = handleData.filter((item: any) => !!item.hasSeat).map((item: any) => item.id);
-      // hasSeatSize.forEach((item: any) => {
-      //   store.dispatch(addAction(item.id));
-      // });
-      store.dispatch(addsAction(hasSeatArr));
+        const hasSeatArr = handleData.filter((item: any) => !!item.hasSeat).map((item: any) => item.id);
+        store.dispatch(addsAction(hasSeatArr));
 
-      AllPersonArr.setArr = handleData;
-      loadTree$.emit();
+        AllPersonArr.setArr = handleData;
+        if (refreshGraph) {
+          loadTree$.emit();
+        }
+      }
+    } finally {
+      setPeopleLoading(false);
     }
   };
 
@@ -390,13 +391,17 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
         placeholder="搜索"
       />
       <div className="tab-dv org-tab-row" role="tablist" aria-label="人员类型">
-        {tabItems(getPersonCount(allList, "org"), getPersonCount(allList, "pattern")).map((item) => (
+        {tabItems(
+          peopleLoading ? "…" : getPersonCount(allList, "org"),
+          peopleLoading ? "…" : getPersonCount(allList, "pattern")
+        ).map((item) => (
           <button
             key={item.key}
             type="button"
             className={orgKey === item.key ? "active" : ""}
             onClick={() => orgOnChange(item.key)}
             aria-pressed={orgKey === item.key}
+            disabled={peopleLoading}
           >
             {item.label}
           </button>
@@ -416,11 +421,17 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
         ))}
       </div>
       <div className="show-person-number-row">
-        {arrangeKey === "unArrange" && personList.length > 0 && (
+        {peopleLoading ? (
+          <span className="person-loading-status" role="status">
+            正在载入人员…
+          </span>
+        ) : arrangeKey === "unArrange" && personList.length > 0 ? (
           <div style={{ marginBottom: "5px" }}>
             <Checkbox indeterminate={indeterminate} onChange={allCheckboxOnChange} checked={checkAll} />
             <span style={{ marginLeft: "8px", fontSize: "14px", fontWeight: "bold" }}>全部({personList.length})</span>
           </div>
+        ) : (
+          <span className="person-empty-status">当前筛选无人员</span>
         )}
         {checkedListLength === 0 ? "" : arrangeKey === "unArrange" ? <div>已选 {checkedListLength}</div> : <div></div>}
       </div>

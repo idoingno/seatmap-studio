@@ -15,6 +15,7 @@ import { showCard } from "./Components/ChairCard";
 import { changeSeatChair, getNodeChildren, isOutChair, sliceText } from "./utils/util";
 import { isLargeGraphMode, syncGraphPerformanceMode } from "./utils/graphPerformance";
 import { message } from "./utils/message";
+import { markLocalGraphMutation } from "./utils/querySync";
 
 type C = {
   e?: Event | any;
@@ -124,7 +125,6 @@ export const GraphBehavior = (): any => {
     };
 
     const handleNodeMouseDown = ({ e, node, view }: C) => {
-      graph.disablePanning();
       // e.dataTransfer.effectAllowed = "copy";
       if (node.hasTool("button-remove")) {
         node.removeTool("button-remove");
@@ -154,6 +154,7 @@ export const GraphBehavior = (): any => {
     graph.on("node:mousemove", handleNodeMouseMove);
 
     const nodeResized = async ({ node }: C) => {
+      markLocalGraphMutation();
       // 更新图形组 父节点
       const graphicsParams = updateGraphics(node, sessionId);
       await handleCpApi({ params: graphicsParams, code: "seat" }, true);
@@ -315,12 +316,16 @@ export const GraphBehavior = (): any => {
             seatData = `${node.data.matrixChairName} - ${node.data.matrixChairTopName}座 / ${node.data.matrixChairNameEn} - ${node.data.matrixChairBottomName}`;
           }
 
-          const scale = graph.zoom();
-          const { tx, ty } = graph.translate();
+          const cardAnchor = graph.localToClient(
+            node.getPosition().x + node.getSize().width / 2,
+            node.getPosition().y + node.getSize().height
+          );
+          const cardWidth = 260;
+          const cardHeight = 132;
 
           showCard({
-            left: `${node.getPosition().x * scale + tx + 256}px`,
-            top: `${(node.getPosition().y + 40) * scale + ty + 48}px`,
+            left: `${Math.min(Math.max(12, cardAnchor.x - 20), window.innerWidth - cardWidth - 12)}px`,
+            top: `${Math.min(Math.max(12, cardAnchor.y + 8), window.innerHeight - cardHeight - 12)}px`,
             title: (node.attrs && node.attrs.xnode && node.attrs.xnode.title) || "姓名",
             subTitle: (node.attrs && node.attrs.xnode && node.attrs.xnode.subTitle) || "职业",
             otherName: node.attrs.xnode.otherName || "",
@@ -337,15 +342,16 @@ export const GraphBehavior = (): any => {
       removeToolsConfig({ e, node, view, cell });
       circleToolsConfig({ e, node, view, cell });
 
-      if (nodeType === "matrixContainer" || nodeType === "circleContainer") {
-        node.attr("body/stroke", "#c2c2c250");
-        node.attr("body/fill", "#ffffff50");
+      if (nodeType === "matrixContainer") {
+        node.attr("body/stroke", "rgba(25, 118, 111, 0.46)");
+      } else if (nodeType === "circleContainer") {
+        node.attr("body/stroke", "rgba(25, 118, 111, 0.34)");
+        node.attr("body/fill", "rgba(25, 118, 111, 0.035)");
       }
     };
 
     const nodeMouseup = async ({ e, node, view }: C) => {
       const nodeType = node.data.nodeType;
-      graph.enablePanning();
 
       if (nodeType === "circleChair" || nodeType === "matrixChair") {
         if (!node.attrs.xnode) return;
@@ -466,6 +472,7 @@ export const GraphBehavior = (): any => {
     };
 
     const nodeMoved = async ({ e, node, view }: C) => {
+      markLocalGraphMutation();
       // 移动图形组
       if (node.data.nodeType === "matrixContainer" || node.data.nodeType === "circleContainer") {
         // 更新图形组 父节点
@@ -488,7 +495,14 @@ export const GraphBehavior = (): any => {
 
     const nodeMouseleave = ({ node }: C) => {
       if (!node || !node.data) return;
-      // const { nodeType, visible } = node.data;
+      const { nodeType } = node.data;
+      if (nodeType === "matrixContainer") {
+        node.attr("body/stroke", "rgba(25, 118, 111, 0.22)");
+        node.attr("body/fill", "rgba(25, 118, 111, 0.035)");
+      } else if (nodeType === "circleContainer") {
+        node.attr("body/stroke", "transparent");
+        node.attr("body/fill", "rgba(25, 118, 111, 0.02)");
+      }
       // const nodeType = node.data.nodeType;
       // if (nodeType === "matrixChair") {
       //   node.removeTools();

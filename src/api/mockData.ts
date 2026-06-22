@@ -90,7 +90,7 @@ const createMatrixTemplateSchema = (
       w: parentWidth,
       h: parentHeight,
       data: {
-        disableMove: true,
+        disableMove: false,
         nodeType: "matrixContainer",
         rows,
         columns,

@@ -42,6 +42,11 @@ export const mousewheel = {
   // zoomAtMousePosition: false,
 };
 
+export const panning = {
+  enabled: true,
+  eventTypes: ["mouseWheelDown" as const],
+};
+
 export const interacting = (cellView: CellView) => {
   if (cellView.cell.getData() != undefined && cellView.cell.getData().disableMove) {
     return { nodeMovable: false };
@@ -54,7 +59,7 @@ export const snapline = {
 };
 
 export const background = {
-  color: "#F5F6FA",
+  color: "transparent",
 };
 
 export const translating = {

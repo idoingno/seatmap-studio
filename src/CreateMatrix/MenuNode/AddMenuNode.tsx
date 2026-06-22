@@ -1,6 +1,6 @@
 import { register } from "x6-html-shape";
 import createRender from "x6-html-shape/dist/react17";
-import React, { memo, useLayoutEffect, useRef, useState } from "react";
+import React, { memo, useLayoutEffect, useRef } from "react";
 import { MATRIX_OFFSET_DISTANCE } from "../../GlobalVar";
 import { MatrixSize, Session, getGraph } from "../../config";
 import type { Node } from "@antv/x6";
@@ -26,14 +26,17 @@ const hasAllMatrixAnchors = (...groups: Node[][]) => {
 };
 
 export const AddMenuNode = memo(() => {
-  const [show, setShow] = useState(true);
   const upRef = useRef<HTMLDivElement | null>(null);
   const downRef = useRef<HTMLDivElement | null>(null);
   const leftRef = useRef<HTMLDivElement | null>(null);
   const rightRef = useRef<HTMLDivElement | null>(null);
   const awayRef = useRef<HTMLDivElement | null>(null);
   const closeMenu = () => {
-    setShow(false);
+    const graph = getGraph();
+    graph
+      .getNodes()
+      .filter((node: Node) => node.data?.nodeType === "menuNode")
+      .forEach((node: Node) => graph.removeNode(node.id));
   };
 
   const addTopRow = async () => {
@@ -469,7 +472,7 @@ export const AddMenuNode = memo(() => {
     };
   }, []);
 
-  return show ? (
+  return (
     <div
       className="menu-dialog"
       ref={awayRef}
@@ -489,8 +492,6 @@ export const AddMenuNode = memo(() => {
         <AppIcon name="addRight" className="menu-item-icon" /> 插入最右 1 列
       </div>
     </div>
-  ) : (
-    <></>
   );
 });
 

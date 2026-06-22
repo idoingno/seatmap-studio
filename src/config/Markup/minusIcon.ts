@@ -4,11 +4,12 @@ const minusSvg = {
     width: "24",
     height: "24",
     viewBox: "0 0 16 16",
-    fill: "#fe854f",
+    fill: "#a64f48",
     x: -30,
     y: -20,
     cursor: "pointer",
     id: "minus",
+    class: "matrix-minus-tool",
   },
   children: [
     {

@@ -4,11 +4,12 @@ const addSvg = {
     width: "24",
     height: "24",
     viewBox: "0 0 16 16",
-    fill: "#fe854f",
+    fill: "#19766f",
     x: -60,
     y: -20,
     cursor: "pointer",
     id: "add",
+    class: "matrix-add-tool",
   },
   children: [
     {

@@ -1,4 +1,4 @@
-export const tabItems = (orgCount: number, patternCount: number) => [
+export const tabItems = (orgCount: number | string, patternCount: number | string) => [
   {
     key: "org",
     label: `所属组织(${orgCount})`,
