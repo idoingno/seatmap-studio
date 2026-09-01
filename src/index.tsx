@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import store from "./store";
 import { CPForm, Session } from "./config";
+import { ErrorBoundary } from "./Components/ErrorBoundary";
 
 const App = React.lazy(() => import("./App"));
 
@@ -20,40 +21,46 @@ const render = (container: string) => {
   if (!rootElement) return;
 
   createRoot(rootElement).render(
-    <Provider store={store}>
-      <Suspense
-        fallback={
-          <div
-            style={{
-              height: "100vh",
-              display: "flex",
-              flexDirection: "column",
-              gap: 12,
-              alignItems: "center",
-              justifyContent: "center",
-              background: "#e8eceb",
-              color: "rgba(118, 79, 99, 0.86)",
-              fontSize: 14,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-            }}
-          >
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        console.error('Error caught by boundary:', error, errorInfo);
+      }}
+    >
+      <Provider store={store}>
+        <Suspense
+          fallback={
             <div
               style={{
-                width: 52,
-                height: 52,
-                borderRadius: 999,
-                border: "1px solid rgba(25, 118, 111, 0.34)",
-                boxShadow: "0 0 0 10px rgba(25, 118, 111, 0.08)",
+                height: "100vh",
+                display: "flex",
+                flexDirection: "column",
+                gap: 12,
+                alignItems: "center",
+                justifyContent: "center",
+                background: "#e8eceb",
+                color: "rgba(118, 79, 99, 0.86)",
+                fontSize: 14,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
               }}
-            />
-            Seatmap Studio loading...
-          </div>
-        }
-      >
-        <App />
-      </Suspense>
-    </Provider>
+            >
+              <div
+                style={{
+                  width: 52,
+                  height: 52,
+                  borderRadius: 999,
+                  border: "1px solid rgba(25, 118, 111, 0.34)",
+                  boxShadow: "0 0 0 10px rgba(25, 118, 111, 0.08)",
+                }}
+              />
+              Seatmap Studio loading...
+            </div>
+          }
+        >
+          <App />
+        </Suspense>
+      </Provider>
+    </ErrorBoundary>
   );
 };
 

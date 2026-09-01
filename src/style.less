@@ -10,8 +10,26 @@
 @textStrong: #263431;
 @textBody: #667673;
 
+// CSS custom properties 桥接：字面量与 src/styles/tokens.js 保持一致，
+// 供 CSS-in-CSS 场景使用；antd 变量由 webpack modifyVars 从同一文件注入。
 :root {
   color-scheme: light;
+
+  --sb-accent: @accent;
+  --sb-accent-text: @accentText;
+  --sb-accent-soft: @accentSoft;
+  --sb-accent-border: @accentBorder;
+  --sb-ink: @textStrong;
+  --sb-text-body: @textBody;
+  --sb-canvas: #e8eceb;
+  --sb-panel: #ffffff;
+  --sb-panel-border: @panelBorder;
+  --sb-seat-occupied: #2f8f86;
+  --sb-seat-empty: #ffffff;
+  --sb-brass: @brass;
+  --sb-radius-base: 2px;
+  --sb-radius-island: 12px;
+  --sb-shadow-island: 0 2px 10px rgba(38, 52, 49, 0.08), 0 1px 3px rgba(38, 52, 49, 0.06);
 }
 
 html,
@@ -103,14 +121,16 @@ body {
 
 .stage-chrome-copy {
   min-height: 34px;
-  padding: 0 10px;
+  padding: 0 12px;
   display: flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid #d7dfdd;
-  border-radius: 7px;
-  background: rgba(252, 252, 250, 0.94);
-  box-shadow: 0 4px 12px rgba(38, 52, 49, 0.06);
+  border: 1px solid var(--sb-panel-border);
+  border-radius: var(--sb-radius-island);
+  background: rgba(252, 252, 250, 0.92);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow: var(--sb-shadow-island);
 }
 
 .stage-title {
@@ -137,12 +157,15 @@ body {
 }
 
 .stage-badge {
-  min-height: 32px;
-  padding: 0 9px;
-  border-radius: 7px;
-  border: 1px solid #d7dfdd;
-  background: rgba(252, 252, 250, 0.94);
-  color: #5f706d;
+  min-height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  border: 1px solid var(--sb-panel-border);
+  background: rgba(252, 252, 250, 0.92);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow: var(--sb-shadow-island);
+  color: var(--sb-text-body);
   font-family: "SFMono-Regular", "Roboto Mono", "PingFang SC", monospace;
   font-size: 9px;
   letter-spacing: 0.02em;
@@ -404,22 +427,22 @@ button:focus-visible,
   .ant-form-item-label > label,
   .ant-checkbox-wrapper,
   .ant-input,
-  .ant-input-affix-wrapper,
-  .ant-form-item-explain-error {
+  .ant-input-affix-wrapper {
     color: #33413f;
   }
 
-  .ant-input,
-  .ant-input-affix-wrapper {
+  // 基础描边色只在非交互态生效（:not 技巧），
+  // hover/focus 等品牌态让位给 antd 全局主题派生的颜色。
+  .ant-input:not(:hover):not(:focus),
+  .ant-input-affix-wrapper:not(:hover):not(.ant-input-affix-wrapper-focused) {
     border-radius: 7px;
     border-color: #cfd8d5;
     background: #fff;
   }
 
+  // 主按钮颜色由 antd 全局主题（primary-color: #19766f）派生，这里只保留几何样式。
   .ant-btn-primary {
     border-radius: 7px;
-    border-color: #19766f;
-    background: #19766f;
   }
 
   .ant-btn-default {

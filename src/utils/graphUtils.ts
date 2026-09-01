@@ -3,6 +3,8 @@ import { AllPersonArr, ColorArr } from "../config";
 // import { chairSvg } from "../config/Markup/chair";
 import { syncSvg } from "../config/Markup/syncIcon";
 import { findColor, listToTreeSimple, sliceText } from "./util";
+import { parseChairIdt } from "./validation";
+import { colors } from "../styles/tokens";
 
 const martixParentAttrs = {
   label: {
@@ -340,7 +342,7 @@ const getChairAttrs = (flag: boolean, personByNodeId: Map<string, any>, item: an
   } else if (flag) {
     const person = personByNodeId.get(item.id);
 
-    const idt = item.data.idt && item.data.idt.split("-");
+    const parsedIdt = parseChairIdt(String(item.data?.idt ?? ""));
     // 查询人员座位关联
     if (!person) {
       return {
@@ -379,7 +381,7 @@ const getChairAttrs = (flag: boolean, personByNodeId: Map<string, any>, item: an
           height: 34,
           x: 3,
           y: 3,
-          fill: "#19766f",
+          fill: colors.accent,
           // style: "display:block",
           style: person.orgType === "org" && person.isAttend ? "display:block" : "display:none",
         },
@@ -397,8 +399,8 @@ const getChairAttrs = (flag: boolean, personByNodeId: Map<string, any>, item: an
           subTitle: person.subTitle,
           otherName: person.otherName || "",
           orgType: person.orgType,
-          row: idt ? Number(idt[0]) + 1 : "",
-          column: idt ? Number(idt[1]) + 1 : "",
+          row: parsedIdt ? parsedIdt.row + 1 : "",
+          column: parsedIdt ? parsedIdt.column + 1 : "",
           s_seat: person.s_seat,
           s_seat_english: person.s_seat_english,
         },

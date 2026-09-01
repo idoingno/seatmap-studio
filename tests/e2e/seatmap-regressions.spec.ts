@@ -1,6 +1,6 @@
 import { expect, Page, test } from "@playwright/test";
 
-const createMatrix = async (page: Page, rows: number, columns: number) => {
+const createMatrix = async (page: Page, rows: number, columns: number, x = 240, y = 120) => {
   await expect(page.getByText("已同步到最新版本")).toBeVisible();
   await page.waitForFunction(
     () => Boolean((window as any).__SEATMAP_STUDIO_GRAPH__) && typeof (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__ === "function",
@@ -12,13 +12,13 @@ const createMatrix = async (page: Page, rows: number, columns: number) => {
   });
 
   await page.evaluate(
-    async ({ expectedRows, expectedColumns }) => {
-      await (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__(expectedRows, expectedColumns, 240, 120);
+    async ({ expectedRows, expectedColumns, matrixX, matrixY }) => {
+      await (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__(expectedRows, expectedColumns, matrixX, matrixY);
       await new Promise<void>((resolve) => {
         requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
       });
     },
-    { expectedRows: rows, expectedColumns: columns }
+    { expectedRows: rows, expectedColumns: columns, matrixX: x, matrixY: y }
   );
 
   await page.waitForFunction(
@@ -300,6 +300,47 @@ test.describe("Seatmap Studio regressions", () => {
     expect(pageErrors).toEqual([]);
   });
 
+  test("menu from the real add tool appears at the click point", async ({ page }) => {
+    // 回归：x6-html-shape 的 htmlContainer 矩阵只在 translate/scale/position 变化时同步，
+    // 首个 HTML 节点挂载瞬间图层矩阵过期，菜单会出现在错误位置直到拖动画布。
+    await page.goto("/");
+    await loadTemplate(page, "Boardroom Demo");
+
+    const tool = await page.evaluate(() => {
+      const graph = (window as any).__SEATMAP_STUDIO_GRAPH__;
+      const parent = graph.getNodes().find((n: any) => n?.data?.nodeType === "matrixContainer");
+      parent.prop("position", { x: 220, y: 140 });
+      const box = parent.getBBox();
+      return graph.localToClient(box.x + box.width - 10, box.y + 6);
+    });
+
+    await page.mouse.move(120, 660);
+    await page.mouse.move(tool.x, tool.y, { steps: 12 });
+    const addTool = page.locator(".matrix-add-tool-hitbox");
+    await expect(addTool).toBeVisible();
+    await addTool.click();
+
+    const menu = page.locator(".menu-dialog");
+    await expect(menu).toBeVisible();
+    // 等视图挂载与位置刷新完成（挂载是异步的），再断言最终落点与稳定性
+    await page.waitForTimeout(600);
+
+    const settle = await page.evaluate(async () => {
+      const before = (document.querySelector(".menu-dialog") as HTMLElement).getBoundingClientRect();
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      const after = (document.querySelector(".menu-dialog") as HTMLElement).getBoundingClientRect();
+      return {
+        before: { x: before.x, y: before.y },
+        after: { x: after.x, y: after.y },
+      };
+    });
+
+    // 菜单稳定在点击点附近，且之后不因画布交互“跳位”（就是用户看到的不显示/延迟）。
+    expect(Math.abs(settle.after.x - settle.before.x) + Math.abs(settle.after.y - settle.before.y)).toBeLessThanOrEqual(4);
+    expect(Math.abs(settle.after.x - tool.x)).toBeLessThanOrEqual(90);
+    expect(Math.abs(settle.after.y - tool.y)).toBeLessThanOrEqual(90);
+  });
+
   test("hides and restores an empty seat with the mouse tool", async ({ page }) => {
     const pageErrors = capturePageErrors(page);
 
@@ -414,6 +455,9 @@ test.describe("Seatmap Studio regressions", () => {
     await expect(designNode).toBeVisible();
     await designNode.locator(".ant-tree-switcher").click();
     await expect(designNode).toHaveClass(/ant-tree-treenode-switcher-open/);
+    // 等待树展开动画完全结束再拖拽：rc-tree 展开时节点布局仍在移动，
+    // 负载较高时在此期间的 HTML5 dragstart 会被中途打断（该用例在套件环境下的偶发失败）。
+    await expect(page.locator(".ant-tree-treenode-motion")).toHaveCount(0);
 
     const adaNode = page.locator(".ant-tree-treenode:visible").filter({
       has: page.locator('[data-name="Ada Chen"]'),
@@ -867,6 +911,84 @@ test.describe("Seatmap Studio regressions", () => {
     expect(pageErrors).toEqual([]);
   });
 
+  test("pans the canvas with left mouse drag while Ctrl+drag keeps rubberband", async ({ page }) => {
+    const pageErrors = capturePageErrors(page);
+
+    await page.goto("/");
+    await expect(page.getByText("已同步到最新版本")).toBeVisible();
+    await page.waitForFunction(() => ((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().length ?? 0) === 0, undefined, {
+      timeout: 30_000,
+    });
+
+    const graphBox = await page.locator(".x6-graph").boundingBox();
+    expect(graphBox).not.toBeNull();
+    const startX = graphBox!.x + graphBox!.width / 2;
+    const startY = graphBox!.y + graphBox!.height / 2;
+
+    const translateBefore = await page.evaluate(() => (window as any).__SEATMAP_STUDIO_GRAPH__.translate());
+    await page.mouse.move(startX, startY);
+    await page.mouse.down();
+    await page.mouse.move(startX - 140, startY - 90, { steps: 10 });
+    await page.mouse.up();
+    const translateAfterPan = await page.evaluate(() => (window as any).__SEATMAP_STUDIO_GRAPH__.translate());
+    expect(translateAfterPan.tx).not.toBe(translateBefore.tx);
+    expect(translateAfterPan.ty).not.toBe(translateBefore.ty);
+
+    const rubberband = page.locator(".x6-widget-selection-rubberband");
+    await page.keyboard.down("Control");
+    await page.mouse.move(startX, startY);
+    await page.mouse.down();
+    await page.mouse.move(startX + 160, startY + 120, { steps: 10 });
+    await expect(rubberband).toBeVisible();
+    await page.mouse.up();
+    await page.keyboard.up("Control");
+    await expect(rubberband).toHaveCount(0);
+
+    expect(pageErrors).toEqual([]);
+  });
+
+  test("clamps a matrix created at the edge of the visible area", async ({ page }) => {
+    const pageErrors = capturePageErrors(page);
+
+    await page.goto("/");
+    await expect(page.getByText("已同步到最新版本")).toBeVisible();
+    await page.waitForFunction(
+      () => Boolean((window as any).__SEATMAP_STUDIO_GRAPH__) && typeof (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__ === "function",
+      undefined,
+      { timeout: 30_000 }
+    );
+    await page.waitForFunction(() => ((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().length ?? 0) === 0, undefined, {
+      timeout: 30_000,
+    });
+
+    const area = await page.evaluate(() => {
+      const graphArea = (window as any).__SEATMAP_STUDIO_GRAPH__.getGraphArea();
+      return { x: graphArea.x, y: graphArea.y, width: graphArea.width, height: graphArea.height };
+    });
+
+    await createMatrix(page, 4, 8, area.x + area.width - 12, area.y + area.height - 12);
+
+    await page.waitForFunction(
+      () => Boolean((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().find((node: any) => node?.data?.nodeType === "matrixContainer")),
+      undefined,
+      { timeout: 30_000 }
+    );
+
+    const bbox = await page.evaluate(() => {
+      const graph = (window as any).__SEATMAP_STUDIO_GRAPH__;
+      const container = graph.getNodes().find((node: any) => node?.data?.nodeType === "matrixContainer");
+      const box = container.getBBox();
+      return { x: box.x, y: box.y, right: box.x + box.width, bottom: box.y + box.height };
+    });
+
+    expect(bbox.x).toBeGreaterThanOrEqual(area.x - 1);
+    expect(bbox.y).toBeGreaterThanOrEqual(area.y - 1);
+    expect(bbox.right).toBeLessThanOrEqual(area.x + area.width + 1);
+    expect(bbox.bottom).toBeLessThanOrEqual(area.y + area.height + 1);
+
+    expect(pageErrors).toEqual([]);
+  });
+
   test("keeps canvas controls and material drop boundaries reliable", async ({ page }) => {
     const pageErrors = capturePageErrors(page);
 
@@ -893,9 +1015,9 @@ test.describe("Seatmap Studio regressions", () => {
     expect(graphBox).not.toBeNull();
 
     await page.mouse.move(graphBox!.x + 900, graphBox!.y + 500);
-    await page.mouse.down({ button: "middle" });
+    await page.mouse.down();
     await page.mouse.move(graphBox!.x + 840, graphBox!.y + 450, { steps: 8 });
-    await page.mouse.up({ button: "middle" });
+    await page.mouse.up();
 
     const translateAfter = await page.evaluate(() => (window as any).__SEATMAP_STUDIO_GRAPH__.translate());
     expect(translateAfter.tx).not.toBe(translateBefore.tx);

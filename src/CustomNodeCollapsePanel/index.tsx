@@ -51,7 +51,7 @@ const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, loadTree$, g
 
   const selectDrag = useSelector((state: any) => state.other.isDrag);
   const { modalRef: selectTemplateModalRef, FormModal: SelectTemplateModal } = useFormModal(
-    { title: "模板选择", width: "100%" },
+    { title: "模板选择", width: 1080 },
     SelectTemplateForm
   );
 

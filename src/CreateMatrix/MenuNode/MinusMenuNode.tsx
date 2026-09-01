@@ -1,3 +1,6 @@
+import { hasAllMatrixAnchors, validateRemoveOperation } from "../../utils/matrixOperations";
+import { markLocalGraphMutation } from "../../utils/querySync";
+import { updateGraphicsForParent, updateNodesForParent } from "../../services/graphService";
 import { register } from "x6-html-shape";
 import createRender from "x6-html-shape/dist/react17";
 import React, { memo, useLayoutEffect, useRef } from "react";
@@ -6,18 +9,12 @@ import { MatrixSize, Session, getGraph } from "../../config";
 import type { Node } from "@antv/x6";
 import { buildMatrixMenuIndex, getNodeChildren, resizeProscenium, resizeWindow, setAllCorridorColumnH } from "../../utils/util";
 import AppIcon from "../../Components/AppIcon";
-import { delNode, delPersonnel, updateGraphics, updateNode } from "../../utils/apiParams";
+import { delNode } from "../../utils/apiParams";
 import { handleCpApi } from "../../api";
 import store from "../../store/index";
 import { subAction } from "../../store/actionCreators";
 import { runGraphBatch } from "../../utils/graphBatch";
 import { syncGraphPerformanceMode } from "../../utils/graphPerformance";
-import { markLocalGraphMutation } from "../../utils/querySync";
-import { message } from "../../utils/message";
-
-const hasAllMatrixAnchors = (...groups: Node[][]) => {
-  return groups.every((group) => group.length > 0);
-};
 
 export const MinusMenuNode = memo(() => {
   const upRef = useRef<HTMLDivElement | null>(null);
@@ -42,10 +39,7 @@ export const MinusMenuNode = memo(() => {
     const rows = parent.data.rows;
     markLocalGraphMutation();
 
-    if (rows <= 2) {
-      message.error("至少保留二行");
-      return;
-    }
+    if (!validateRemoveOperation(rows, 2, "row")) return;
 
     const firstRowText = [matrixIndex.rowTextByIdx.get(0)].filter(Boolean) as Node[];
     const firstRowEnText = [matrixIndex.rowTextEnByIdx.get(0)].filter(Boolean) as Node[];
@@ -113,11 +107,9 @@ export const MinusMenuNode = memo(() => {
     });
     syncGraphPerformanceMode(graph);
 
-    const graphicsParams = updateGraphics(parent, sessionId);
-    await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+    await updateGraphicsForParent(parent, sessionId);
 
-    const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
-    await handleCpApi({ params: nodeParams, code: "seat" }, true);
+    await updateNodesForParent(getNodeChildren(parent), sessionId, parent);
 
     const delNodeParams = delNode(removeArr, sessionId);
     await handleCpApi({ params: delNodeParams, code: "seat" }, true);
@@ -139,10 +131,7 @@ export const MinusMenuNode = memo(() => {
     const columns = parent.data.columns;
     markLocalGraphMutation();
 
-    if (columns <= 2) {
-      message.error("至少保留2列");
-      return;
-    }
+    if (!validateRemoveOperation(columns, 2, "column")) return;
 
     const firstColumnTopText = [matrixIndex.columnTopTextByIdx.get(0)].filter(Boolean) as Node[];
     const firstColumnBottomText = [matrixIndex.columnBottomTextByIdx.get(0)].filter(Boolean) as Node[];
@@ -210,11 +199,9 @@ export const MinusMenuNode = memo(() => {
     });
     syncGraphPerformanceMode(graph);
 
-    const graphicsParams = updateGraphics(parent, sessionId);
-    await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+    await updateGraphicsForParent(parent, sessionId);
 
-    const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
-    await handleCpApi({ params: nodeParams, code: "seat" }, true);
+    await updateNodesForParent(getNodeChildren(parent), sessionId, parent);
 
     const delNodeParams = delNode(removeArr, sessionId);
     await handleCpApi({ params: delNodeParams, code: "seat" }, true);
@@ -238,10 +225,7 @@ export const MinusMenuNode = memo(() => {
     const rows = parent.data.rows;
     markLocalGraphMutation();
 
-    if (rows <= 2) {
-      message.error("至少保留二行");
-      return;
-    }
+    if (!validateRemoveOperation(rows, 2, "row")) return;
 
     const lastMatrixBottomNum = matrixIndex.columnBottomNodes;
     const lastRowText = [matrixIndex.rowTextByIdx.get(rows - 1)].filter(Boolean) as Node[];
@@ -293,11 +277,9 @@ export const MinusMenuNode = memo(() => {
     });
     syncGraphPerformanceMode(graph);
 
-    const graphicsParams = updateGraphics(parent, sessionId);
-    await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+    await updateGraphicsForParent(parent, sessionId);
 
-    const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
-    await handleCpApi({ params: nodeParams, code: "seat" }, true);
+    await updateNodesForParent(getNodeChildren(parent), sessionId, parent);
 
     const delNodeParams = delNode(removeArr, sessionId);
     await handleCpApi({ params: delNodeParams, code: "seat" }, true);
@@ -324,10 +306,7 @@ export const MinusMenuNode = memo(() => {
       const columns = parent.data.columns;
       markLocalGraphMutation();
 
-      if (columns <= 2) {
-        message.error("至少保留2列");
-        return;
-      }
+      if (!validateRemoveOperation(columns, 2, "column")) return;
 
       const lastColumns = matrixIndex.rowEnNodes;
       const lastColumnsTopText = [matrixIndex.columnTopTextByIdx.get(columns - 1)].filter(Boolean) as Node[];
@@ -377,11 +356,9 @@ export const MinusMenuNode = memo(() => {
       });
       syncGraphPerformanceMode(graph);
 
-      const graphicsParams = updateGraphics(parent, sessionId);
-      await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+      await updateGraphicsForParent(parent, sessionId);
 
-      const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
-      await handleCpApi({ params: nodeParams, code: "seat" }, true);
+      await updateNodesForParent(getNodeChildren(parent), sessionId, parent);
 
       const delNodeParams = delNode(removeArr, sessionId);
       await handleCpApi({ params: delNodeParams, code: "seat" }, true);

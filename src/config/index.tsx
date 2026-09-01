@@ -36,15 +36,14 @@ export const scaling = {
 
 export const mousewheel = {
   enabled: true,
-  // modifiers: '',
+  zoomAtMousePosition: true,
   maxScale: 4,
   minScale: 0.2,
-  // zoomAtMousePosition: false,
 };
 
 export const panning = {
   enabled: true,
-  eventTypes: ["mouseWheelDown" as const],
+  eventTypes: ["leftMouseDown" as const],
 };
 
 export const interacting = (cellView: CellView) => {
@@ -75,20 +74,20 @@ export const translating = {
   },
 };
 
-// export const embedding = {
-//   enabled: true,
-//   findParent({ node }: any) {
-//     const bbox = node.getBBox();
-//     return this.getNodes().filter((node: any) => {
-//       const data = node.getData();
-//       if (data && data.parent) {
-//         const targetBBox = node.getBBox();
-//         return bbox.isIntersectWithRect(targetBBox);
-//       }
-//       return false;
-//     });
-//   },
-// };
+export const embedding = {
+  enabled: true,
+  findParent({ node }: any) {
+    const bbox = node.getBBox();
+    return this.getNodes().filter((node: any) => {
+      const data = node.getData();
+      if (data && data.parent) {
+        const targetBBox = node.getBBox();
+        return bbox.isIntersectWithRect(targetBBox);
+      }
+      return false;
+    });
+  },
+};
 
 // const MyButton = Button.define<Button.Options>({
 //   markup: [

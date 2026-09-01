@@ -1,16 +1,7 @@
 import store from "../store";
-import { showLoadingAction, showTimeAction, showFullScreenLoadingAction } from "../store/actionCreators";
+import { showLoadingAction, showTimeAction } from "../store/actionCreators";
 import { time } from "../utils/util";
-import { mockRequest } from "./mockData";
-
-const host =
-  window.location.pathname === "/"
-    ? "/"
-    : /\/$/.test(window.location.pathname)
-      ? window.location.pathname
-      : `${window.location.pathname}/`;
-
-const url = window.localStorage.getItem("seatmap-api-url") || `${host}api/seatmap/invoke`;
+import { getSeatmapStore } from "../storage";
 
 export interface ResponseType {
   code?: number;
@@ -26,94 +17,42 @@ export interface AxiosRequestConfig {
   code?: string;
 }
 
-const getRemoteCodes = () => {
-  try {
-    return JSON.parse(window.localStorage.getItem("seatmap-api-codes") || "{}");
-  } catch (error) {
-    return {};
-  }
-};
-
 let reqNum = 0;
-const shouldUseMockApi = () => window.localStorage.getItem("seatmap-api-mode") !== "remote";
 
 const startLoading = (code: string) => {
   if (reqNum === 0) {
     //loading 开始
     store.dispatch(showLoadingAction(true));
-    // if (code !== 'personnel') {
-    //   store.dispatch(showFullScreenLoadingAction(true));
-    // }
-    // store.dispatch(showTimeAction(time()));
   }
   reqNum++;
 };
+
 const endLoading = () => {
-  if (reqNum <= 0) return;
+  if (reqNum <= 0) {
+    reqNum = 0;
+    return;
+  }
   reqNum--;
   if (reqNum === 0) {
-    //loading 结束
+    // loading 结束
     store.dispatch(showLoadingAction(false));
-    // store.dispatch(showFullScreenLoadingAction(false));
     store.dispatch(showTimeAction(time()));
   }
 };
 
+/**
+ * 所有持久化只经此一处，按 seatmap-api-mode 分发到存储后端：
+ * - "remote" : 远程后端（INVOKING_IPAAS_CID 协议，见 src/storage/httpStore）
+ * - "mock"   : 纯内存（开发/E2E，见 src/storage/memoryStore）
+ * - 其他/缺省: IndexedDB（开源版默认，零后端可运行，见 src/storage/indexedDbStore）
+ */
 const request = (options: AxiosRequestConfig = {}, loading = false) => {
-  const { params, code } = options;
+  const { params } = options;
   //请求开始的时候，判断是否有传 loading，为 true 则开始 loading
   loading && startLoading(params?.type);
 
-  if (shouldUseMockApi()) {
-    return mockRequest(options).finally(() => {
-      loading && endLoading();
-    });
-  }
-
-  return new Promise((resolve, reject) => {
-    const data = {
-      code: getRemoteCodes()[code],
-      invokeType: "INVOKING_IPAAS_CID",
-      _crumb: window.localStorage.getItem("seatmap-api-crumb") || "",
-      invokeParam: params,
-      connectTimeout: 600000,
-      socketTimeout: 600000,
-    };
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then(async (response) => {
-        const text = await response.text();
-
-        if (!response.ok) {
-          throw new Error(`Seatmap API request failed with status ${response.status}`);
-        }
-
-        try {
-          return text ? JSON.parse(text) : {};
-        } catch (error) {
-          throw new Error("Seatmap API returned invalid JSON");
-        }
-      })
-      .then((res) => {
-        loading && endLoading();
-        resolve(res);
-      })
-      .catch((error) => {
-        loading && endLoading();
-        resolve({
-          code: 500,
-          subMsgType: "error",
-          data: {
-            response: null,
-            message: error instanceof Error ? error.message : "Seatmap API request failed",
-          },
-        });
-      });
+  return Promise.resolve(getSeatmapStore().handle(options)).finally(() => {
+    loading && endLoading();
   });
 };
 

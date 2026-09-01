@@ -1,16 +1,20 @@
+// 浅色细顶栏（tldraw/Figma 系）：与画布同一视觉语言，
+// 颜色/圆角/阴影全部取自设计 token（src/style.less :root）。
 .container-header {
-  height: 58px;
+  height: 54px;
   margin: 10px 12px 0;
   padding: 0 10px 0 14px;
   display: grid;
   grid-template-columns: minmax(270px, 1fr) auto auto;
   gap: 12px;
   align-items: center;
-  border: 1px solid #cfd7d5;
-  border-radius: 10px;
-  background: #263238;
-  box-shadow: 0 8px 22px rgba(32, 45, 48, 0.12);
-  color: #f7f9f8;
+  border: 1px solid var(--sb-panel-border);
+  border-radius: var(--sb-radius-island);
+  background: rgba(252, 252, 250, 0.92);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  box-shadow: var(--sb-shadow-island);
+  color: var(--sb-ink);
   user-select: none;
 
   .app-icon {
@@ -47,16 +51,16 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 7px;
-    background: rgba(255, 255, 255, 0.06);
-    color: #d8e2df;
+    border: 1px solid var(--sb-panel-border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--sb-text-body);
     cursor: pointer;
     transition: background 0.16s ease, color 0.16s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
+      background: var(--sb-accent-soft);
+      color: var(--sb-accent);
     }
 
     .app-icon {
@@ -77,13 +81,13 @@
     line-height: 1;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #8fb7b1;
+    color: var(--sb-accent-text);
   }
 
   .text {
-    font-size: 19px;
-    line-height: 1.18;
-    color: #f8faf9;
+    font-size: 16px;
+    line-height: 1.2;
+    color: var(--sb-ink);
     font-weight: 650;
     letter-spacing: 0.01em;
   }
@@ -94,8 +98,8 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    border-left: 1px solid rgba(255, 255, 255, 0.14);
-    color: #b8c8c4;
+    border-left: 1px solid var(--sb-panel-border);
+    color: var(--sb-text-body);
     min-width: 0;
   }
 
@@ -111,7 +115,7 @@
     }
 
     &.is-loading {
-      background: #b58a3a;
+      background: var(--sb-brass);
       box-shadow: 0 0 0 3px rgba(181, 138, 58, 0.16);
     }
   }
@@ -141,24 +145,23 @@
     gap: 7px;
     padding: 0 10px;
     border: 1px solid transparent;
-    border-radius: 7px;
+    border-radius: 8px;
     background: transparent;
-    color: #cad5d2;
+    color: var(--sb-text-body);
     font-size: 12px;
     cursor: pointer;
     transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
 
     &:hover {
-      border-color: rgba(255, 255, 255, 0.12);
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
+      background: var(--sb-accent-soft);
+      color: var(--sb-accent);
     }
   }
 
   .tool-icon {
     width: 17px;
     height: 17px;
-    color: #8fb7b1;
+    color: var(--sb-accent-text);
   }
 
   .right {
@@ -167,12 +170,12 @@
   }
 
   .action-button {
-    min-height: 38px;
+    min-height: 36px;
     padding: 0 12px;
-    border: 1px solid rgba(143, 183, 177, 0.34);
+    border: 1px solid var(--sb-accent-border);
     border-radius: 8px;
-    background: rgba(25, 118, 111, 0.16);
-    color: #edf7f5;
+    background: var(--sb-accent-soft);
+    color: var(--sb-accent-text);
     font: inherit;
     display: inline-flex;
     align-items: center;
@@ -181,15 +184,15 @@
     transition: background 0.16s ease, border-color 0.16s ease;
 
     &:hover {
-      border-color: rgba(143, 183, 177, 0.58);
-      background: rgba(25, 118, 111, 0.28);
+      border-color: var(--sb-accent);
+      background: rgba(25, 118, 111, 0.16);
     }
   }
 
   .action-icon {
     width: 18px;
     height: 18px;
-    color: #69c6b9;
+    color: var(--sb-accent);
     flex: 0 0 18px;
   }
 
@@ -219,14 +222,14 @@
 
   @media (max-width: 760px) {
     height: auto;
-    min-height: 58px;
+    min-height: 54px;
     margin: 8px 8px 0;
     padding: 8px 10px;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px;
 
     .text {
-      font-size: 16px;
+      font-size: 15px;
     }
 
     .save-status {
@@ -239,6 +242,7 @@
       grid-row: 2;
       width: 100%;
       gap: 4px;
+      overflow-x: auto;
     }
 
     .header-tool {

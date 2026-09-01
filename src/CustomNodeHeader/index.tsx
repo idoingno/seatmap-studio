@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 import "./index.less";
-import { AlphabeticSerialNumber, CPForm, getGraph } from "../config";
+import { AlphabeticSerialNumber, CPForm, Session, getGraph } from "../config";
 // import { emptyGraph } from "../utils/apiParams";
 import { Graph, Node } from "@antv/x6";
 import { sortCompareFn3 } from "../utils/util";
@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import { useCallbackState } from "../hooks/useCallbackState";
 import { lazyForm } from "../Components/useFormModal/lazyForm";
 import { exportSeatTemplate } from "../utils/excel/exportSeatTemplate";
+import { exportLayout, importLayout, validateLayoutExport } from "../services/graphService";
 import { message } from "../utils/message";
 import AppIcon from "../Components/AppIcon";
 
@@ -115,6 +116,52 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
     if (imgLoading) return;
     setImgLoading(true);
     setImgDom();
+  };
+
+  // 布局 JSON 导入导出（序列化格式 = 存储查询响应 {schema:[...]}）
+  const layoutFileRef = useRef<HTMLInputElement | null>(null);
+
+  const exportLayoutJson = async () => {
+    const layout = await exportLayout(Session.getDataId);
+    if (!layout) {
+      message.warning("当前没有可导出的布局");
+      return;
+    }
+    const blob = new Blob([JSON.stringify(layout, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `seatmap-layout-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const onLayoutFileChange: React.ChangeEventHandler<HTMLInputElement> = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    try {
+      const parsed = JSON.parse(await file.text());
+      const layout = Array.isArray(parsed) ? { schema: parsed } : parsed;
+      if (!validateLayoutExport(layout)) {
+        message.error("文件格式无效：应为导出的布局 JSON");
+        return;
+      }
+
+      const ok = await importLayout(layout, Session.getDataId);
+      if (ok) {
+        message.success("布局已导入");
+        setRefresh?.(true);
+        await getData?.();
+      } else {
+        message.error("导入布局失败，请稍后重试");
+      }
+    } catch (error) {
+      message.error("文件读取失败，请选择有效的 JSON 文件");
+    }
   };
 
   const waitForFrames = async (count = 2) => {
@@ -364,6 +411,22 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
             <AppIcon name="uploadSheet" className="tool-icon" />
             <span>上传座位配置</span>
           </button>
+          <button type="button" className="header-tool" data-testid="export-layout-button" onClick={exportLayoutJson}>
+            <AppIcon name="downloadSheet" className="tool-icon" />
+            <span>导出布局</span>
+          </button>
+          <button type="button" className="header-tool" onClick={() => layoutFileRef.current?.click()}>
+            <AppIcon name="uploadSheet" className="tool-icon" />
+            <span>导入布局</span>
+          </button>
+          <input
+            ref={layoutFileRef}
+            type="file"
+            accept="application/json,.json"
+            hidden
+            data-testid="import-layout-input"
+            onChange={onLayoutFileChange}
+          />
         </div>
         <div className="right header-block">
           <button type="button" className="action-button" data-testid="export-seatmap-button" onClick={exportSeat}>

@@ -4,7 +4,7 @@ import { useGraphState } from "x6-hooks/react";
 import { Graph } from "x6-graph/react";
 import { GraphBehavior } from "./GraphBehavior";
 import CanvasScaleToolbar from "./CanvasScaleToolbar";
-import { scaling, mousewheel, panning, interacting, Session, background, translating, CPForm } from "./config";
+import { scaling, mousewheel, panning, interacting, Session, background, translating, CPForm, embedding } from "./config";
 import { setGraphs } from "./config/index";
 import toDrop from "./toDrop";
 
@@ -62,8 +62,6 @@ const App = ({ closeApp }: AppProps) => {
   const stageShellRef = useRef<HTMLDivElement | null>(null);
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
 
-  const [, updateState] = useState<any>();
-  const forceUpdate = useCallback(() => updateState({}), []);
   const handleGraphRef = useCallback(
     (instance: any) => {
       gRef.current = instance;
@@ -74,7 +72,11 @@ const App = ({ closeApp }: AppProps) => {
   );
 
   useEffect(() => {
-    refresh && setTimeout(() => setRefresh(false));
+    if (!refresh) {
+      return;
+    }
+    const timer = window.setTimeout(() => setRefresh(false), 0);
+    return () => window.clearTimeout(timer);
   }, [refresh]);
   const loadTree$ = useEventEmitter();
 
@@ -180,7 +182,6 @@ const App = ({ closeApp }: AppProps) => {
     store.dispatch(addDargAction(""));
 
     await query();
-    forceUpdate();
   };
 
   const refreshPeopleTree = useCallback(() => {
@@ -279,7 +280,7 @@ const App = ({ closeApp }: AppProps) => {
                     virtual={true}
                     interacting={interacting}
                     translating={translating}
-                    // embedding={embedding}
+                    embedding={embedding}
                     // virtual={true}
                     autoResize={true}
                     ref={handleGraphRef}
@@ -297,7 +298,7 @@ const App = ({ closeApp }: AppProps) => {
                 <div className="stage-chrome-badges">
                   <span className="stage-badge">
                     <AppIcon name="drag" className="stage-badge-icon" />
-                    左键拖布局 · 中键移画布
+                    左键拖动画布
                   </span>
                   <span className="stage-badge">
                     <AppIcon name="palette" className="stage-badge-icon" />

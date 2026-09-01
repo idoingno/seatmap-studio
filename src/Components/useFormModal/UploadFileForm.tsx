@@ -142,7 +142,7 @@ const UploadFileForm = (
         <span className="studio-form-kicker">Import</span>
         <span className="studio-form-copy">导入 Excel 座位名单。默认会先清掉当前排座，避免旧数据混入。</span>
       </div>
-      <Form onFinish={onSubmit} ref={ref} form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 14 }}>
+      <Form onFinish={onSubmit} ref={ref} form={form} layout="vertical">
         {upLoading ? (
           <>
             <LoadingOutlined style={{ marginRight: "5px" }} /> 上传中...
@@ -174,7 +174,7 @@ const UploadFileForm = (
                 </span>
               </div>
             </Form.Item>
-            <Form.Item label="">
+            <Form.Item>
               <Checkbox checked={checked} onChange={onCheckChange}>
                 清空当前座位
               </Checkbox>

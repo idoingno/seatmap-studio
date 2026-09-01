@@ -19,6 +19,8 @@ import {
 } from "../GlobalVar";
 
 import { updateGraphics } from "./apiParams";
+import { parseChairIdt } from "./validation";
+import { colors } from "../styles/tokens";
 import { handleCpApi } from "../api";
 
 export interface pProps {
@@ -131,21 +133,17 @@ export const buildMatrixMenuIndex = (parent: Node): MatrixMenuIndex => {
     }
 
     if (nodeType === "matrixChair") {
-      const [rowKey, columnKey] = String(node.data?.idt ?? "-").split("-");
-      const rowIndex = Number(rowKey);
-      const columnIndex = Number(columnKey);
-
-      if (!Number.isNaN(rowIndex)) {
-        const rowNodes = index.chairsByRow.get(rowIndex) ?? [];
-        rowNodes.push(node);
-        index.chairsByRow.set(rowIndex, rowNodes);
+      const parsed = parseChairIdt(String(node.data?.idt ?? ""));
+      if (!parsed) {
+        console.warn("buildMatrixMenuIndex: skipping chair with invalid idt", node.id);
+        continue;
       }
 
-      if (!Number.isNaN(columnIndex)) {
-        const columnNodes = index.chairsByColumn.get(columnIndex) ?? [];
-        columnNodes.push(node);
-        index.chairsByColumn.set(columnIndex, columnNodes);
-      }
+      const rowNodes = [...(index.chairsByRow.get(parsed.row) ?? []), node];
+      index.chairsByRow.set(parsed.row, rowNodes);
+
+      const columnNodes = [...(index.chairsByColumn.get(parsed.column) ?? []), node];
+      index.chairsByColumn.set(parsed.column, columnNodes);
     }
   }
 
@@ -213,6 +211,11 @@ export const sliceText = (str: string) => {
 };
 
 export const isOutChair = (p1: pProps, chairArr: any) => {
+  if (!Array.isArray(chairArr)) {
+    console.warn('isOutChair: chairArr is not an array');
+    return { flag: false, element: null };
+  }
+
   for (let i = 0; i < chairArr.length; i++) {
     const element = chairArr[i];
 
@@ -244,10 +247,14 @@ export const setChairPerson = (node: any, item: any) => {
     const getAttr = () => {
       if (nodeType === "matrixChair") {
         const { idt } = node.data;
-        const arr = idt.split("-");
+        const parsed = parseChairIdt(idt || '');
+        if (!parsed) {
+          console.warn('Invalid chair idt in setChairPerson:', idt);
+          return { row: 1, column: 1 };
+        }
         return {
-          row: Number(arr[0]) + 1,
-          column: Number(arr[1]) + 1,
+          row: parsed.row + 1,
+          column: parsed.column + 1,
         };
       } else if (nodeType === "circleChair") {
         return {
@@ -275,7 +282,7 @@ export const setChairPerson = (node: any, item: any) => {
       //   fill: "#FFFFFF",
       // },
       svg: {
-        fill: "#B39372",
+        fill: colors.seatOccupied,
         style: item.orgType === "pattern" ? "display:none" : "display:block",
       },
       image: {
@@ -298,7 +305,7 @@ export const changeSeatChair = (node: any, xnode: any) => {
       //   fill: "#FFFFFF",
       // },
       svg: {
-        fill: "#B39372",
+        fill: colors.seatOccupied,
         style: xnode.orgType === "pattern" ? "display:none" : "display:block",
       },
       image: {
@@ -327,12 +334,15 @@ export const parentAddText = (params: ParamsProps) => {
   return child;
 };
 
+const chairRowKey = (node: any) => parseChairIdt(String(node?.data?.idt ?? ""))?.row ?? 0;
+const chairColumnKey = (node: any) => parseChairIdt(String(node?.data?.idt ?? ""))?.column ?? 0;
+
 export const sortCompareFn = (a: any, b: any) => {
-  return Number(a.data.idt.split("-")[0]) - Number(b.data.idt.split("-")[0]);
+  return chairRowKey(a) - chairRowKey(b);
 };
 
 export const sortCompareFn2 = (a: any, b: any) => {
-  return Number(a.data.idt.split("-")[1]) - Number(b.data.idt.split("-")[1]);
+  return chairColumnKey(a) - chairColumnKey(b);
 };
 
 export const sortCompareFn3 = (a: any, b: any) => {

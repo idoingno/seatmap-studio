@@ -448,7 +448,8 @@ Graph.registerNode(
         height: 34,
         x: 3,
         y: 3,
-        fill: "#19766f",
+        // 与矩阵椅子一致：空座为白色，坐人后为语义色 seatOccupied（见 setChairPerson / src/styles/tokens.js）
+        fill: "#FFFFFF",
       },
 
       image: {

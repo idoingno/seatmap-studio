@@ -7,6 +7,7 @@ const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const tokens = require('./src/styles/tokens.js');
 
 const isProduction = process.env.NODE_ENV == 'production';
 
@@ -30,7 +31,7 @@ const config = {
   devServer: {
     // open: ['/', '/playground.html'],
     host: 'localhost',
-    port: 8080,
+    port: 8089,
     allowedHosts: 'all',
     headers: {
       'Access-Control-Allow-Origin': '*',
@@ -111,11 +112,8 @@ const config = {
           loader: 'less-loader',
           options: {
             lessOptions: {
-              modifyVars: {
-                "primary-color": "#b39372",
-                "link-color": "#b39372",
-                "border-radius-base": "2px",
-              },
+              // 单一真相：src/styles/tokens.js
+              modifyVars: tokens.antdVars,
               javascriptEnabled: true
             }
           }

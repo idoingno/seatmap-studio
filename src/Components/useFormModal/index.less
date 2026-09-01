@@ -1,10 +1,20 @@
 .studio-modal-wrap {
   .ant-modal {
     top: 32px;
+    max-width: calc(100vw - 40px);
   }
 
   .ant-modal-content {
     overflow: hidden;
+  }
+
+  // input/checkbox/主按钮的品牌色与 hover/focus/checked 态
+  // 交由 antd 全局主题派生（见 webpack.config.js 的 modifyVars），此处不再覆盖颜色。
+
+  .ant-modal-footer {
+    .ant-btn {
+      min-width: 80px;
+    }
   }
 
   .ant-modal-header {

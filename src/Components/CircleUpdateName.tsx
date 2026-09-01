@@ -43,10 +43,7 @@ const CircleUpdateName = () => {
   //   return state.other.circleUpdate;
   // };
 
-  const layout = {
-    labelCol: { span: 7 },
-    wrapperCol: { span: 15 },
-  };
+  const layout = { layout: "vertical" as const };
 
   const handleCancel = () => {
     setShow(false);
@@ -152,6 +149,7 @@ const CircleUpdateName = () => {
       onOk={handleOk}
       okText="保存"
       cancelText="取消"
+      wrapClassName="modal-wrap studio-modal-wrap"
     >
       <Form onKeyDown={enterHandleOk} onFinish={onFinish} form={form} {...layout}>
         <Form.Item label="桌子中文名:" name="tableName">

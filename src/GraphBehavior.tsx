@@ -5,7 +5,8 @@ import matrixToolsConfig from "./config/Tools/matrixToolsConfig";
 import removeToolsConfig from "./config/Tools/removeToolsConfig";
 import circleToolsConfig from "./config/Tools/circleToolsConfig";
 import { chairSvg } from "./config/Markup/chair";
-import { generatePersonnel, updateGraphics, updateNode } from "./utils/apiParams";
+import { generatePersonnel } from "./utils/apiParams";
+import { updateGraphicsForParent, updateNodesForParent } from "./services/graphService";
 import { handleCpApi } from "./api";
 import { Session } from "./config";
 import { patternSeat } from "./assets";
@@ -98,8 +99,6 @@ export const GraphBehavior = (): any => {
 
   // TODO 这里拿到graph对象处理自己的逻辑（例如使用后端数据初始化画布，增加事件监听...）
   useEffect(() => {
-    const added = (): void => undefined;
-    const removed = (): void => undefined;
     let pendingPerformanceSync = false;
 
     const schedulePerformanceSync = () => {
@@ -131,6 +130,53 @@ export const GraphBehavior = (): any => {
       }
     };
 
+    // x6-html-shape 的两个位置同步缺口：
+    // 1) htmlContainer 矩阵只在 translate/scale/node:change:position 时同步，
+    //    首个 HTML 节点挂载瞬间若画布已平移/缩放，菜单会出现在错误位置直到下次交互。
+    // 2) 组件容器初次挂载时（confirmUpdate）组件还没创建，updateContainerStyle 没有执行过，
+    //    挂载后 CSS transform 缺失，直到下一次视图更新才跳回正确位置。
+    // 这里在节点加入后兜底同步图层矩阵并强制刷新所有 HTML 视图。
+    // 递归定时的句柄保存在 htmlLayerSyncTimer，useEffect 卸载时统一清理，避免卸载后持续刷新。
+    let pendingHtmlLayerSync = false;
+    let htmlLayerSyncTimer: number | undefined;
+    const refreshHtmlViews = () => {
+      for (const htmlNode of graph.getNodes()) {
+        if ((htmlNode as any).view === "html-shape-view") {
+          const htmlView = graph.findViewByCell(htmlNode) as any;
+          htmlView?.updateTransform?.();
+        }
+      }
+    };
+
+    const syncHtmlLayer = (remaining = 8) => {
+      const htmlContainer = (graph as any).htmlContainer as HTMLElement | undefined;
+      if (htmlContainer) {
+        const matrix = graph.transform.getMatrix();
+        const zoom = graph.transform.getZoom();
+        const { offsetWidth, offsetHeight } = graph.container;
+        htmlContainer.style.transform = `matrix(${matrix.a}, ${matrix.b}, ${matrix.c}, ${matrix.d}, ${matrix.e}, ${matrix.f})`;
+        htmlContainer.style.width = zoom !== 1 ? `${offsetWidth / zoom}px` : "100%";
+        htmlContainer.style.height = zoom !== 1 ? `${offsetHeight / zoom}px` : "100%";
+      }
+      refreshHtmlViews();
+
+      if (remaining > 0) {
+        // 组件挂载是异步的（react render），多刷几轮覆盖挂载完成的时机
+        htmlLayerSyncTimer = window.setTimeout(() => syncHtmlLayer(remaining - 1), 60);
+      } else {
+        htmlLayerSyncTimer = undefined;
+        pendingHtmlLayerSync = false;
+      }
+    };
+
+    const scheduleHtmlLayerSync = ({ node }: C) => {
+      if (pendingHtmlLayerSync || (node as any)?.view !== "html-shape-view") {
+        return;
+      }
+      pendingHtmlLayerSync = true;
+      syncHtmlLayer();
+    };
+
     let pendingTransitionCleanup = false;
     const handleNodeMouseMove = ({ e, node, view }: C) => {
       if (pendingTransitionCleanup || isLargeGraphMode(graph)) return;
@@ -146,9 +192,18 @@ export const GraphBehavior = (): any => {
       });
     };
 
-    graph.on("cell:removed", removed);
+    // PanningManager 默认同时监听 node/edge:unhandled:mousedown，
+    // 会让不可移动节点（座位）上的左键手势触发画布平移，抢占换座/拖拽手势。
+    // 仅保留 blank:mousedown 平移，节点上的左键手势交还给节点事件。
+    const panningManager = (graph as any).panning;
+    if (panningManager?.onMouseDown) {
+      graph.off("node:unhandled:mousedown", panningManager.onMouseDown, panningManager);
+      graph.off("edge:unhandled:mousedown", panningManager.onMouseDown, panningManager);
+    }
+
     graph.on("cell:added", schedulePerformanceSync);
     graph.on("cell:removed", schedulePerformanceSync);
+    graph.on("node:added", scheduleHtmlLayerSync);
     graph.on("node:change:size", handleNodeChangeSize);
     graph.on("node:mousedown", handleNodeMouseDown);
     graph.on("node:mousemove", handleNodeMouseMove);
@@ -156,8 +211,7 @@ export const GraphBehavior = (): any => {
     const nodeResized = async ({ node }: C) => {
       markLocalGraphMutation();
       // 更新图形组 父节点
-      const graphicsParams = updateGraphics(node, sessionId);
-      await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+      await updateGraphicsForParent(node, sessionId);
     };
 
     const change = async ({ node, current, previous }: C) => {
@@ -200,8 +254,7 @@ export const GraphBehavior = (): any => {
           const allUpdateNode = [currentMatrixRow, currentMatrixRowEn, ...currentRowChair].filter(Boolean) as Node[];
 
           // 更新文字
-          const otherNodeParams = updateNode(allUpdateNode, sessionId, node.parent);
-          await handleCpApi({ params: otherNodeParams, code: "seat" }, true);
+          await updateNodesForParent(allUpdateNode, sessionId, node.parent);
         } else if (node.data.nodeType == "matrixColumnTopNum" || node.data.nodeType == "matrixColumnBottomNum") {
           const columnIndex = Number(node.data.idx);
           const currentColumnChair = matrixIndex.chairsByColumn.get(columnIndex) ?? [];
@@ -236,8 +289,7 @@ export const GraphBehavior = (): any => {
             Boolean
           ) as Node[];
           // 更新文字
-          const otherNodeParams = updateNode(allUpdateNode, sessionId, node.parent);
-          await handleCpApi({ params: otherNodeParams, code: "seat" }, true);
+          await updateNodesForParent(allUpdateNode, sessionId, node.parent);
         }
       } else if (
         node.data.nodeType == "windowNode" ||
@@ -245,8 +297,7 @@ export const GraphBehavior = (): any => {
         node.data.nodeType == "prosceniumNode"
       ) {
         // 更新图形组 父节点
-        const graphicsParams = updateGraphics(node, sessionId);
-        await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+        await updateGraphicsForParent(node, sessionId);
       }
     };
 
@@ -302,8 +353,7 @@ export const GraphBehavior = (): any => {
         };
 
         // 更新子节点节点
-        const nodeParams = updateNode([node], sessionId, node.parent);
-        await handleCpApi({ params: nodeParams, code: "seat" }, true);
+        await updateNodesForParent([node], sessionId, node.parent);
       }
 
       if (nodeType && nodeType.includes("Chair") && node.attrs.text.text) {
@@ -476,20 +526,17 @@ export const GraphBehavior = (): any => {
       // 移动图形组
       if (node.data.nodeType === "matrixContainer" || node.data.nodeType === "circleContainer") {
         // 更新图形组 父节点
-        const graphicsParams = updateGraphics(node, sessionId);
-        await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+        await updateGraphicsForParent(node, sessionId);
 
         // 更新子节点
-        const nodeParams = updateNode(getNodeChildren(node), sessionId, node);
-        await handleCpApi({ params: nodeParams, code: "seat" }, true);
+        await updateNodesForParent(getNodeChildren(node), sessionId, node);
       } else if (
         node.data.nodeType === "windowNode" ||
         node.data.nodeType === "prosceniumNode" ||
         node.data.nodeType === "doorNode"
       ) {
         // 更新图形组 窗户/舞台
-        const graphicsParams = updateGraphics(node, sessionId);
-        await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+        await updateGraphicsForParent(node, sessionId);
       }
     };
 
@@ -544,7 +591,6 @@ export const GraphBehavior = (): any => {
     graph.on("node:mouseenter", nodeMouseenter);
     graph.on("node:mouseup", nodeMouseup);
     graph.on("node:mouseleave", nodeMouseleave);
-    graph.on("node:change:parent", () => {});
     graph.on("node:moved", nodeMoved);
     graph.on("node:change:attrs", change);
     graph.on("node:dblclick", nodeDblClick);
@@ -552,10 +598,15 @@ export const GraphBehavior = (): any => {
 
     // 移除监听
     return () => {
-      graph.off("cell:added", added);
-      graph.off("cell:removed", removed);
+      // 清理 syncHtmlLayer 递归定时器，防止卸载后继续刷新视图
+      if (htmlLayerSyncTimer !== undefined) {
+        window.clearTimeout(htmlLayerSyncTimer);
+        htmlLayerSyncTimer = undefined;
+      }
+      pendingHtmlLayerSync = false;
       graph.off("cell:added", schedulePerformanceSync);
       graph.off("cell:removed", schedulePerformanceSync);
+      graph.off("node:added", scheduleHtmlLayerSync);
       graph.off("node:change:size", handleNodeChangeSize);
       graph.off("node:mousedown", handleNodeMouseDown);
       graph.off("node:mousemove", handleNodeMouseMove);
@@ -567,6 +618,7 @@ export const GraphBehavior = (): any => {
       graph.off("node:mouseleave", nodeMouseleave);
       graph.off("node:moved", nodeMoved);
       graph.off("node:change:attrs", change);
+      graph.off("node:dblclick", nodeDblClick);
       graph.off("node:resized", nodeResized);
     };
   }, []);

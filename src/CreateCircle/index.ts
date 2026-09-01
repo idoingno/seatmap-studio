@@ -21,7 +21,10 @@ function getCircleMaxTableOrder() {
       return ite.data && ite.data.nodeType === "circleContainer";
     })
     .map((ite) => {
-      return Number(ite.data.tableName.replace("号桌", ""));
+      const tableName = ite.data?.tableName || "";
+      const numStr = tableName.replace("号桌", "");
+      const num = Number(numStr);
+      return isNaN(num) ? 0 : num;
     });
   if (cells && cells.length) {
     let maxTableOrder = Math.max(...cells);
@@ -38,7 +41,8 @@ function getCircleMaxTableRealOrder() {
       return ite.data && ite.data.nodeType === "circleContainer";
     })
     .map((ite) => {
-      return Number(ite.data.tableRealIdx);
+      const idx = Number(ite.data?.tableRealIdx);
+      return isNaN(idx) ? 0 : idx;
     });
   if (cells && cells.length) {
     let maxTableRealOrder = Math.max(...cells);

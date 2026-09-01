@@ -1,3 +1,5 @@
+import { hasAllMatrixAnchors } from "../../utils/matrixOperations";
+import { updateGraphicsForParent, updateNodesForParent } from "../../services/graphService";
 import { register } from "x6-html-shape";
 import createRender from "x6-html-shape/dist/react17";
 import React, { memo, useLayoutEffect, useRef } from "react";
@@ -14,16 +16,10 @@ import {
   resizeWindow,
   setAllCorridorColumnH,
 } from "../../utils/util";
-import { updateGraphics, updateNode } from "../../utils/apiParams";
-import { handleCpApi } from "../../api";
 import { runGraphBatch } from "../../utils/graphBatch";
 import { syncGraphPerformanceMode } from "../../utils/graphPerformance";
 import { markLocalGraphMutation } from "../../utils/querySync";
 import AppIcon from "../../Components/AppIcon";
-
-const hasAllMatrixAnchors = (...groups: Node[][]) => {
-  return groups.every((group) => group.length > 0);
-};
 
 export const AddMenuNode = memo(() => {
   const upRef = useRef<HTMLDivElement | null>(null);
@@ -142,11 +138,9 @@ export const AddMenuNode = memo(() => {
     });
     syncGraphPerformanceMode(graph);
 
-    const graphicsParams = updateGraphics(parent, sessionId);
-    await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+    await updateGraphicsForParent(parent, sessionId);
 
-    const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
-    await handleCpApi({ params: nodeParams, code: "seat" }, true);
+    await updateNodesForParent(getNodeChildren(parent), sessionId, parent);
   };
 
   const addBottomRow = async () => {
@@ -236,11 +230,9 @@ export const AddMenuNode = memo(() => {
     });
     syncGraphPerformanceMode(graph);
 
-    const graphicsParams = updateGraphics(parent, sessionId);
-    await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+    await updateGraphicsForParent(parent, sessionId);
 
-    const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
-    await handleCpApi({ params: nodeParams, code: "seat" }, true);
+    await updateNodesForParent(getNodeChildren(parent), sessionId, parent);
   };
 
   const addLeftColumn = async () => {
@@ -344,11 +336,9 @@ export const AddMenuNode = memo(() => {
     });
     syncGraphPerformanceMode(graph);
 
-    const graphicsParams = updateGraphics(parent, sessionId);
-    await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+    await updateGraphicsForParent(parent, sessionId);
 
-    const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
-    await handleCpApi({ params: nodeParams, code: "seat" }, true);
+    await updateNodesForParent(getNodeChildren(parent), sessionId, parent);
   };
 
   const addRightColumn = async () => {
@@ -437,11 +427,9 @@ export const AddMenuNode = memo(() => {
     });
     syncGraphPerformanceMode(graph);
 
-    const graphicsParams = updateGraphics(parent, sessionId);
-    await handleCpApi({ params: graphicsParams, code: "seat" }, true);
+    await updateGraphicsForParent(parent, sessionId);
 
-    const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
-    await handleCpApi({ params: nodeParams, code: "seat" }, true);
+    await updateNodesForParent(getNodeChildren(parent), sessionId, parent);
   };
 
   useLayoutEffect(() => {

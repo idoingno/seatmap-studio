@@ -1,5 +1,15 @@
 import { Cell, CellView, Node } from "@antv/x6";
 
+// 防御：所有批处理入口要求数组入参，非数组时返回空并告警，避免运行时抛错
+// 返回值保持 any[]，与本文件既有的 `Node[] | any[]` 宽松签名保持一致
+const asArray = (items: any, context: string): any[] => {
+  if (!Array.isArray(items)) {
+    console.warn(`${context}: expected an array, got`, items);
+    return [];
+  }
+  return items;
+};
+
 //  生成图形组
 export const generateGraphics = (node: Node | Cell | any, sessionId: string, asyncOrNot = false) => {
   const { x, y } = node.getPosition();
@@ -28,7 +38,7 @@ export const generateGraphics = (node: Node | Cell | any, sessionId: string, asy
 
 //  生成节点
 export const generateNode = (nodes: Node[] | any[], sessionId: string, parent: Node, asyncOrNot = false) => {
-  const newNodes = nodes.map((node) => {
+  const newNodes = asArray(nodes, "generateNode").map((node) => {
     const { x, y } = node.getPosition();
     const { width, height } = node.size();
     const mitrixSeat = node.data.nodeType === "matrixChair" ? node.data.idt.split("-") : "";
@@ -71,7 +81,7 @@ export const generateNode = (nodes: Node[] | any[], sessionId: string, parent: N
 
 //  更新节点
 export const updateNode = (nodes: Node[] | any[], sessionId: string, parent: Node | Cell, asyncOrNot = false) => {
-  const newNodes = nodes.map((node) => {
+  const newNodes = asArray(nodes, "updateNode").map((node) => {
     const { x, y } = node.getPosition();
     const { width, height } = node.size();
     return {
@@ -116,7 +126,7 @@ export const updateNode = (nodes: Node[] | any[], sessionId: string, parent: Nod
 //  更新节点区域信息
 export const updateNodeRegion = (regionArr: Node[] | any[], sessionId: string, asyncOrNot = false) => {
   let newNodes: Node[] = [];
-  regionArr.forEach((item: any) => {
+  asArray(regionArr, "updateNodeRegion").forEach((item: any) => {
     newNodes = item.nodes.map((node: Node | any) => {
       const { x, y } = node.getPosition();
       const { width, height } = node.size();
@@ -193,7 +203,7 @@ export const updateGraphics = (node: Node | Cell | any, sessionId: string, async
 
 // 删除节点：
 export const delNode = (nodes: Node[] | Cell[] | any[], sessionId: string) => {
-  const newNodesIds = nodes.map((node) => {
+  const newNodesIds = asArray(nodes, "delNode").map((node) => {
     return {
       id: node.id,
     };
@@ -208,7 +218,7 @@ export const delNode = (nodes: Node[] | Cell[] | any[], sessionId: string) => {
 
 // 人员添加
 export const generatePersonnel = (personArr: any[]) => {
-  const newNodes = personArr.map((item) => {
+  const newNodes = asArray(personArr, "generatePersonnel").map((item) => {
     return {
       query: { id: item.id },
       update: {
@@ -235,7 +245,7 @@ export const generatePersonnel = (personArr: any[]) => {
 
 // 人员删除
 export const delPersonnel = (personArr: any[], sessionId: string, asyncOrNot = true) => {
-  const newNodes = personArr.map((item) => {
+  const newNodes = asArray(personArr, "delPersonnel").map((item) => {
     return {
       query: { id: item.id },
       update: {

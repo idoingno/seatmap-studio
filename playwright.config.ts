@@ -22,7 +22,8 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: `NO_PROXY=127.0.0.1,localhost,::1 no_proxy=127.0.0.1,localhost,::1 ${nodeBinary} ./node_modules/webpack-cli/bin/cli.js serve --host 127.0.0.1 --port ${e2ePort}`,
+    // NO_PROXY/no_proxy 已在上方 process.env 行内注入，子进程自动继承，避免在命令里使用 unix 风格的赋值前缀（Windows 下无法执行）
+    command: `${nodeBinary} ./node_modules/webpack-cli/bin/cli.js serve --host 127.0.0.1 --port ${e2ePort}`,
     url: e2eBaseUrl,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

@@ -274,6 +274,27 @@ const createMatrixChildren = (graph: Graph, groupData: parentProps, parentId: st
   return children;
 };
 
+const MATRIX_VIEWPORT_MARGIN = 8;
+
+const clampMatrixOrigin = (graph: Graph, x: number, y: number, width: number, height: number) => {
+  const area = graph.getGraphArea?.();
+  if (!area || area.width <= 0 || area.height <= 0) {
+    return { x, y };
+  }
+
+  const clampIntoArea = (value: number, areaStart: number, areaSize: number, size: number) => {
+    if (size + MATRIX_VIEWPORT_MARGIN * 2 >= areaSize) {
+      return areaStart;
+    }
+    return Math.min(Math.max(value, areaStart + MATRIX_VIEWPORT_MARGIN), areaStart + areaSize - size - MATRIX_VIEWPORT_MARGIN);
+  };
+
+  return {
+    x: clampIntoArea(x, area.x, area.width, width),
+    y: clampIntoArea(y, area.y, area.height, height),
+  };
+};
+
 export const initMatrix = async (x: number, y: number, graph: Graph) => {
   markLocalGraphMutation();
   const columns: number = MatrixAllRowsOrColumns.getAllColumns;
@@ -285,7 +306,8 @@ export const initMatrix = async (x: number, y: number, graph: Graph) => {
   MatrixSize.setMw = parentWidth;
   MatrixSize.setMh = parentHeight;
 
-  const groupData = matrixPreComputed(x, y, parentWidth, parentHeight);
+  const origin = clampMatrixOrigin(graph, x, y, parentWidth, parentHeight);
+  const groupData = matrixPreComputed(origin.x, origin.y, parentWidth, parentHeight);
 
   const parent = graph.createNode(parentParams(groupData));
 

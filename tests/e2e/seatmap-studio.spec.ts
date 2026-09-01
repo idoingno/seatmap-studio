@@ -169,7 +169,11 @@ test.describe("Seatmap Studio", () => {
 
     await page.getByText("上传座位配置").click();
     await expect(page.getByText("上传配置")).toBeVisible();
-    await page.locator('input[type="file"]').setInputFiles(workbookPath);
+    await page
+      .locator(".ant-modal")
+      .filter({ hasText: "上传配置" })
+      .locator('input[type="file"]')
+      .setInputFiles(workbookPath);
     await page.locator(".ant-modal").filter({ hasText: "上传配置" }).getByRole("button", { name: /提\s*交/ }).click();
 
     await expect(page.getByText("操作完成~")).toBeVisible();
