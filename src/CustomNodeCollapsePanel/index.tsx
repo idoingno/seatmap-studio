@@ -115,7 +115,6 @@ const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, loadTree$, g
     <div className="stencil-app" ref={dndContainerRef}>
       <div className="top">
         <div className="top-copy">
-          <span className="panel-kicker">Planning library</span>
           <span className="panel-title">空间资源</span>
         </div>
         <button type="button" className="panel-action-button" onClick={importTemplate}>
@@ -133,7 +132,6 @@ const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, loadTree$, g
               aria-expanded={sectionOpen("layout")}
             >
               <span className="section-title-group">
-                <span className="section-kicker">Objects</span>
                 <span>布局素材</span>
               </span>
               <AppIcon name="chevronRight" className={`section-chevron${sectionOpen("layout") ? " is-open" : ""}`} />
@@ -157,7 +155,6 @@ const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, loadTree$, g
               aria-expanded={sectionOpen("people")}
             >
               <span className="section-title-group">
-                <span className="section-kicker">Roster</span>
                 <span>人员与座位</span>
               </span>
               <AppIcon name="chevronRight" className={`section-chevron${sectionOpen("people") ? " is-open" : ""}`} />

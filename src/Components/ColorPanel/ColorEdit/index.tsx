@@ -202,7 +202,6 @@ const ColorEdit: React.FC<any> = ({ colorObj }) => {
     <div className="color-edit">
       <div className="color-edit-in">
         <div className="color-edit-head">
-          <span className="color-edit-kicker">Regions</span>
           <span className="color-edit-title">区域命名</span>
         </div>
         <Spin spinning={loading}>

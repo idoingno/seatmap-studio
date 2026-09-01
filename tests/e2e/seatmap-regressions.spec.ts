@@ -849,8 +849,8 @@ test.describe("Seatmap Studio regressions", () => {
     await page.goto("/");
     await expect(page.getByRole("button", { name: "所属组织(4)" })).toBeVisible();
 
-    const layoutSection = page.getByRole("button", { name: /Objects 布局素材/ });
-    const peopleSection = page.getByRole("button", { name: /Roster 人员与座位/ });
+    const layoutSection = page.getByRole("button", { name: /^布局素材$/ });
+    const peopleSection = page.getByRole("button", { name: /^人员与座位$/ });
     await expect(layoutSection).toHaveAttribute("aria-expanded", "true");
     await expect(peopleSection).toHaveAttribute("aria-expanded", "true");
 

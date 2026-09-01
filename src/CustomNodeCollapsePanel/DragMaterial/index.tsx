@@ -20,16 +20,6 @@ import { markLocalGraphMutation } from "../../utils/querySync";
 const InitMatrixForm = lazyForm(() => import("../../Components/useFormModal/InitMatrixForm"));
 const InitCircleForm = lazyForm(() => import("../../Components/useFormModal/InitCircleForm"));
 
-const materialIconMap = {
-  Matrix: "matrixLayout",
-  Round: "roundLayout",
-  Aisle: "aisle",
-  Corridor: "corridor",
-  Proscenium: "stage",
-  Window: "window",
-  Door: "door",
-} as const;
-
 interface IMyProps {
   child: {
     id?: string;
@@ -43,7 +33,6 @@ interface IMyProps {
 
 const DragItem: React.FC<IMyProps> = ({ child }) => {
   const dragRef = useRef(null);
-  const materialIcon = child.nodeType ? materialIconMap[child.nodeType as keyof typeof materialIconMap] : undefined;
 
   const { modalRef: matrixModalRef, FormModal: MatrixFormModal } = useFormModal(
     { title: "矩阵配置" },
@@ -120,9 +109,6 @@ const DragItem: React.FC<IMyProps> = ({ child }) => {
         aria-disabled={!child.draggable}
         aria-label={`${child.name}${child.draggable ? "，拖入画布" : "，当前布局不可添加"}`}
       >
-        <span className="material-card-glyph" aria-hidden="true">
-          {materialIcon ? <AppIcon name={materialIcon} className="material-card-glyph-icon" /> : null}
-        </span>
         <span className="material-card-tag" aria-hidden="true">
           <AppIcon name="drag" className="material-card-tag-icon" />
           拖入

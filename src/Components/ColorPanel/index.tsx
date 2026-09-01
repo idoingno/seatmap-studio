@@ -113,7 +113,6 @@ const ColorPanel: React.FC<ColorPanelProps> = ({ setColorObj }) => {
         <div className="dv">
           <div className="title">
             <div className="title-copy">
-              <span className="panel-kicker">Palette</span>
               <span>背景色</span>
             </div>
             <button type="button" className="panel-icon-button" onClick={packup} aria-label="收起配色面板">
