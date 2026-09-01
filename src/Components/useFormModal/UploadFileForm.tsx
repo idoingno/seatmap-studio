@@ -139,7 +139,6 @@ const UploadFileForm = (
   return (
     <div className="form studio-form-shell">
       <div className="studio-form-intro">
-        <span className="studio-form-kicker">Import</span>
         <span className="studio-form-copy">导入 Excel 座位名单。默认会先清掉当前排座，避免旧数据混入。</span>
       </div>
       <Form onFinish={onSubmit} ref={ref} form={form} layout="vertical">

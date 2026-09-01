@@ -29,12 +29,11 @@ const UserForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?: React
   return (
     <div className="form studio-form-shell">
       <div className="studio-form-intro">
-        <span className="studio-form-kicker">Template</span>
         <span className="studio-form-copy">给当前布局一个清晰的名字，方便后续复用和检索。</span>
       </div>
       <Form onFinish={onSubmit} ref={ref} form={form} layout="vertical">
         <Form.Item label="模板名称" name="templateName" rules={[{ required: true, message: "请输入模板名称" }]}>
-          <Input placeholder="请输入模板名称" />
+          <Input placeholder="请输入模板名称" autoFocus />
         </Form.Item>
       </Form>
     </div>

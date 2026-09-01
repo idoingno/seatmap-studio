@@ -22,16 +22,15 @@ const LayoutClearForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?
   const [value, setValue] = useState<number | undefined>();
 
   const onSubmit = async (values: any) => {
-    props.beforeSubmit?.(values);
-    store.dispatch(emptyAction());
-
-    const graph = getGraph();
-
-    // 清空座位
     if (!value) {
       message.error("请选择选项");
       return;
     }
+
+    props.beforeSubmit?.(values);
+    store.dispatch(emptyAction());
+
+    const graph = getGraph();
 
     if (value === 1) {
       store.dispatch(isLoadAction(true));
@@ -103,7 +102,6 @@ const LayoutClearForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?
   return (
     <div className="form studio-form-shell">
       <div className="studio-form-intro">
-        <span className="studio-form-kicker">Reset</span>
         <span className="studio-form-copy">保留布局结构或整体重置，避免误清空时看不出区别。</span>
       </div>
       <Form onFinish={onSubmit} ref={ref} form={form} wrapperCol={{ span: 24 }}>

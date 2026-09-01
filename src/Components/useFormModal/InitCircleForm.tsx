@@ -35,7 +35,6 @@ const InitCircleForm = (
   return (
     <div className="form studio-form-shell">
       <div className="studio-form-intro">
-        <span className="studio-form-kicker">Round Table</span>
         <span className="studio-form-copy">快速生成圆桌区，适合宴会、论坛或带讨论属性的场景。</span>
       </div>
       <Form onFinish={onSubmit} ref={ref} form={form} layout="vertical">
@@ -56,7 +55,7 @@ const InitCircleForm = (
             },
           ]}
         >
-          <Input maxLength={2} placeholder="值最大99" />
+          <Input maxLength={2} placeholder="值最大99" autoFocus />
         </Form.Item>
 
         <Form.Item

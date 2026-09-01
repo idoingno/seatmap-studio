@@ -46,7 +46,7 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
   // const [tempFile, setTempFile] = useState<string>("");
 
   const { modalRef: LayoutClearModalRef, FormModal: LayoutClearModal } = useFormModal(
-    { title: "清空配置", width: "300px" },
+    { title: "清空配置", width: "380px" },
     LayoutClearForm
   );
 

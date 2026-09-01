@@ -116,7 +116,6 @@ const SelectTemplateForm = (
   return (
     <div className="form studio-form-shell template-select-form">
       <div className="studio-form-intro">
-        <span className="studio-form-kicker">Template Library</span>
         <span className="studio-form-copy">从已有模板快速接管布局，适合复刻同类会场或活动排布。</span>
       </div>
       <Input
