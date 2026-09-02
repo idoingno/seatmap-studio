@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect, useImperativeHandle, useRef, useState } from "react";
 import DragMaterial from "./DragMaterial";
-import { getGraph, panelArr, panelType } from "../config";
+import { getGraph, materialsForDragState, panelType } from "../config";
 import "./index.less";
 import store from "../store";
 import { addDargAction } from "../store/actionCreators";
@@ -22,7 +22,7 @@ interface PersonTreeType {
 
 const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, loadTree$, getData, setRefresh }) => {
   const dndContainerRef = useRef<HTMLDivElement>();
-  const [list, setList] = useState([]);
+  const [list, setList] = useState<panelType[]>(() => materialsForDragState(""));
   const [openSections, setOpenSections] = useState<string[]>(["layout", "people"]);
 
   const innerRef: any = React.createRef();
@@ -40,36 +40,8 @@ const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, loadTree$, g
   }));
 
   useEffect(() => {
-    // 监听state的变化
-    let currentValue: any;
-    let previousValue = currentValue;
-    currentValue = selectDrag;
-
-    if (previousValue !== currentValue) {
-      if (currentValue === "Matrix") {
-        panelArr.forEach((child) => {
-          if (child.nodeType === "Matrix" || child.nodeType === "Round") {
-            child.draggable = false;
-          } else {
-            child.draggable = true;
-          }
-        });
-      } else if (currentValue === "Round") {
-        panelArr.forEach((child) => {
-          if (child.nodeType === "Matrix" || child.nodeType === "Corridor" || child.nodeType === "Aisle") {
-            child.draggable = false;
-          } else {
-            child.draggable = true;
-          }
-        });
-      } else {
-        panelArr.forEach((child) => {
-          child.draggable = true;
-        });
-      }
-
-      setList([...panelArr]);
-    }
+    // 监听state的变化，派生素材可拖拽状态（panelArr 为只读源数据，不再就地改写）
+    setList(materialsForDragState(selectDrag));
   }, [selectDrag]);
 
   const importTemplate = () => {
