@@ -2,7 +2,6 @@ import { Graph } from "@antv/x6";
 import type { CellView, Node, View } from "@antv/x6";
 
 import {
-  img_triangle,
   img_matrix_layout,
   img_round_layout,
   img_transverse_corridor,
@@ -89,44 +88,7 @@ export const embedding = {
   },
 };
 
-// const MyButton = Button.define<Button.Options>({
-//   markup: [
-//     {
-//       tagName: "rect",
-//       selector: "button",
-//       attrs: {
-//         width: 20,
-//         height: 20,
-//         rx: 4,
-//         ry: 4,
-//         fill: "white",
-//         stroke: "#fe854f",
-//         "stroke-width": 2,
-//         cursor: "pointer",
-//       },
-//     },
-//     {
-//       tagName: "text",
-//       selector: "text",
-//       textContent: "+",
-//       attrs: {
-//         fill: "#fe854f",
-//         "font-size": 24,
-//         "text-anchor": "middle",
-//         "pointer-events": "none",
-//         x: 10,
-//         y: 17,
-//       },
-//     },
-//   ],
-//   onClick({ view, e }: any) {
-//   },
-// });
-
-// Graph.registerNodeTool("my-btn", MyButton, true);
-
 export const panelArr: panelType[] = [
-  // list: [
   {
     id: "1-1",
     name: "矩阵布局",
@@ -170,26 +132,6 @@ export const panelArr: panelType[] = [
     nodeType: "Door",
   },
 ];
-// };
-// {
-//   id: "2",
-//   name: "场景布局",
-//   img: img_triangle,
-//   list: [
-//     {
-//       id: "2-1",
-//       name: "横向走廊",
-//       img: img_transverse_corridor,
-//       nodeType: "Aisle",
-//     },
-//     {
-//       id: "2-2",
-//       name: "竖向走廊",
-//       img: img_vertical_corridor,
-//       nodeType: "Corridor",
-//     },
-//   ],
-// },
 
 export const ColorArr = [
   {

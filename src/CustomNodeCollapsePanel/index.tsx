@@ -1,16 +1,6 @@
 import React, { Suspense, useEffect, useImperativeHandle, useRef, useState } from "react";
-// import { Graph } from "@antv/x6";
-
-
-// import { useGraphInstance } from "x6-graph/react";
-// import ReactDom from 'react-dom'
-// import { NodeCollapseObj, nodes } from "../config";
-// import { useDrop, useDrag } from "ahooks";
 import DragMaterial from "./DragMaterial";
 import { getGraph, panelArr, panelType } from "../config";
-// import Draggable from "react-draggable";
-// import { HTML5Backend } from 'react-dnd-html5-backend'
-// import { DndProvider } from 'react-dnd'
 import "./index.less";
 import store from "../store";
 import { addDargAction } from "../store/actionCreators";
@@ -23,12 +13,6 @@ import AppIcon from "../Components/AppIcon";
 const PersonTree = React.lazy(() => import("./PersonTree"));
 const SelectTemplateForm = lazyForm(() => import("../Components/useFormModal/SelectTemplateForm"));
 
-// const normalizeNodePosition = (nodes: any) => {
-//   nodes.forEach((node: any) => {
-//     node.x -= node.size.width / 2;
-//     node.y -= node.size.height / 2;
-//   });
-// };
 interface PersonTreeType {
   onRef: any;
   loadTree$: EventEmitter<void>;
@@ -37,17 +21,11 @@ interface PersonTreeType {
 }
 
 const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, loadTree$, getData, setRefresh }) => {
-  // const CustomNodeCollapsePanel = ({}) => {
-  // const graph = getGraph();
   const dndContainerRef = useRef<HTMLDivElement>();
   const [list, setList] = useState([]);
   const [openSections, setOpenSections] = useState<string[]>(["layout", "people"]);
 
   const innerRef: any = React.createRef();
-
-  // function selectDrag(state: any) {
-  //   return state.other.isDrag;
-  // }
 
   const selectDrag = useSelector((state: any) => state.other.isDrag);
   const { modalRef: selectTemplateModalRef, FormModal: SelectTemplateModal } = useFormModal(
@@ -62,11 +40,9 @@ const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, loadTree$, g
   }));
 
   useEffect(() => {
-    let currentValue: any;
     // 监听state的变化
-    // const unsubscribe = store.subscribe(() => {
+    let currentValue: any;
     let previousValue = currentValue;
-    // currentValue = selectDrag(store.getState());
     currentValue = selectDrag;
 
     if (previousValue !== currentValue) {
@@ -94,11 +70,6 @@ const CustomNodeCollapsePanel: React.FC<PersonTreeType> = ({ onRef, loadTree$, g
 
       setList([...panelArr]);
     }
-    // });
-    // return () => {
-    //   // 取消监听
-    //   unsubscribe();
-    // };
   }, [selectDrag]);
 
   const importTemplate = () => {

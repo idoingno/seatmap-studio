@@ -11,7 +11,6 @@ import {
 import { IsDragElement, MatrixSize, getGraph, panelType, setDragNodeType } from "../../config";
 import store from "../../store";
 import { addDargAction } from "../../store/actionCreators";
-// import { initCircle } from "../../CreateCircle";
 import useFormModal from "../../Components/useFormModal";
 import { lazyForm } from "../../Components/useFormModal/lazyForm";
 import AppIcon from "../../Components/AppIcon";
@@ -80,9 +79,7 @@ const DragItem: React.FC<IMyProps> = ({ child }) => {
       const p1 = graph.pageToLocal(x, y);
       if (child.nodeType === "Matrix") {
         matrixModalRef.current?.open({ matrix: { x: p1.x, y: p1.y, graph } });
-        // initMatrix(p1.x, p1.y, graph);
       } else if (child.nodeType === "Round") {
-        // initCircle(p1.x, p1.y, graph);
         circleModalRef.current?.open({ circle: { x: p1.x, y: p1.y, graph } });
       } else if (child.nodeType === "Corridor") {
         handleOffsetCorridor("add");

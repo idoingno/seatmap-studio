@@ -1,5 +1,4 @@
 // export {default as admin01} from './images/admin01.png'
-export { default as img_triangle } from "./images/img_triangle.png";
 export {
   img_matrix_layout,
   img_round_layout,

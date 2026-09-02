@@ -3,6 +3,10 @@ const path = require("path");
 const { spawn } = require("child_process");
 const { chromium } = require("@playwright/test");
 
+// 与 playwright.config.ts 相同的代理绕过默认值，替代脚本里的 unix 风格赋值前缀（Windows 下无法执行）
+process.env.NO_PROXY = process.env.NO_PROXY || "127.0.0.1,localhost,::1";
+process.env.no_proxy = process.env.no_proxy || "127.0.0.1,localhost,::1";
+
 const cwd = path.resolve(__dirname, "..");
 const nodeBinary = process.env.NODE_BINARY || process.execPath;
 const port = Number(process.env.SEATMAP_PERF_PORT || 18081);
