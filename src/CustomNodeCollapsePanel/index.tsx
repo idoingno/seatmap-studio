@@ -1,6 +1,5 @@
 import React, { Suspense, useEffect, useImperativeHandle, useRef, useState } from "react";
 import DragMaterial from "./DragMaterial";
-import { getGraph } from "../config/graphInstance";
 import { materialsForDragState, panelType } from "../config/materials";
 import "./index.less";
 import store from "../store";
