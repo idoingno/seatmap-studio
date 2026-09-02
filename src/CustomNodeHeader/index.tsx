@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 import "./index.less";
-import { AlphabeticSerialNumber, CPForm, Session, getGraph } from "../config";
+import { AlphabeticSerialNumber, getGraph } from "../config";
+import store from "../store";
 // import { emptyGraph } from "../utils/apiParams";
 import { Graph, Node } from "@antv/x6";
 import { sortCompareFn3 } from "../utils/util";
@@ -122,7 +123,7 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
   const layoutFileRef = useRef<HTMLInputElement | null>(null);
 
   const exportLayoutJson = async () => {
-    const layout = await exportLayout(Session.getDataId);
+    const layout = await exportLayout(store.getState().runtime.sessionId);
     if (!layout) {
       message.warning("当前没有可导出的布局");
       return;
@@ -151,7 +152,7 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
         return;
       }
 
-      const ok = await importLayout(layout, Session.getDataId);
+      const ok = await importLayout(layout, store.getState().runtime.sessionId);
       if (ok) {
         message.success("布局已导入");
         setRefresh?.(true);
@@ -232,7 +233,7 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
       return;
     }
 
-    const cpForm = CPForm.getForm;
+    const cpForm = store.getState().runtime.cpForm;
     const venueName = cpForm["K2582458"].text;
     const link = document.createElement("a");
     link.href = seatMapUrl;
@@ -300,7 +301,7 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
   // const onImportExcel = (file: File) => {
   //   setUpLoading(true);
   //   // 获取场次Id
-  //   const sessionId = Session.getDataId;
+  //   const sessionId = store.getState().runtime.sessionId;
   //   // 创建FileReader 对象读取
   //   // const reader: any = new FileReader();
   //   // reader.readAsText(file);

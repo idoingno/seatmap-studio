@@ -2,19 +2,19 @@ import React, { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import store from "./store";
-import { CPForm, Session } from "./config";
+import { runtimeActions } from "./store/runtimeSlice";
 import { ErrorBoundary } from "./Components/ErrorBoundary";
 
 const App = React.lazy(() => import("./App"));
 
-Session.setDataId = 'demo-session';
-Session.setHallId = 'demo-hall';
-CPForm.setForm = {
+store.dispatch(runtimeActions.setSessionId('demo-session'));
+store.dispatch(runtimeActions.setHallId('demo-hall'));
+store.dispatch(runtimeActions.setCpForm({
   K2582458: { text: 'Seatmap Studio Demo' },
   K2460125: { value: '2026-05-25 09:00' },
   K2460124: { value: '2026-05-25 11:00' },
   K2460459: { text: 'Demo Hall' },
-};
+}));
 
 const render = (container: string) => {
   const rootElement = document.querySelector(container);

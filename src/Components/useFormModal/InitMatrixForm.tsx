@@ -1,9 +1,9 @@
 import { Form, FormInstance, Input } from "antd";
 import React from "react";
-import { MatrixAllRowsOrColumns } from "../../config";
 import { Graph } from "@antv/x6";
 import { initMatrix } from "../../CreateMatrix";
 import store from "../../store";
+import { runtimeActions } from "../../store/runtimeSlice";
 import { addDargAction } from "../../store/actionCreators";
 
 interface matrixProps {
@@ -25,8 +25,8 @@ const InitMatrixForm = (
 
   const onSubmit = (values: any) => {
     props.beforeSubmit?.(values);
-    MatrixAllRowsOrColumns.setAllRows = Number(values.rows);
-    MatrixAllRowsOrColumns.setAllColumns = Number(values.columns);
+    store.dispatch(runtimeActions.setMatrixAllRows(Number(values.rows)));
+    store.dispatch(runtimeActions.setMatrixAllColumns(Number(values.columns)));
     initMatrix(props.matrix.x, props.matrix.y, props.matrix.graph);
 
     props.afterSubmit?.(values, form);

@@ -2,7 +2,7 @@ import { useSafeState, useUpdateEffect } from "ahooks";
 import { Input, Spin } from "antd";
 import React, { useEffect, useState } from "react";
 import "./index.less";
-import { Session, getGraph } from "../../../config";
+import { getGraph } from "../../../config";
 import { updateNodeRegion } from "../../../utils/apiParams";
 import { handleCpApi } from "../../../api";
 import store from "../../../store";
@@ -30,7 +30,7 @@ const ColorEdit: React.FC<any> = ({ colorObj }) => {
     }
 
     // 获取场次Id
-    const sessionId = Session.getDataId;
+    const sessionId = store.getState().runtime.sessionId;
 
     let arr = colorList;
     arr[i].type = type;

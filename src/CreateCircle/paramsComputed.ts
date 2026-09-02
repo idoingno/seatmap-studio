@@ -1,6 +1,6 @@
 import { CHAIR_SIZE, PARENT_EXTRA_SPACE } from "../GlobalVar";
 import { patternSeat } from "../assets";
-import { CircleAllCount } from "../config";
+import store from "../store";
 import { chairSvg } from "../config/Markup/chair";
 
 interface ParentDataType {
@@ -27,7 +27,7 @@ const matrixCircle = () => {
 
 // 圆桌数据计算
 export const CirclePreComputed = (x: number, y: number, i: number) => {
-  const chairCount = CircleAllCount.getChairCount;
+  const chairCount = store.getState().runtime.circleChairCount;
   const currentRow = Math.floor(i / 10);
 
   let currentIndex = i;
@@ -64,7 +64,7 @@ export const CirclePreComputed = (x: number, y: number, i: number) => {
 };
 
 export const parentParams = (parentData: ParentDataType, circleData: circleDataType) => {
-  const chairCount = CircleAllCount.getChairCount;
+  const chairCount = store.getState().runtime.circleChairCount;
   return {
     x: parentData.x,
     y: parentData.y,

@@ -1,14 +1,7 @@
 import { Graph, Node } from "@antv/x6";
-import {
-  ColorArr,
-  Session,
-  getColumnSpaceArr,
-  getDragNodeType,
-  getGraph,
-  setColumnSpaceArr,
-  setCurrentColumn,
-  setCurrentRow,
-} from "../config";
+import { ColorArr, getGraph } from "../config";
+import store from "../store";
+import { runtimeActions } from "../store/runtimeSlice";
 import {
   AISLE_DEFAULT_SIZE,
   AISLE_SIZE,
@@ -152,13 +145,13 @@ export const buildMatrixMenuIndex = (parent: Node): MatrixMenuIndex => {
 
 export const isOutElementCorridor = (p1: pProps) => {
   // 设置当前列为-1
-  setCurrentColumn(-1);
+  store.dispatch(runtimeActions.setCurrentColumn(-1));
   isOutElement("corridorColumnSpace-", p1);
 };
 
 export const isOutElementAisle = (p1: pProps) => {
   // 设置当前行为-1
-  setCurrentRow(-1);
+  store.dispatch(runtimeActions.setCurrentRow(-1));
   isOutElement("aisleRowSpace-", p1);
 };
 
@@ -199,7 +192,9 @@ const isOutElement = (str: string, p1: pProps) => {
           fill: "rgba(179,147,114,.3)",
         },
       });
-      str === "aisleRowSpace-" ? setCurrentRow(element.data.idx) : setCurrentColumn(element.data.idx);
+      str === "aisleRowSpace-"
+        ? store.dispatch(runtimeActions.setCurrentRow(element.data.idx))
+        : store.dispatch(runtimeActions.setCurrentColumn(element.data.idx));
     } else {
       element.attr("body/fill", "transparent");
     }
@@ -431,7 +426,7 @@ export const resizeWindow = async (height: number) => {
   const nodes = graph.getNodes();
   const findWindow = nodes.filter((ite: Node) => ite.data.nodeType === "windowNode");
   // 获取场次Id
-  const sessionId = Session.getDataId;
+  const sessionId = store.getState().runtime.sessionId;
 
   if (findWindow && findWindow.length > 0) {
     for (let i = 0; i < findWindow.length; i++) {
@@ -455,7 +450,7 @@ export const resizeProscenium = async (width: number) => {
   const nodes = graph.getNodes();
   const finProscenium = nodes.filter((ite: Node) => ite.data.nodeType === "prosceniumNode");
   // 获取场次Id
-  const sessionId = Session.getDataId;
+  const sessionId = store.getState().runtime.sessionId;
 
   if (finProscenium && finProscenium.length > 0) {
     for (let i = 0; i < finProscenium.length; i++) {

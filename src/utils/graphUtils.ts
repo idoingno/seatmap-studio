@@ -1,5 +1,6 @@
 import { normalSitOut, partnerSitOut, patternSeat } from "../assets";
-import { AllPersonArr, ColorArr } from "../config";
+import { ColorArr } from "../config";
+import store from "../store";
 // import { chairSvg } from "../config/Markup/chair";
 import { syncSvg } from "../config/Markup/syncIcon";
 import { findColor, listToTreeSimple, sliceText } from "./util";
@@ -159,7 +160,7 @@ const convertData = (nodes: ItemType[]) => {
 // 渲染节点
 export const renderGraph = (nodes: ItemType[]) => {
   const data = convertData(nodes);
-  const personArr = AllPersonArr.getArr;
+  const personArr = store.getState().runtime.allPersonArr;
   const personByNodeId = new Map<string, any>(personArr.map((person: any) => [person.nodeId, person]));
 
   return data.map((item) => {

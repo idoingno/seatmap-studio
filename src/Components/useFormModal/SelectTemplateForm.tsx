@@ -1,7 +1,7 @@
 import { Form, FormInstance, Input } from "antd";
 import React, { useMemo, useState } from "react";
 import { ResponseType, handleCpApi } from "../../api";
-import { Session } from "../../config";
+import store from "../../store";
 import { SearchOutlined } from "@ant-design/icons";
 import { useDebounceEffect } from "ahooks";
 import "./SelectTemplateForm.less";
@@ -23,7 +23,7 @@ const SelectTemplateForm = (
   const pageSize = 9;
 
   // 获取场次Id
-  const sessionId = Session.getDataId;
+  const sessionId = store.getState().runtime.sessionId;
 
   const [data, setData] = useState([]);
   const [templateId, setTemplateId] = useState<string>("");

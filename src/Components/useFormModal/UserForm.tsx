@@ -1,7 +1,7 @@
 import { Form, FormInstance, Input } from "antd";
 import React from "react";
 import { ResponseType, handleCpApi } from "../../api";
-import { Session } from "../../config";
+import store from "../../store";
 import { message } from "../../utils/message";
 
 interface UserFormPropsType {
@@ -12,7 +12,7 @@ interface UserFormPropsType {
 const UserForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?: React.ForwardedRef<FormInstance>) => {
   const [form] = Form.useForm();
   // 获取场次Id
-  const sessionId = Session.getDataId;
+  const sessionId = store.getState().runtime.sessionId;
 
   const onSubmit = async (values: any) => {
     props.beforeSubmit?.(values);

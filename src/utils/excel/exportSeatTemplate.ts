@@ -1,5 +1,6 @@
 import { Graph, Node } from "@antv/x6";
-import { AlphabeticSerialNumber, CPForm, getGraph } from "../../config";
+import { AlphabeticSerialNumber, getGraph } from "../../config";
+import store from "../../store";
 import { sortCompareFn3 } from "../util";
 import { loadExcelRuntime } from "./loadExcelRuntime";
 import { message } from "../message";
@@ -34,7 +35,7 @@ export const exportSeatTemplate = async () => {
     return;
   }
 
-  const cpForm = CPForm.getForm ?? {};
+  const cpForm = store.getState().runtime.cpForm ?? {};
   const venueName = cpForm["K2582458"]?.text || "Seatmap Studio";
   const venueStartTime = cpForm["K2460125"]?.value || "--";
   const venueEndTime = cpForm["K2460124"]?.value || "--";

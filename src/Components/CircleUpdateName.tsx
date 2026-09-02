@@ -3,7 +3,7 @@ import { Form, Input, Modal } from "antd";
 import React, { useEffect } from "react";
 import store from "../store";
 import { showCircleUpdateAction } from "../store/actionCreators";
-import { Session, getGraph } from "../config";
+import { getGraph } from "../config";
 import { generatePersonnel, updateGraphics, updateNode } from "../utils/apiParams";
 import { handleCpApi } from "../api";
 import { useSelector } from "react-redux";
@@ -73,7 +73,7 @@ const CircleUpdateName = () => {
     const { tableName, tableNameEn } = values;
     const { id, nodeType } = store.getState().other.circleUpdate;
     // 获取场次Id
-    const sessionId = Session.getDataId;
+    const sessionId = store.getState().runtime.sessionId;
     const graph = getGraph();
 
     if (nodeType === "circleTable") {

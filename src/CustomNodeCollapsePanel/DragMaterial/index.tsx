@@ -8,8 +8,9 @@ import {
   initWindow,
   initDoor,
 } from "../../CreateMatrix";
-import { MatrixSize, getGraph, panelType, setDragNodeType } from "../../config";
+import { getGraph, panelType } from "../../config";
 import store from "../../store";
+import { runtimeActions } from "../../store/runtimeSlice";
 import { addDargAction } from "../../store/actionCreators";
 import useFormModal from "../../Components/useFormModal";
 import { lazyForm } from "../../Components/useFormModal/lazyForm";
@@ -44,7 +45,7 @@ const DragItem: React.FC<IMyProps> = ({ child }) => {
 
   useDrag(child, dragRef, {
     onDragStart: (e) => {
-      setDragNodeType(child.nodeType);
+      store.dispatch(runtimeActions.setDragNodeType(child.nodeType));
     },
 
     onDragEnd: (e) => {

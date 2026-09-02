@@ -4,7 +4,7 @@ import { useGraphState } from "x6-hooks/react";
 import { Graph } from "x6-graph/react";
 import { GraphBehavior } from "./GraphBehavior";
 import CanvasScaleToolbar from "./CanvasScaleToolbar";
-import { scaling, mousewheel, panning, interacting, Session, background, translating, CPForm, embedding } from "./config";
+import { scaling, mousewheel, panning, interacting, background, translating, embedding } from "./config";
 import { setGraphs } from "./config/index";
 import toDrop from "./toDrop";
 
@@ -42,10 +42,10 @@ const App = ({ closeApp }: AppProps) => {
   /** configurations 是组件的配置项信息 */
   // const { configurations, context, form } = props;
   // const { propName1: placeholder, propName2: width = 350, propName3: disabled } = configurations || {};
-  // Session.setDataId = context.dataId;
-  // CPForm.setForm = form
+  // store.dispatch(runtimeActions.setSessionId(context.dataId));
+  // store.dispatch(runtimeActions.setCpForm(form));
 
-  const sessionId = Session.getDataId;
+  const sessionId = store.getState().runtime.sessionId;
 
   const { nodes, setNodes, edges, setEdges, graph: gRef, setGraph } = useGraphState();
   const [graphInstance, setGraphInstance] = useState<any>(null);

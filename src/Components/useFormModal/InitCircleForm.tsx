@@ -1,9 +1,9 @@
 import { Form, FormInstance, Input } from "antd";
 import React from "react";
-import { CircleAllCount } from "../../config";
 import { Graph } from "@antv/x6";
 import { initCircle } from "../../CreateCircle";
 import store from "../../store";
+import { runtimeActions } from "../../store/runtimeSlice";
 import { addDargAction } from "../../store/actionCreators";
 
 interface circleProps {
@@ -25,8 +25,8 @@ const InitCircleForm = (
 
   const onSubmit = async (values: any) => {
     props.beforeSubmit?.(values);
-    CircleAllCount.setChairCount = Number(values.chairNum);
-    CircleAllCount.setTableCount = Number(values.tableNum);
+    store.dispatch(runtimeActions.setCircleChairCount(Number(values.chairNum)));
+    store.dispatch(runtimeActions.setCircleTableCount(Number(values.tableNum)));
     initCircle(props.circle.x, props.circle.y, props.circle.graph);
     props.afterSubmit?.(values, form);
     form.resetFields();

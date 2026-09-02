@@ -4,7 +4,9 @@ import { register } from "x6-html-shape";
 import createRender from "x6-html-shape/dist/react17";
 import React, { memo, useLayoutEffect, useRef } from "react";
 import { MATRIX_OFFSET_DISTANCE } from "../../GlobalVar";
-import { MatrixSize, Session, getGraph } from "../../config";
+import { getGraph } from "../../config";
+import store from "../../store";
+import { runtimeActions } from "../../store/runtimeSlice";
 import type { Node } from "@antv/x6";
 import {
   buildMatrixMenuIndex,
@@ -37,7 +39,7 @@ export const AddMenuNode = memo(() => {
 
   const addTopRow = async () => {
     // 获取场次Id
-    const sessionId = Session.getDataId;
+    const sessionId = store.getState().runtime.sessionId;
 
     const graph = getGraph();
 
@@ -62,7 +64,7 @@ export const AddMenuNode = memo(() => {
         },
       });
 
-      MatrixSize.setMh = pHeight;
+      store.dispatch(runtimeActions.setMatrixHeight(pHeight));
 
       const firstRowText = [matrixIndex.rowTextByIdx.get(0)].filter(Boolean) as Node[];
       const firstRowEnText = [matrixIndex.rowTextEnByIdx.get(0)].filter(Boolean) as Node[];
@@ -145,7 +147,7 @@ export const AddMenuNode = memo(() => {
 
   const addBottomRow = async () => {
     // 获取场次Id
-    const sessionId = Session.getDataId;
+    const sessionId = store.getState().runtime.sessionId;
 
     const graph = getGraph();
 
@@ -168,7 +170,7 @@ export const AddMenuNode = memo(() => {
         },
       });
 
-      MatrixSize.setMh = pHeight;
+      store.dispatch(runtimeActions.setMatrixHeight(pHeight));
 
       // 获取所有行
       const rows = parent.data.rows;
@@ -236,7 +238,7 @@ export const AddMenuNode = memo(() => {
   };
 
   const addLeftColumn = async () => {
-    const sessionId = Session.getDataId;
+    const sessionId = store.getState().runtime.sessionId;
     const graph = getGraph();
     const nodes = graph.getNodes();
     const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
@@ -256,7 +258,7 @@ export const AddMenuNode = memo(() => {
         },
       });
 
-      MatrixSize.setMw = pWidth;
+      store.dispatch(runtimeActions.setMatrixWidth(pWidth));
 
       const firstColumnTopText = [matrixIndex.columnTopTextByIdx.get(0)].filter(Boolean) as Node[];
       const firstColumnBottomText = [matrixIndex.columnBottomTextByIdx.get(0)].filter(Boolean) as Node[];
@@ -343,7 +345,7 @@ export const AddMenuNode = memo(() => {
 
   const addRightColumn = async () => {
     // 获取场次Id
-    const sessionId = Session.getDataId;
+    const sessionId = store.getState().runtime.sessionId;
 
     const graph = getGraph();
 
@@ -368,7 +370,7 @@ export const AddMenuNode = memo(() => {
         },
       });
 
-      MatrixSize.setMw = pWidth;
+      store.dispatch(runtimeActions.setMatrixWidth(pWidth));
 
       const lastColumns = matrixIndex.rowEnNodes;
       const lastColumnsTopText = [matrixIndex.columnTopTextByIdx.get(columns - 1)].filter(Boolean) as Node[];

@@ -1,7 +1,7 @@
 import { Checkbox, Form, FormInstance } from "antd";
 import React, { useRef, useState } from "react";
 import { handleCpApi } from "../../api";
-import { Session, getGraph } from "../../config";
+import { getGraph } from "../../config";
 import { LoadingOutlined, UploadOutlined } from "@ant-design/icons";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import store from "../../store";
@@ -63,7 +63,7 @@ const UploadFileForm = (
 
   const onSubmit = async (values: any) => {
     // 获取场次Id
-    const sessionId = Session.getDataId;
+    const sessionId = store.getState().runtime.sessionId;
 
     props.beforeSubmit?.(values);
 

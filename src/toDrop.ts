@@ -1,5 +1,6 @@
 import { useDrop } from "ahooks";
-import { getGraph, getDragNodeType, getCurrentColumn, getCurrentRow } from "./config";
+import { getGraph } from "./config";
+import store from "./store";
 import { isOutElementCorridor, isOutElementAisle } from "./utils/util";
 import { AISLE_SIZE } from "./GlobalVar";
 
@@ -8,9 +9,9 @@ const toDrop = (dropRef: any) => {
     onDom: (content: any) => {
       const graph = getGraph();
       const nodes = graph.getNodes() as any;
+      const { currentColumn, currentRow, dragNodeType } = store.getState().runtime;
 
       if (content.nodeType === "Corridor") {
-        const currentColumn = getCurrentColumn();
         const corridorColumnspaceArr = nodes.filter(
           (item: any) => item.data.idt && item.data.idt.includes("corridorColumnSpace-")
         );
@@ -26,7 +27,6 @@ const toDrop = (dropRef: any) => {
           findIdx.attr("body/fill", "transparent");
         }
       } else if (content.nodeType === "Aisle") {
-        const currentRow = getCurrentRow();
         const aisleRowSpaceArr = nodes.filter((item: any) => item.data.idt && item.data.idt.includes("aisleRowSpace-"));
         const findIdx = aisleRowSpaceArr.find((ite: any) => ite.data.idx === currentRow);
         if (currentRow > -1 && findIdx) {
@@ -47,7 +47,7 @@ const toDrop = (dropRef: any) => {
       }
     },
     onDragEnter: (e: any) => {
-      const nodeType = getDragNodeType();
+      const nodeType = store.getState().runtime.dragNodeType;
 
       const graph = getGraph();
       const p1 = graph.pageToLocal(e.x, e.y);

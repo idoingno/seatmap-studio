@@ -16,17 +16,9 @@ import {
   parentParams,
   parentProps,
 } from "./paramsComputed";
-import {
-  MatrixAllRowsOrColumns,
-  MatrixSize,
-  Session,
-  getCurrentColumn,
-  getCurrentRow,
-  getGraph,
-  setColumnSpaceArr,
-  setCurrentColumn,
-  setCurrentRow,
-} from "../config";
+import { getGraph } from "../config";
+import store from "../store";
+import { runtimeActions } from "../store/runtimeSlice";
 // import { resizeProscenium, resizeWindow } from "../utils/util";
 import { generateGraphics, generateNode, updateGraphics, updateNode } from "../utils/apiParams";
 import { ResponseType, handleCpApi } from "../api";
@@ -295,14 +287,14 @@ const clampMatrixOrigin = (graph: Graph, x: number, y: number, width: number, he
 
 export const initMatrix = async (x: number, y: number, graph: Graph) => {
   markLocalGraphMutation();
-  const columns: number = MatrixAllRowsOrColumns.getAllColumns;
-  const rows: number = MatrixAllRowsOrColumns.getAllRows;
+  const columns: number = store.getState().runtime.matrixAllColumns;
+  const rows: number = store.getState().runtime.matrixAllRows;
 
   const parentWidth = (CHAIR_SIZE + SPACE_SIZE) * columns + SPACE_SIZE + PARENTLEFTANDRIGHTSPACE * 2;
   const parentHeight = (CHAIR_SIZE + SPACE_SIZE) * rows + SPACE_SIZE + PARENTTOPANDBOTTOMHEIGHT * 2;
 
-  MatrixSize.setMw = parentWidth;
-  MatrixSize.setMh = parentHeight;
+  store.dispatch(runtimeActions.setMatrixWidth(parentWidth));
+  store.dispatch(runtimeActions.setMatrixHeight(parentHeight));
 
   const origin = clampMatrixOrigin(graph, x, y, parentWidth, parentHeight);
   const groupData = matrixPreComputed(origin.x, origin.y, parentWidth, parentHeight);
@@ -310,14 +302,13 @@ export const initMatrix = async (x: number, y: number, graph: Graph) => {
   const parent = graph.createNode(parentParams(groupData));
 
   reDrawMatrix(groupData, parent, graph);
-  setColumnSpaceArr(groupData.columnSpaceArr);
 };
 
 const reDrawMatrix = async (groupData: parentProps, parent: Node, graph: Graph) => {
   // 获取场次Id
-  const sessionId = Session.getDataId;
-  const rows = MatrixAllRowsOrColumns.getAllRows;
-  const columns = MatrixAllRowsOrColumns.getAllColumns;
+  const sessionId = store.getState().runtime.sessionId;
+  const rows = store.getState().runtime.matrixAllRows;
+  const columns = store.getState().runtime.matrixAllColumns;
 
   // const aisleCount = groupData.rowSpaceArr.reduce(
   //   (counter: number, { hit }: any) => (hit ? (counter += 1) : counter),
@@ -354,10 +345,9 @@ const reDrawMatrix = async (groupData: parentProps, parent: Node, graph: Graph) 
 
 export const initProscenium = async (x: number, y: number, graph: Graph) => {
   markLocalGraphMutation();
-  const mW = MatrixSize.getMw;
 
   // 获取场次Id
-  const sessionId = Session.getDataId;
+  const sessionId = store.getState().runtime.sessionId;
   const prosceniumNode = graph.addNode({
     shape: "proscenium-rect-node",
     x: x,
@@ -373,10 +363,9 @@ export const initProscenium = async (x: number, y: number, graph: Graph) => {
 
 export const initWindow = async (x: number, y: number, graph: Graph) => {
   markLocalGraphMutation();
-  const mH = MatrixSize.getMh;
 
   // 获取场次Id
-  const sessionId = Session.getDataId;
+  const sessionId = store.getState().runtime.sessionId;
 
   const windowNode = graph.addNode({
     shape: "window-rect-node",
@@ -393,10 +382,9 @@ export const initWindow = async (x: number, y: number, graph: Graph) => {
 
 export const initDoor = async (x: number, y: number, graph: Graph) => {
   markLocalGraphMutation();
-  const mH = MatrixSize.getMh;
 
   // 获取场次Id
-  const sessionId = Session.getDataId;
+  const sessionId = store.getState().runtime.sessionId;
 
   const doorNode = graph.addNode({
     shape: "door-rect-node",
@@ -413,8 +401,8 @@ export const initDoor = async (x: number, y: number, graph: Graph) => {
 
 if (typeof window !== "undefined" && ["127.0.0.1", "localhost"].includes(window.location.hostname)) {
   (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__ = async (rows: number, columns: number, x = 240, y = 120) => {
-    MatrixAllRowsOrColumns.setAllRows = rows;
-    MatrixAllRowsOrColumns.setAllColumns = columns;
+    store.dispatch(runtimeActions.setMatrixAllRows(rows));
+    store.dispatch(runtimeActions.setMatrixAllColumns(columns));
     return initMatrix(x, y, getGraph());
   };
 }
@@ -432,9 +420,9 @@ const computeWidth = (oper: string, size: number) => {
 export const handleOffsetCorridor = async (oper: string) => {
   markLocalGraphMutation();
   const graph = getGraph();
-  const currentColumn = getCurrentColumn();
+  const currentColumn = store.getState().runtime.currentColumn;
   // 获取场次Id
-  const sessionId = Session.getDataId;
+  const sessionId = store.getState().runtime.sessionId;
 
   if (currentColumn > -1) {
     const nodes = graph.getNodes();
@@ -454,7 +442,7 @@ export const handleOffsetCorridor = async (oper: string) => {
 
       // resizeProscenium(pWidth);
 
-      MatrixSize.setMw = pWidth;
+      store.dispatch(runtimeActions.setMatrixWidth(pWidth));
 
       const aisleRowSpaceArr = nodes.filter((item: any) => item.data.idt && item.data.idt.includes("aisleRowSpace-"));
 
@@ -494,16 +482,16 @@ export const handleOffsetCorridor = async (oper: string) => {
     const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
     await handleCpApi({ params: nodeParams, code: "seat" }, true);
 
-    setCurrentColumn(-1);
+    store.dispatch(runtimeActions.setCurrentColumn(-1));
   }
 };
 
 export const handleOffsetAisle = async (oper: string) => {
   markLocalGraphMutation();
   const graph = getGraph();
-  const currentRow = getCurrentRow();
+  const currentRow = store.getState().runtime.currentRow;
   // 获取场次Id
-  const sessionId = Session.getDataId;
+  const sessionId = store.getState().runtime.sessionId;
 
   if (currentRow > -1) {
     const nodes = graph.getNodes();
@@ -523,7 +511,7 @@ export const handleOffsetAisle = async (oper: string) => {
 
       // resizeWindow(pHeight);
 
-      MatrixSize.setMh = pHeight;
+      store.dispatch(runtimeActions.setMatrixHeight(pHeight));
 
       const corridorColumnSpaceArr = nodes.filter(
         (item: any) => item.data.idt && item.data.idt.includes("corridorColumnSpace-")
@@ -565,6 +553,6 @@ export const handleOffsetAisle = async (oper: string) => {
     const nodeParams = updateNode(getNodeChildren(parent), sessionId, parent);
     await handleCpApi({ params: nodeParams, code: "seat" }, true);
 
-    setCurrentRow(-1);
+    store.dispatch(runtimeActions.setCurrentRow(-1));
   }
 };

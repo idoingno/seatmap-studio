@@ -1,5 +1,5 @@
 import { Cell, CellView, Graph, Node, NodeView } from "@antv/x6";
-import { Session, getGraph } from "..";
+import { getGraph } from "..";
 import { Modal } from "antd";
 import { CHAIR_SIZE, PARENT_EXTRA_SPACE } from "../../GlobalVar";
 import { delGraphics, delNode, updateGraphics, updateNode } from "../../utils/apiParams";
@@ -67,7 +67,7 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
         y: 0,
         async onClick({ e, cell }: ConfigProps) {
           // 获取场次Id
-          const sessionId = Session.getDataId;
+          const sessionId = store.getState().runtime.sessionId;
 
           const graph = getGraph();
 

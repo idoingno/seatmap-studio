@@ -5,13 +5,14 @@ import { register } from "x6-html-shape";
 import createRender from "x6-html-shape/dist/react17";
 import React, { memo, useLayoutEffect, useRef } from "react";
 import { MATRIX_OFFSET_DISTANCE, MATRIX_OFFSET_SIZE_DISTANCE } from "../../GlobalVar";
-import { MatrixSize, Session, getGraph } from "../../config";
+import { getGraph } from "../../config";
+import store from "../../store";
+import { runtimeActions } from "../../store/runtimeSlice";
 import type { Node } from "@antv/x6";
 import { buildMatrixMenuIndex, getNodeChildren, resizeProscenium, resizeWindow, setAllCorridorColumnH } from "../../utils/util";
 import AppIcon from "../../Components/AppIcon";
 import { delNode } from "../../utils/apiParams";
 import { handleCpApi } from "../../api";
-import store from "../../store/index";
 import { subAction } from "../../store/actionCreators";
 import { runGraphBatch } from "../../utils/graphBatch";
 import { syncGraphPerformanceMode } from "../../utils/graphPerformance";
@@ -31,7 +32,7 @@ export const MinusMenuNode = memo(() => {
   };
 
   const removeTopRow = async () => {
-    const sessionId = Session.getDataId;
+    const sessionId = store.getState().runtime.sessionId;
     const graph = getGraph();
     const nodes = graph.getNodes();
     const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
@@ -72,7 +73,7 @@ export const MinusMenuNode = memo(() => {
         },
       });
 
-      MatrixSize.setMh = pHeight;
+      store.dispatch(runtimeActions.setMatrixHeight(pHeight));
       setAllCorridorColumnH(nodes, "corridorColumnSpace", pHeight);
 
       const filterNode = matrixIndex.allChildren.filter((ite: Node) => {
@@ -123,7 +124,7 @@ export const MinusMenuNode = memo(() => {
   };
 
   const removeLeftColumn = async () => {
-    const sessionId = Session.getDataId;
+    const sessionId = store.getState().runtime.sessionId;
     const graph = getGraph();
     const nodes = graph.getNodes();
     const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
@@ -165,7 +166,7 @@ export const MinusMenuNode = memo(() => {
         },
       });
 
-      MatrixSize.setMw = pWidth;
+      store.dispatch(runtimeActions.setMatrixWidth(pWidth));
 
       const filterNode = matrixIndex.allChildren.filter((ite: Node) => {
         return (
@@ -215,7 +216,7 @@ export const MinusMenuNode = memo(() => {
   };
 
   const removeBottomRow = async () => {
-    const sessionId = Session.getDataId;
+    const sessionId = store.getState().runtime.sessionId;
     const graph = getGraph();
 
     const nodes = graph.getNodes();
@@ -263,7 +264,7 @@ export const MinusMenuNode = memo(() => {
         },
       });
 
-      MatrixSize.setMh = pHeight;
+      store.dispatch(runtimeActions.setMatrixHeight(pHeight));
       setAllCorridorColumnH(nodes, "corridorColumnSpace", pHeight);
 
       lastMatrixBottomNum.forEach((element) => {
@@ -294,7 +295,7 @@ export const MinusMenuNode = memo(() => {
 
   const removeRightColumn = async () => {
       // 获取场次Id
-      const sessionId = Session.getDataId;
+      const sessionId = store.getState().runtime.sessionId;
 
       const graph = getGraph();
 
@@ -344,7 +345,7 @@ export const MinusMenuNode = memo(() => {
           },
         });
 
-        MatrixSize.setMw = pWidth;
+        store.dispatch(runtimeActions.setMatrixWidth(pWidth));
         setAllCorridorColumnH(nodes, "aisleRowSpace", pWidth);
 
         lastColumns.forEach((element) => {

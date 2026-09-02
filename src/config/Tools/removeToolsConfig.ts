@@ -1,10 +1,11 @@
 // import { getGraph } from ".";
 import { CellView, Node, NodeView } from "@antv/x6";
 import { syncSvg } from "../Markup/syncIcon";
-import { MatrixSize, Session, getGraph, setCurrentColumn, setCurrentRow } from "..";
+import { getGraph } from "..";
 import { handleOffsetAisle, handleOffsetCorridor } from "../../CreateMatrix";
 import { chairSvg } from "../Markup/chair";
 import store from "../../store/index";
+import { runtimeActions } from "../../store/runtimeSlice";
 import { subAction } from "../../store/actionCreators";
 import { delGraphics, delPersonnel, updateNode } from "../../utils/apiParams";
 import { handleCpApi } from "../../api";
@@ -30,7 +31,7 @@ const removeToolsConfig = ({ e, node }: ConfigProps) => {
         async onClick({ view, e }: any) {
           const node = view.cell;
           // 获取场次Id
-          const sessionId = Session.getDataId;
+          const sessionId = store.getState().runtime.sessionId;
           if (node.attrs.xnode) {
             store.dispatch(subAction(node.attrs.xnode.key));
 
@@ -151,7 +152,7 @@ const removeToolsConfig = ({ e, node }: ConfigProps) => {
               },
             });
 
-            setCurrentColumn(node.data.idx);
+            store.dispatch(runtimeActions.setCurrentColumn(node.data.idx));
             node.data.isExist = false;
             handleOffsetCorridor("del");
 
@@ -186,7 +187,7 @@ const removeToolsConfig = ({ e, node }: ConfigProps) => {
             node.data.isExist = false;
             node.attr("label/text", "");
 
-            setCurrentRow(node.data.idx);
+            store.dispatch(runtimeActions.setCurrentRow(node.data.idx));
             handleOffsetAisle("del");
 
             if (node.hasTool("button-remove")) {

@@ -8,7 +8,6 @@ import { chairSvg } from "./config/Markup/chair";
 import { generatePersonnel } from "./utils/apiParams";
 import { updateGraphicsForParent, updateNodesForParent } from "./services/graphService";
 import { handleCpApi } from "./api";
-import { Session } from "./config";
 import { patternSeat } from "./assets";
 import store from "./store";
 import { showCircleUpdateAction } from "./store/actionCreators";
@@ -95,7 +94,7 @@ const buildMatrixNodeIndex = (parent: Node | null | undefined): MatrixNodeIndex 
 export const GraphBehavior = (): any => {
   const graph = useGraphInstance();
   // 获取场次Id
-  const sessionId = Session.getDataId;
+  const sessionId = store.getState().runtime.sessionId;
 
   // TODO 这里拿到graph对象处理自己的逻辑（例如使用后端数据初始化画布，增加事件监听...）
   useEffect(() => {

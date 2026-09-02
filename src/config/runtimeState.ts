@@ -1,22 +1,11 @@
-// 运行时可变状态的存放处（从 config/index.tsx 拆分）。
-// 历史上这批单例直接长在模块作用域里；集中到这里是为了：
-// 1) 一眼看清应用有哪些共享可变状态；2) 为后续迁入 Redux 划好边界。
-// 注意：始终保持模块内私有 + getter/setter 访问，不要直接导出裸变量。
+// 仅存 X6 Graph 实例这一非序列化服务单例：不适合进 Redux，
+// 保持模块内私有 + getter/setter 访问。
+// 其余运行时数据状态（Session、矩阵参数、拖拽类型等）
+// 已迁入 src/store/runtimeSlice.ts（state.runtime.*）。
 
 import type { Graph } from "@antv/x6";
 
 let graph: Graph = null;
-let nodeType: string = "";
-let columnSpaceArr: any[] = [];
-let currentColumn: number = -1;
-let currentRow: number = -1;
-
-export function setDragNodeType(val: any) {
-  nodeType = val;
-}
-export function getDragNodeType() {
-  return nodeType;
-}
 
 export function setGraphs(val: any) {
   graph = val;
@@ -27,112 +16,3 @@ export function setGraphs(val: any) {
 export function getGraph() {
   return graph;
 }
-
-export function setColumnSpaceArr(val: any) {
-  columnSpaceArr = val;
-}
-export function getColumnSpaceArr() {
-  return columnSpaceArr;
-}
-
-export function setCurrentColumn(val: any) {
-  currentColumn = val;
-}
-export function getCurrentColumn() {
-  return currentColumn;
-}
-
-export function setCurrentRow(val: any) {
-  currentRow = val;
-}
-export function getCurrentRow() {
-  return currentRow;
-}
-
-export const MatrixAllRowsOrColumns = {
-  allRows: 0,
-  allColumns: 0,
-  set setAllRows(val: number) {
-    this.allRows = val;
-  },
-  get getAllRows() {
-    return this.allRows;
-  },
-  set setAllColumns(val: number) {
-    this.allColumns = val;
-  },
-  get getAllColumns() {
-    return this.allColumns;
-  },
-};
-
-export const CircleAllCount = {
-  currentChairCount: 0,
-  currentTableCount: 0,
-  set setChairCount(val: number) {
-    this.currentChairCount = val;
-  },
-  get getChairCount() {
-    return this.currentChairCount;
-  },
-  set setTableCount(val: number) {
-    this.currentTableCount = val;
-  },
-  get getTableCount() {
-    return this.currentTableCount;
-  },
-};
-
-export const MatrixSize = {
-  mWidth: 0,
-  mHeight: 0,
-  set setMw(val: number) {
-    this.mWidth = val;
-  },
-  set setMh(val: number) {
-    this.mHeight = val;
-  },
-  get getMw() {
-    return this.mWidth;
-  },
-  get getMh() {
-    return this.mHeight;
-  },
-};
-
-export const Session = {
-  sessionId: "",
-  hallId: "",
-  set setDataId(val: string) {
-    this.sessionId = val;
-  },
-  get getDataId() {
-    return this.sessionId;
-  },
-  set setHallId(val: string) {
-    this.hallId = val;
-  },
-  get getHallId() {
-    return this.hallId;
-  },
-};
-
-export const CPForm = {
-  form: {},
-  set setForm(val: any) {
-    this.form = val;
-  },
-  get getForm() {
-    return this.form;
-  },
-};
-
-export const AllPersonArr = {
-  arr: [] as any,
-  set setArr(val: []) {
-    this.arr = val;
-  },
-  get getArr() {
-    return this.arr;
-  },
-};

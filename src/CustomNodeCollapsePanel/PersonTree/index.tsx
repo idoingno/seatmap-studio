@@ -11,11 +11,12 @@ import {
 } from "./treeData";
 import type { ItemType, OrgInfoProps, TreeDataType } from "./types";
 import { isOutChair, setChairPerson } from "../../utils/util";
-import { AllPersonArr, Session, getGraph, setDragNodeType } from "../../config";
+import { getGraph } from "../../config";
 import { SearchOutlined } from "@ant-design/icons";
 
 import { Node } from "@antv/x6";
 import store from "../../store/index";
+import { runtimeActions } from "../../store/runtimeSlice";
 import { addAction, addsAction } from "../../store/actionCreators";
 import { ResponseType, handleCpApi } from "../../api";
 import { generatePersonnel } from "../../utils/apiParams";
@@ -141,7 +142,7 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
   const queryPersonInfo = async (refreshGraph = false) => {
     setPeopleLoading(true);
     // 获取场次Id
-    const sessionId = Session.getDataId;
+    const sessionId = store.getState().runtime.sessionId;
     const params = { sessionId };
     try {
       const { code, data, subMsgType }: ResponseType = await handleCpApi({ params, code: "person" });
@@ -155,7 +156,7 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
         const hasSeatArr = handleData.filter((item: any) => !!item.hasSeat).map((item: any) => item.id);
         store.dispatch(addsAction(hasSeatArr));
 
-        AllPersonArr.setArr = handleData;
+        store.dispatch(runtimeActions.setAllPersonArr(handleData));
         if (refreshGraph) {
           loadTree$.emit();
         }
@@ -246,7 +247,6 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
   };
 
   const onDragEnd = async ({ event, node }: any) => {
-    // const nodeType = getDragNodeType();
     // tree 三种形态
     // 1、拖动人未被选择
     // 2、拖动人已选择
@@ -368,7 +368,7 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
   };
 
   const onDragStart = ({ event, node }: any) => {
-    setDragNodeType(node.nodeType);
+    store.dispatch(runtimeActions.setDragNodeType(node.nodeType));
   };
 
   return (
