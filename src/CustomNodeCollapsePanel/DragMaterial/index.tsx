@@ -8,7 +8,7 @@ import {
   initWindow,
   initDoor,
 } from "../../CreateMatrix";
-import { IsDragElement, MatrixSize, getGraph, panelType, setDragNodeType } from "../../config";
+import { MatrixSize, getGraph, panelType, setDragNodeType } from "../../config";
 import store from "../../store";
 import { addDargAction } from "../../store/actionCreators";
 import useFormModal from "../../Components/useFormModal";

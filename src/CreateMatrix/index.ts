@@ -26,8 +26,6 @@ import {
   setColumnSpaceArr,
   setCurrentColumn,
   setCurrentRow,
-  setGroupData,
-  setRowSpaceArr,
 } from "../config";
 // import { resizeProscenium, resizeWindow } from "../utils/util";
 import { generateGraphics, generateNode, updateGraphics, updateNode } from "../utils/apiParams";
@@ -312,8 +310,6 @@ export const initMatrix = async (x: number, y: number, graph: Graph) => {
   const parent = graph.createNode(parentParams(groupData));
 
   reDrawMatrix(groupData, parent, graph);
-  setGroupData(groupData);
-  setRowSpaceArr(groupData.rowSpaceArr);
   setColumnSpaceArr(groupData.columnSpaceArr);
 };
 

@@ -7,9 +7,7 @@ import type { Graph } from "@antv/x6";
 
 let graph: Graph = null;
 let nodeType: string = "";
-let rowSpaceArr: any[] = [];
 let columnSpaceArr: any[] = [];
-let groupData: any[] = [];
 let currentColumn: number = -1;
 let currentRow: number = -1;
 
@@ -30,25 +28,11 @@ export function getGraph() {
   return graph;
 }
 
-export function setRowSpaceArr(val: any) {
-  rowSpaceArr = val;
-}
-export function getRowSpaceArr() {
-  return rowSpaceArr;
-}
-
 export function setColumnSpaceArr(val: any) {
   columnSpaceArr = val;
 }
 export function getColumnSpaceArr() {
   return columnSpaceArr;
-}
-
-export function setGroupData(val: any) {
-  groupData = val;
-}
-export function getGroupData() {
-  return groupData;
 }
 
 export function setCurrentColumn(val: any) {
@@ -99,16 +83,6 @@ export const CircleAllCount = {
   },
 };
 
-export const currentSpaceCount = {
-  count: 0,
-  set(val: number) {
-    this.count += val;
-  },
-  get() {
-    return this.count;
-  },
-};
-
 export const MatrixSize = {
   mWidth: 0,
   mHeight: 0,
@@ -123,16 +97,6 @@ export const MatrixSize = {
   },
   get getMh() {
     return this.mHeight;
-  },
-};
-
-export const PersonTreeData = {
-  data: [] as any[],
-  set setData(data: any[]) {
-    this.data = data;
-  },
-  get getData() {
-    return this.data;
   },
 };
 
@@ -163,16 +127,6 @@ export const CPForm = {
   },
 };
 
-export const LoadingStatus = {
-  loading: false,
-  set setLoading(val: boolean) {
-    this.loading = val;
-  },
-  get getLoading() {
-    return this.loading;
-  },
-};
-
 export const AllPersonArr = {
   arr: [] as any,
   set setArr(val: []) {
@@ -180,25 +134,5 @@ export const AllPersonArr = {
   },
   get getArr() {
     return this.arr;
-  },
-};
-
-export const IsDragElement = {
-  isFlag: false,
-  set setFlag(val: boolean) {
-    this.isFlag = val;
-  },
-  get getFlag() {
-    return this.isFlag;
-  },
-};
-
-export const ShowCircleUpdateModal = {
-  show: "",
-  set setShow(val: boolean) {
-    this.show = val;
-  },
-  get getShow() {
-    return this.show;
   },
 };
