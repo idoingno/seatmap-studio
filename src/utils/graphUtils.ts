@@ -1,5 +1,5 @@
 import { normalSitOut, partnerSitOut, patternSeat } from "../assets";
-import { ColorArr } from "../config";
+import { ColorArr } from "../config/constants";
 import store from "../store";
 // import { chairSvg } from "../config/Markup/chair";
 import { syncSvg } from "../config/Markup/syncIcon";

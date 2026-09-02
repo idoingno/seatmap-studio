@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 import "./index.less";
-import { AlphabeticSerialNumber, getGraph } from "../config";
+import { AlphabeticSerialNumber } from "../config/constants";
+import { getGraph } from "../config/graphInstance";
 import store from "../store";
 // import { emptyGraph } from "../utils/apiParams";
 import { Graph, Node } from "@antv/x6";

@@ -8,7 +8,8 @@ import {
   initWindow,
   initDoor,
 } from "../../CreateMatrix";
-import { getGraph, panelType } from "../../config";
+import { getGraph } from "../../config/graphInstance";
+import { panelType } from "../../config/materials";
 import store from "../../store";
 import { runtimeActions } from "../../store/runtimeSlice";
 import { addDargAction } from "../../store/actionCreators";

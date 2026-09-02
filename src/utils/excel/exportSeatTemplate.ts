@@ -1,5 +1,6 @@
 import { Graph, Node } from "@antv/x6";
-import { AlphabeticSerialNumber, getGraph } from "../../config";
+import { AlphabeticSerialNumber } from "../../config/constants";
+import { getGraph } from "../../config/graphInstance";
 import store from "../../store";
 import { sortCompareFn3 } from "../util";
 import { loadExcelRuntime } from "./loadExcelRuntime";

@@ -1,7 +1,7 @@
 import { Form, FormInstance } from "antd";
 import React, { useState } from "react";
 import { ResponseType, handleCpApi } from "../../api";
-import { getGraph } from "../../config";
+import { getGraph } from "../../config/graphInstance";
 import store from "../../store";
 import { addDargAction, emptyAction, isLoadAction } from "../../store/actionCreators";
 import { delPersonnel, emptyGraph } from "../../utils/apiParams";

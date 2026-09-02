@@ -1,7 +1,7 @@
 // import { getGraph } from ".";
 import { CellView, Node, NodeView } from "@antv/x6";
 import { syncSvg } from "../Markup/syncIcon";
-import { getGraph } from "..";
+import { getGraph } from "../graphInstance";
 import { handleOffsetAisle, handleOffsetCorridor } from "../../CreateMatrix";
 import { chairSvg } from "../Markup/chair";
 import store from "../../store/index";

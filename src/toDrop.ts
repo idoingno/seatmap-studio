@@ -1,5 +1,5 @@
 import { useDrop } from "ahooks";
-import { getGraph } from "./config";
+import { getGraph } from "./config/graphInstance";
 import store from "./store";
 import { isOutElementCorridor, isOutElementAisle } from "./utils/util";
 import { AISLE_SIZE } from "./GlobalVar";

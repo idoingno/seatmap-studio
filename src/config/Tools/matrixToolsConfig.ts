@@ -1,5 +1,5 @@
 import { Cell, CellView, Node, NodeView } from "@antv/x6";
-import { getGraph } from "..";
+import { getGraph } from "../graphInstance";
 import addSvg from "../Markup/addIcon";
 import minusSvg from "../Markup/minusIcon";
 

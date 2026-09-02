@@ -1,7 +1,7 @@
 import { Graph, Node } from "@antv/x6";
 import { CHAIR_START_ANGLE } from "../GlobalVar";
 import { CirclePreComputed, circleChairParams, parentParams, tableParams } from "./paramsComputed";
-import { getGraph } from "../config";
+import { getGraph } from "../config/graphInstance";
 import store from "../store";
 import { generateGraphics, generateNode } from "../utils/apiParams";
 import { handleCpApi } from "../api";

@@ -1,5 +1,6 @@
 import { Graph, Node } from "@antv/x6";
-import { ColorArr, getGraph } from "../config";
+import { ColorArr } from "../config/constants";
+import { getGraph } from "../config/graphInstance";
 import store from "../store";
 import { runtimeActions } from "../store/runtimeSlice";
 import {

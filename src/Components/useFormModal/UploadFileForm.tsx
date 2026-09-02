@@ -1,7 +1,7 @@
 import { Checkbox, Form, FormInstance } from "antd";
 import React, { useRef, useState } from "react";
 import { handleCpApi } from "../../api";
-import { getGraph } from "../../config";
+import { getGraph } from "../../config/graphInstance";
 import { LoadingOutlined, UploadOutlined } from "@ant-design/icons";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import store from "../../store";

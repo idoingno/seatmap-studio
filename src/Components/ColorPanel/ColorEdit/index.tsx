@@ -2,7 +2,7 @@ import { useSafeState, useUpdateEffect } from "ahooks";
 import { Input, Spin } from "antd";
 import React, { useEffect, useState } from "react";
 import "./index.less";
-import { getGraph } from "../../../config";
+import { getGraph } from "../../../config/graphInstance";
 import { updateNodeRegion } from "../../../utils/apiParams";
 import { handleCpApi } from "../../../api";
 import store from "../../../store";

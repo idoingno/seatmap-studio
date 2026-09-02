@@ -4,8 +4,8 @@ import { useGraphState } from "x6-hooks/react";
 import { Graph } from "x6-graph/react";
 import { GraphBehavior } from "./GraphBehavior";
 import CanvasScaleToolbar from "./CanvasScaleToolbar";
-import { scaling, mousewheel, panning, interacting, background, translating, embedding } from "./config";
-import { setGraphs } from "./config/index";
+import { scaling, mousewheel, panning, interacting, background, translating, embedding } from "./config/graphOptions";
+import { setGraphs } from "./config/graphInstance";
 import toDrop from "./toDrop";
 
 // import "./style.less";

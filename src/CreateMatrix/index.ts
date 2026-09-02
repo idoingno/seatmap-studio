@@ -16,7 +16,7 @@ import {
   parentParams,
   parentProps,
 } from "./paramsComputed";
-import { getGraph } from "../config";
+import { getGraph } from "../config/graphInstance";
 import store from "../store";
 import { runtimeActions } from "../store/runtimeSlice";
 // import { resizeProscenium, resizeWindow } from "../utils/util";

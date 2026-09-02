@@ -1,7 +1,8 @@
 import { useSafeState, useUpdateEffect } from "ahooks";
 import React, { useEffect, useState } from "react";
 import "./index.less";
-import { ColorArr, getGraph } from "../../config";
+import { ColorArr } from "../../config/constants";
+import { getGraph } from "../../config/graphInstance";
 import store from "../../store";
 import { Node } from "@antv/x6";
 import { ColorItemType } from "./ColorEdit";

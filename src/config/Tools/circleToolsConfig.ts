@@ -1,5 +1,5 @@
 import { Cell, CellView, Graph, Node, NodeView } from "@antv/x6";
-import { getGraph } from "..";
+import { getGraph } from "../graphInstance";
 import { Modal } from "antd";
 import { CHAIR_SIZE, PARENT_EXTRA_SPACE } from "../../GlobalVar";
 import { delGraphics, delNode, updateGraphics, updateNode } from "../../utils/apiParams";

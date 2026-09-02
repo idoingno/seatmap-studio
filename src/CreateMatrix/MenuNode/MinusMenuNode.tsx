@@ -5,7 +5,7 @@ import { register } from "x6-html-shape";
 import createRender from "x6-html-shape/dist/react17";
 import React, { memo, useLayoutEffect, useRef } from "react";
 import { MATRIX_OFFSET_DISTANCE, MATRIX_OFFSET_SIZE_DISTANCE } from "../../GlobalVar";
-import { getGraph } from "../../config";
+import { getGraph } from "../../config/graphInstance";
 import store from "../../store";
 import { runtimeActions } from "../../store/runtimeSlice";
 import type { Node } from "@antv/x6";

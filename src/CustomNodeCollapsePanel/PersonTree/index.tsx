@@ -11,7 +11,7 @@ import {
 } from "./treeData";
 import type { ItemType, OrgInfoProps, TreeDataType } from "./types";
 import { isOutChair, setChairPerson } from "../../utils/util";
-import { getGraph } from "../../config";
+import { getGraph } from "../../config/graphInstance";
 import { SearchOutlined } from "@ant-design/icons";
 
 import { Node } from "@antv/x6";
