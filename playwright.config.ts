@@ -15,7 +15,9 @@ export default defineConfig({
   },
   fullyParallel: true,
   workers: process.env.CI ? 1 : undefined,
-  retries: process.env.CI ? 1 : 0,
+  // 本地也允许一次重试：Chromium worker 偶发崩溃会级联出 did-not-run，
+  // 重试会把未跑的测试重新排队；trace: on-first-retry 会为真实失败留现场。
+  retries: 1,
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: e2eBaseUrl,
