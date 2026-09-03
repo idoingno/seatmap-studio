@@ -39,10 +39,6 @@ interface AppProps {
 const App = ({ closeApp }: AppProps) => {
   /** 当组件运行在 APaaS 基座应用时才存在 props 属性 */
   /** configurations 是组件的配置项信息 */
-  // const { configurations, context, form } = props;
-  // const { propName1: placeholder, propName2: width = 350, propName3: disabled } = configurations || {};
-  // store.dispatch(runtimeActions.setSessionId(context.dataId));
-  // store.dispatch(runtimeActions.setCpForm(form));
 
   const sessionId = useSelector((state: any) => state.runtime.sessionId);
 

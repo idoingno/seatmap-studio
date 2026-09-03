@@ -23,7 +23,6 @@ export interface Tokens {
   overlay: {
     toolbar: number;
     floatPanel: number;
-    modal: number;
     toast: number;
   };
   antdVars: Record<string, string>;

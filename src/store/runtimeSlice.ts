@@ -1,7 +1,7 @@
 // 运行时数据状态（从 config/runtimeState.ts 迁入 Redux）。
 // 迁入后：读 state.runtime.<field> / store.getState().runtime.<field>，
 // 写 store.dispatch(runtimeActions.<action>(...))；DevTools 中可见。
-// graph 实例等非序列化服务对象仍留在 config/runtimeState.ts。
+// graph 实例等非序列化服务对象仍留在 config/graphInstance.ts。
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 

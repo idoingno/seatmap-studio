@@ -42,10 +42,8 @@ const shadow = {
 const overlay = {
   // 画布缩放工具条
   toolbar: 99,
-  // 浮层面板（ColorPanel / ChairCard / ColorEdit）
+  // 浮层面板（ColorPanel / ChairCard / ColorEdit），antd Modal 原生层级同为 1000
   floatPanel: 1000,
-  // antd Modal 原生层级——仅作文档锚点，不再用 props 覆盖
-  modal: 1000,
   // antd message 原生层级 1010——不再在全局 less 里强制改写
   // 自定义 toast：压过 antd message（1010）与 modal（1000）
   toast: 1060,
