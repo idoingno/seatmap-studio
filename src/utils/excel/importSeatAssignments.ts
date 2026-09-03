@@ -1,9 +1,9 @@
 import { handleCpApi, ResponseType } from "../../api";
-import store from "../../store";
+import { getRuntime } from "../../store/accessors";
 import { loadXlsxRuntime } from "./loadXlsxRuntime";
 
 export const importSeatAssignments = async (file: File) => {
-  const sessionId = store.getState().runtime.sessionId;
+  const sessionId = getRuntime().sessionId;
   const fileBuffer = await file.arrayBuffer();
   const XLSX = await loadXlsxRuntime();
   const workbook = XLSX.read(fileBuffer, { type: "array" });

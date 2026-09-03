@@ -1,7 +1,7 @@
 import { Form, FormInstance, Input } from "antd";
 import React from "react";
 import { ResponseType, handleCpApi } from "../../api";
-import store from "../../store";
+import { getRuntime } from "../../store/accessors";
 import { message } from "../../utils/message";
 
 interface UserFormPropsType {
@@ -14,7 +14,7 @@ const UserForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?: React
 
   const onSubmit = async (values: any) => {
     // 提交时刻读取场次Id，与宿主注入时序解耦
-    const sessionId = store.getState().runtime.sessionId;
+    const sessionId = getRuntime().sessionId;
     props.beforeSubmit?.(values);
     const params = { type: "save", sessionId, hallMap: props.mapUrl, name: values.templateName };
     const { code, subMsgType }: ResponseType = await handleCpApi({ params: params, code: "template" });

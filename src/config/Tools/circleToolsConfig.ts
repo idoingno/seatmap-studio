@@ -5,6 +5,7 @@ import { CHAIR_SIZE, PARENT_EXTRA_SPACE } from "../../GlobalVar";
 import { delGraphics, delNode, updateGraphics, updateNode } from "../../utils/apiParams";
 import { handleCpApi } from "../../api";
 import store from "../../store";
+import { getRuntime } from "../../store/accessors";
 import { addDargAction, subAction } from "../../store/actionCreators";
 import { getNodeChildren } from "../../utils/util";
 import { message } from "../../utils/message";
@@ -67,7 +68,7 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
         y: 0,
         async onClick({ e, cell }: ConfigProps) {
           // 获取场次Id
-          const sessionId = store.getState().runtime.sessionId;
+          const sessionId = getRuntime().sessionId;
 
           const graph = getGraph();
 

@@ -13,6 +13,7 @@ import { chairSvg } from "../config/Markup/chair";
 import { matrixPreComputed, parentParams, parentProps } from "./paramsComputed";
 import { getGraph } from "../config/graphInstance";
 import store from "../store";
+import { getMatrixDimensions, getRuntime } from "../store/accessors";
 import { runtimeActions } from "../store/runtimeSlice";
 // import { resizeProscenium, resizeWindow } from "../utils/util";
 import { generateGraphics, generateNode, updateGraphics, updateNode } from "../utils/apiParams";
@@ -291,8 +292,7 @@ const clampMatrixOrigin = (graph: Graph, x: number, y: number, width: number, he
 
 export const initMatrix = async (x: number, y: number, graph: Graph) => {
   markLocalGraphMutation();
-  const columns: number = store.getState().runtime.matrixAllColumns;
-  const rows: number = store.getState().runtime.matrixAllRows;
+  const { rows, columns } = getMatrixDimensions();
 
   const parentWidth = (CHAIR_SIZE + SPACE_SIZE) * columns + SPACE_SIZE + PARENTLEFTANDRIGHTSPACE * 2;
   const parentHeight = (CHAIR_SIZE + SPACE_SIZE) * rows + SPACE_SIZE + PARENTTOPANDBOTTOMHEIGHT * 2;
@@ -310,9 +310,8 @@ export const initMatrix = async (x: number, y: number, graph: Graph) => {
 
 const reDrawMatrix = async (groupData: parentProps, parent: Node, graph: Graph) => {
   // 获取场次Id
-  const sessionId = store.getState().runtime.sessionId;
-  const rows = store.getState().runtime.matrixAllRows;
-  const columns = store.getState().runtime.matrixAllColumns;
+  const sessionId = getRuntime().sessionId;
+  const { rows, columns } = getMatrixDimensions();
 
   // const aisleCount = groupData.rowSpaceArr.reduce(
   //   (counter: number, { hit }: any) => (hit ? (counter += 1) : counter),
@@ -349,7 +348,7 @@ export const initProscenium = async (x: number, y: number, graph: Graph) => {
   markLocalGraphMutation();
 
   // 获取场次Id
-  const sessionId = store.getState().runtime.sessionId;
+  const sessionId = getRuntime().sessionId;
   const prosceniumNode = graph.addNode({
     shape: "proscenium-rect-node",
     x: x,
@@ -367,7 +366,7 @@ export const initWindow = async (x: number, y: number, graph: Graph) => {
   markLocalGraphMutation();
 
   // 获取场次Id
-  const sessionId = store.getState().runtime.sessionId;
+  const sessionId = getRuntime().sessionId;
 
   const windowNode = graph.addNode({
     shape: "window-rect-node",
@@ -386,7 +385,7 @@ export const initDoor = async (x: number, y: number, graph: Graph) => {
   markLocalGraphMutation();
 
   // 获取场次Id
-  const sessionId = store.getState().runtime.sessionId;
+  const sessionId = getRuntime().sessionId;
 
   const doorNode = graph.addNode({
     shape: "door-rect-node",
@@ -422,9 +421,9 @@ const computeWidth = (oper: string, size: number) => {
 export const handleOffsetCorridor = async (oper: string) => {
   markLocalGraphMutation();
   const graph = getGraph();
-  const currentColumn = store.getState().runtime.currentColumn;
+  const currentColumn = getRuntime().currentColumn;
   // 获取场次Id
-  const sessionId = store.getState().runtime.sessionId;
+  const sessionId = getRuntime().sessionId;
 
   if (currentColumn > -1) {
     const nodes = graph.getNodes();
@@ -491,9 +490,9 @@ export const handleOffsetCorridor = async (oper: string) => {
 export const handleOffsetAisle = async (oper: string) => {
   markLocalGraphMutation();
   const graph = getGraph();
-  const currentRow = store.getState().runtime.currentRow;
+  const currentRow = getRuntime().currentRow;
   // 获取场次Id
-  const sessionId = store.getState().runtime.sessionId;
+  const sessionId = getRuntime().sessionId;
 
   if (currentRow > -1) {
     const nodes = graph.getNodes();

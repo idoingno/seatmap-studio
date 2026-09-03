@@ -2,6 +2,7 @@ import { useSafeState } from "ahooks";
 import { Form, Input, Modal } from "antd";
 import React, { useEffect } from "react";
 import store from "../store";
+import { getRuntime } from "../store/accessors";
 import { showCircleUpdateAction } from "../store/actionCreators";
 import { getGraph } from "../config/graphInstance";
 import { generatePersonnel, updateGraphics, updateNode } from "../utils/apiParams";
@@ -73,7 +74,7 @@ const CircleUpdateName = () => {
     const { tableName, tableNameEn } = values;
     const { id, nodeType } = store.getState().other.circleUpdate;
     // 获取场次Id
-    const sessionId = store.getState().runtime.sessionId;
+    const sessionId = getRuntime().sessionId;
     const graph = getGraph();
 
     if (nodeType === "circleTable") {

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { handleCpApi } from "../../api";
 import { getGraph } from "../../config/graphInstance";
 import store from "../../store";
+import { getRuntime } from "../../store/accessors";
 import { addDargAction, emptyAction, isLoadAction } from "../../store/actionCreators";
 import { delPersonnel, emptyGraph } from "../../utils/apiParams";
 import { chairSvg } from "../../config/Markup/chair";
@@ -25,7 +26,7 @@ const LayoutClearForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?
       return;
     }
     // 提交时刻读取场次Id
-    const sessionId = store.getState().runtime.sessionId;
+    const sessionId = getRuntime().sessionId;
 
     props.beforeSubmit?.(values);
     store.dispatch(emptyAction());

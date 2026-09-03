@@ -2,6 +2,7 @@ import { Node } from "@antv/x6";
 import { ColorArr } from "../config/constants";
 import { getGraph } from "../config/graphInstance";
 import store from "../store";
+import { getRuntime } from "../store/accessors";
 import { runtimeActions } from "../store/runtimeSlice";
 import { AISLE_DEFAULT_SIZE, MATRIX_OFFSET_DISTANCE, MATRIX_OFFSET_SIZE_DISTANCE } from "../GlobalVar";
 
@@ -420,7 +421,7 @@ export const resizeWindow = async (height: number) => {
   const nodes = graph.getNodes();
   const findWindow = nodes.filter((ite: Node) => ite.data.nodeType === "windowNode");
   // 获取场次Id
-  const sessionId = store.getState().runtime.sessionId;
+  const sessionId = getRuntime().sessionId;
 
   if (findWindow && findWindow.length > 0) {
     for (let i = 0; i < findWindow.length; i++) {
@@ -444,7 +445,7 @@ export const resizeProscenium = async (width: number) => {
   const nodes = graph.getNodes();
   const finProscenium = nodes.filter((ite: Node) => ite.data.nodeType === "prosceniumNode");
   // 获取场次Id
-  const sessionId = store.getState().runtime.sessionId;
+  const sessionId = getRuntime().sessionId;
 
   if (finProscenium && finProscenium.length > 0) {
     for (let i = 0; i < finProscenium.length; i++) {

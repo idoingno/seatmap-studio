@@ -5,6 +5,7 @@ import { getGraph } from "../../config/graphInstance";
 import { LoadingOutlined, UploadOutlined } from "@ant-design/icons";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import store from "../../store";
+import { getRuntime } from "../../store/accessors";
 import { emptyAction, isLoadAction } from "../../store/actionCreators";
 import { delPersonnel } from "../../utils/apiParams";
 import { chairSvg } from "../../config/Markup/chair";
@@ -63,7 +64,7 @@ const UploadFileForm = (
 
   const onSubmit = async (values: any) => {
     // 获取场次Id
-    const sessionId = store.getState().runtime.sessionId;
+    const sessionId = getRuntime().sessionId;
 
     props.beforeSubmit?.(values);
 

@@ -7,6 +7,7 @@ import React, { memo, useLayoutEffect, useRef } from "react";
 import { MATRIX_OFFSET_DISTANCE, MATRIX_OFFSET_SIZE_DISTANCE } from "../../GlobalVar";
 import { getGraph } from "../../config/graphInstance";
 import store from "../../store";
+import { getRuntime } from "../../store/accessors";
 import { runtimeActions } from "../../store/runtimeSlice";
 import type { Node } from "@antv/x6";
 import { buildMatrixMenuIndex, getNodeChildren, setAllCorridorColumnH } from "../../utils/util";
@@ -32,7 +33,7 @@ export const MinusMenuNode = memo(() => {
   };
 
   const removeTopRow = async () => {
-    const sessionId = store.getState().runtime.sessionId;
+    const sessionId = getRuntime().sessionId;
     const graph = getGraph();
     const nodes = graph.getNodes();
     const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
@@ -124,7 +125,7 @@ export const MinusMenuNode = memo(() => {
   };
 
   const removeLeftColumn = async () => {
-    const sessionId = store.getState().runtime.sessionId;
+    const sessionId = getRuntime().sessionId;
     const graph = getGraph();
     const nodes = graph.getNodes();
     const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
@@ -216,7 +217,7 @@ export const MinusMenuNode = memo(() => {
   };
 
   const removeBottomRow = async () => {
-    const sessionId = store.getState().runtime.sessionId;
+    const sessionId = getRuntime().sessionId;
     const graph = getGraph();
 
     const nodes = graph.getNodes();
@@ -295,7 +296,7 @@ export const MinusMenuNode = memo(() => {
 
   const removeRightColumn = async () => {
     // 获取场次Id
-    const sessionId = store.getState().runtime.sessionId;
+    const sessionId = getRuntime().sessionId;
 
     const graph = getGraph();
 

@@ -1,5 +1,5 @@
 import { CHAIR_SIZE, PARENT_EXTRA_SPACE } from "../GlobalVar";
-import store from "../store";
+import { getRuntime } from "../store/accessors";
 
 interface ParentDataType {
   width?: number;
@@ -19,7 +19,7 @@ interface circleDataType {
 
 // 圆桌数据计算
 export const CirclePreComputed = (x: number, y: number, i: number) => {
-  const chairCount = store.getState().runtime.circleChairCount;
+  const chairCount = getRuntime().circleChairCount;
   const currentRow = Math.floor(i / 10);
 
   let currentIndex = i;
@@ -56,7 +56,7 @@ export const CirclePreComputed = (x: number, y: number, i: number) => {
 };
 
 export const parentParams = (parentData: ParentDataType, circleData: circleDataType) => {
-  const chairCount = store.getState().runtime.circleChairCount;
+  const chairCount = getRuntime().circleChairCount;
   return {
     x: parentData.x,
     y: parentData.y,

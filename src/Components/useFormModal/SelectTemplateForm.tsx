@@ -1,7 +1,7 @@
 import { Form, FormInstance, Input } from "antd";
 import React, { useMemo, useState } from "react";
 import { ResponseType, handleCpApi } from "../../api";
-import store from "../../store";
+import { getRuntime } from "../../store/accessors";
 import { SearchOutlined } from "@ant-design/icons";
 import { useDebounceEffect } from "ahooks";
 import "./SelectTemplateForm.less";
@@ -41,7 +41,7 @@ const SelectTemplateForm = (
     }
     props.beforeSubmit?.(values);
     // 提交时刻读取场次Id
-    const sessionId = store.getState().runtime.sessionId;
+    const sessionId = getRuntime().sessionId;
     const params = {
       type: "choose",
       sessionId,

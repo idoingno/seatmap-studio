@@ -2,7 +2,7 @@ import { Graph, Node } from "@antv/x6";
 import { CHAIR_START_ANGLE } from "../GlobalVar";
 import { CirclePreComputed, circleChairParams, parentParams, tableParams } from "./paramsComputed";
 import { getGraph } from "../config/graphInstance";
-import store from "../store";
+import { getRuntime } from "../store/accessors";
 import { generateGraphics, generateNode } from "../utils/apiParams";
 import { handleCpApi } from "../api";
 import { runGraphBatch } from "../utils/graphBatch";
@@ -30,11 +30,11 @@ function getCircleMaxTableOrder() {
 }
 export const initCircle = (x: number, y: number, graph: Graph) => {
   markLocalGraphMutation();
-  const chairCount = store.getState().runtime.circleChairCount;
-  const tableCount = store.getState().runtime.circleTableCount;
+  const chairCount = getRuntime().circleChairCount;
+  const tableCount = getRuntime().circleTableCount;
 
   // 获取场次Id
-  const sessionId = store.getState().runtime.sessionId;
+  const sessionId = getRuntime().sessionId;
   let beginNum = getCircleMaxTableOrder() || 0;
   // let tableNum = circleData.tableNum
   // let realIdx = getCircleMaxTableRealOrder();

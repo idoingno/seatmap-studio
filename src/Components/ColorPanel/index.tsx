@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import "./index.less";
 import { ColorArr } from "../../config/constants";
 import { getGraph } from "../../config/graphInstance";
-import store from "../../store";
+import { getRuntime } from "../../store/accessors";
 import { Node } from "@antv/x6";
 import { ColorItemType } from "./ColorEdit";
 import { Spin } from "antd";
@@ -71,7 +71,7 @@ const ColorPanel: React.FC<ColorPanelProps> = ({ setColorObj }) => {
       // clear color block
       if (item.name === "A") {
         // 获取场次Id
-        const sessionId = store.getState().runtime.sessionId;
+        const sessionId = getRuntime().sessionId;
         let arr = cellsIds;
 
         let newNodes: any = [];

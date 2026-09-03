@@ -11,6 +11,7 @@ import { SearchOutlined } from "@ant-design/icons";
 
 import { Node } from "@antv/x6";
 import store from "../../store/index";
+import { getRuntime } from "../../store/accessors";
 import { runtimeActions } from "../../store/runtimeSlice";
 import { addAction, addsAction } from "../../store/actionCreators";
 import { ResponseType, handleCpApi } from "../../api";
@@ -137,7 +138,7 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
   const queryPersonInfo = async (refreshGraph = false) => {
     setPeopleLoading(true);
     // 获取场次Id
-    const sessionId = store.getState().runtime.sessionId;
+    const sessionId = getRuntime().sessionId;
     const params = { sessionId };
     try {
       const { code, data, subMsgType }: ResponseType = await handleCpApi({ params, code: "person" });

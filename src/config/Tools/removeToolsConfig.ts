@@ -5,6 +5,7 @@ import { getGraph } from "../graphInstance";
 import { handleOffsetAisle, handleOffsetCorridor } from "../../CreateMatrix";
 import { chairSvg } from "../Markup/chair";
 import store from "../../store/index";
+import { getRuntime } from "../../store/accessors";
 import { runtimeActions } from "../../store/runtimeSlice";
 import { subAction } from "../../store/actionCreators";
 import { delGraphics, delPersonnel, updateNode } from "../../utils/apiParams";
@@ -31,7 +32,7 @@ const removeToolsConfig = ({ e, node }: ConfigProps) => {
         async onClick({ view, e }: any) {
           const node = view.cell;
           // 获取场次Id
-          const sessionId = store.getState().runtime.sessionId;
+          const sessionId = getRuntime().sessionId;
           if (node.attrs.xnode) {
             store.dispatch(subAction(node.attrs.xnode.key));
 

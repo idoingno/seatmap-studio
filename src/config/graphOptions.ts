@@ -1,7 +1,7 @@
 // X6 Graph 初始化选项，从 config/index.tsx 拆分而来。
 // 与画布外观和交互相关，不含任何运行时状态。
 
-import type { CellView } from "@antv/x6";
+import type { CellView, Graph } from "@antv/x6";
 
 export const scaling = {
   min: 0.2,
@@ -36,7 +36,8 @@ export const background = {
 };
 
 export const translating = {
-  restrict(view: CellView) {
+  restrict(view: CellView | null) {
+    if (!view) return null;
     const cell = view.cell;
     if (cell.isNode()) {
       const parent = cell.getParent();
@@ -50,7 +51,7 @@ export const translating = {
 
 export const embedding = {
   enabled: true,
-  findParent({ node }: any) {
+  findParent(this: Graph, { node }: any) {
     const bbox = node.getBBox();
     return this.getNodes().filter((node: any) => {
       const data = node.getData();

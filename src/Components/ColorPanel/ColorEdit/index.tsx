@@ -5,7 +5,7 @@ import "./index.less";
 import { getGraph } from "../../../config/graphInstance";
 import { updateNodeRegion } from "../../../utils/apiParams";
 import { handleCpApi } from "../../../api";
-import store from "../../../store";
+import { getRuntime } from "../../../store/accessors";
 import { findColor } from "../../../utils/util";
 import { useSelector } from "react-redux";
 
@@ -29,7 +29,7 @@ const ColorEdit: React.FC<any> = ({ colorObj }) => {
     }
 
     // 获取场次Id
-    const sessionId = store.getState().runtime.sessionId;
+    const sessionId = getRuntime().sessionId;
 
     let arr = colorList;
     arr[i].type = type;

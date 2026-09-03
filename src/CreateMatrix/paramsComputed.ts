@@ -2,7 +2,7 @@ import { CHAIR_SIZE, SPACE_SIZE, PARENTLEFTANDRIGHTSPACE, PARENTTOPANDBOTTOMHEIG
 // import { rows, columns, parentWidth, parentHeight } from ".";
 import { chairSvg } from "../config/Markup/chair";
 import { patternSeat } from "../assets";
-import store from "../store";
+import { getMatrixDimensions, getRuntime } from "../store/accessors";
 
 export interface parentProps {
   width: number;
@@ -18,8 +18,7 @@ export const matrixPreComputed = (x: number, y: number, parentWidth: number, par
   let rowSpaceArr: any[] = [];
   let columnSpaceArr: any[] = [];
   let rowSpaceArrLength = rowSpaceArr.length;
-  const rows = store.getState().runtime.matrixAllRows;
-  const columns = store.getState().runtime.matrixAllColumns;
+  const { rows, columns } = getMatrixDimensions();
 
   for (let i = rowSpaceArrLength; i < rows - 1; i++) {
     rowSpaceArr.push({
@@ -321,7 +320,7 @@ export const rowTextNodeParams = (parentData: parentProps, moreAisleNum: number,
 };
 
 export const rowTextEnNodeParams = (parentData: parentProps, i: number) => {
-  const columns = store.getState().runtime.matrixAllColumns;
+  const columns = getRuntime().matrixAllColumns;
 
   let { x, y } = parentData;
   // let { count: cCount, width: corridorW } = corridorData
