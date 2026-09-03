@@ -18,7 +18,6 @@ const ModalShell: React.FC<ModalShellProps> = ({ children, ...modalProps }) => {
       okText="提交"
       cancelText="取消"
       width={360}
-      zIndex={1000000}
       destroyOnClose={true}
       {...modalProps}
     >

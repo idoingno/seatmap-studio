@@ -140,7 +140,6 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
               okText: "确认",
               cancelText: "取消",
               centered: true,
-              zIndex: 100000000,
               async onOk() {
                 message.success("删除成功");
                 modal.destroy();

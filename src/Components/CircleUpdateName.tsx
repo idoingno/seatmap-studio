@@ -140,7 +140,6 @@ const CircleUpdateName = () => {
     <Modal
       title="圆桌名配置"
       width={400}
-      zIndex={1000000}
       open={show}
       closable
       maskClosable={false}

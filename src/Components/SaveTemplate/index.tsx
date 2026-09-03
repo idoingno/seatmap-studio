@@ -42,7 +42,6 @@ const SaveTemplate = ({ showTemplate }: SaveTemplateProps) => {
     <Modal
       title="模板配置"
       width={420}
-      zIndex={1000000}
       open={show}
       closable
       keyboard={false}
