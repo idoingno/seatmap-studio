@@ -14,7 +14,9 @@
     "test:perf": "node ./scripts/run-seatmap-perf.js",
     "serve": "webpack serve",
     "serve:dist": "python3 -m http.server 8080 --bind 127.0.0.1 --directory dist",
-    "start": "webpack serve"
+    "start": "webpack serve",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=18"
@@ -36,8 +38,10 @@
     "css-minimizer-webpack-plugin": "^7.0.0",
     "eslint": "^8.57.0",
     "html-webpack-plugin": "5.5.0",
+    "husky": "^9",
     "less": "4.1.2",
     "less-loader": "^12.2.0",
+    "lint-staged": "^15",
     "mini-css-extract-plugin": "^2.9.0",
     "moment-locales-webpack-plugin": "1.2.0",
     "postcss": "^8.4.38",

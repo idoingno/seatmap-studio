@@ -1,0 +1,7 @@
+# Formatting / hygiene sweeps to exclude from git blame
+# (git config blame.ignoreRevsFile .git-blame-ignore-revs)
+
+# Format the repository with Prettier (baseline)
+2e8b5ed
+# Enable noUnusedLocals and clear the resulting dead code
+bcb5417
