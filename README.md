@@ -62,11 +62,11 @@ By default the editor runs on the `local` (IndexedDB) backend seeded on first la
 
 All persistence flows through a single interface, `SeatmapStore` (`src/storage/types.ts`). One thin dispatcher — `handleCpApi` in `src/api/index.ts` — routes legacy `(code, type)` calls onto semantic store methods, so UI code never touches a backend directly.
 
-| Mode (`seatmap-api-mode`) | Backend | Persistence |
-|---|---|---|
-| `local` (default) | `src/storage/indexedDbStore.ts` (Dexie) | Survives reloads |
-| `mock` | `src/storage/memoryStore.ts` | In-memory, reseeds on refresh |
-| `remote` | `src/storage/httpStore.ts` | Your API (INVOKING_IPAAS_CID protocol) |
+| Mode (`seatmap-api-mode`) | Backend                                 | Persistence                            |
+| ------------------------- | --------------------------------------- | -------------------------------------- |
+| `local` (default)         | `src/storage/indexedDbStore.ts` (Dexie) | Survives reloads                       |
+| `mock`                    | `src/storage/memoryStore.ts`            | In-memory, reseeds on refresh          |
+| `remote`                  | `src/storage/httpStore.ts`              | Your API (INVOKING_IPAAS_CID protocol) |
 
 Both local stores share identical operation semantics via `src/storage/stateCore.ts` + `src/storage/stateStore.ts`; the full E2E suite runs against the IndexedDB default.
 

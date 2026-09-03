@@ -103,7 +103,11 @@ export const exportSeatTemplate = async () => {
       center: true,
     },
     columns: [{ name: "会场布局图" }],
-    rows: [[`会场名称：${venueName}`], [`会场时间：${venueStartTime} ~ ${venueEndTime}`], [`会场地点：${venuePosition}`]],
+    rows: [
+      [`会场名称：${venueName}`],
+      [`会场时间：${venueStartTime} ~ ${venueEndTime}`],
+      [`会场地点：${venuePosition}`],
+    ],
   });
 
   sheet.addTable({

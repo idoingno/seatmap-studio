@@ -25,10 +25,7 @@ export interface UpdateNodeResult {
 /**
  * 更新父节点（matrix/circle 容器或空间元素）的图形参数
  */
-export async function updateGraphicsForParent(
-  parent: Node,
-  sessionId: string
-): Promise<UpdateGraphicsResult> {
+export async function updateGraphicsForParent(parent: Node, sessionId: string): Promise<UpdateGraphicsResult> {
   try {
     const graphicsParams = updateGraphics(parent, sessionId);
     await handleCpApi({ params: graphicsParams, code: "seat" }, true);
@@ -80,7 +77,10 @@ export const validateLayoutExport = (value: any): value is LayoutExport => {
 
 /** 导出当前布局为可下载的 JSON 结构；画布为空时返回 null */
 export const exportLayout = async (sessionId: string): Promise<LayoutExport | null> => {
-  const { code, data, subMsgType }: ResponseType = await handleCpApi({ params: querySeatInfo(sessionId), code: "seat" });
+  const { code, data, subMsgType }: ResponseType = await handleCpApi({
+    params: querySeatInfo(sessionId),
+    code: "seat",
+  });
   if (code !== 200 || subMsgType !== "success") {
     return null;
   }

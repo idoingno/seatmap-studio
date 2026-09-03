@@ -7,14 +7,16 @@ import { ErrorBoundary } from "./Components/ErrorBoundary";
 
 const App = React.lazy(() => import("./App"));
 
-store.dispatch(runtimeActions.setSessionId('demo-session'));
-store.dispatch(runtimeActions.setHallId('demo-hall'));
-store.dispatch(runtimeActions.setCpForm({
-  K2582458: { text: 'Seatmap Studio Demo' },
-  K2460125: { value: '2026-05-25 09:00' },
-  K2460124: { value: '2026-05-25 11:00' },
-  K2460459: { text: 'Demo Hall' },
-}));
+store.dispatch(runtimeActions.setSessionId("demo-session"));
+store.dispatch(runtimeActions.setHallId("demo-hall"));
+store.dispatch(
+  runtimeActions.setCpForm({
+    K2582458: { text: "Seatmap Studio Demo" },
+    K2460125: { value: "2026-05-25 09:00" },
+    K2460124: { value: "2026-05-25 11:00" },
+    K2460459: { text: "Demo Hall" },
+  })
+);
 
 const render = (container: string) => {
   const rootElement = document.querySelector(container);
@@ -23,7 +25,7 @@ const render = (container: string) => {
   createRoot(rootElement).render(
     <ErrorBoundary
       onError={(error, errorInfo) => {
-        console.error('Error caught by boundary:', error, errorInfo);
+        console.error("Error caught by boundary:", error, errorInfo);
       }}
     >
       <Provider store={store}>
@@ -64,6 +66,6 @@ const render = (container: string) => {
   );
 };
 
-const container = '#root';
+const container = "#root";
 
 render(container);

@@ -470,8 +470,8 @@ export const findTemplateById = (state: SeatmapState, id?: string): TemplateReco
 };
 
 export const findTemplatesByKeyword = (state: SeatmapState, keyword?: string) => {
-  const normalized = String(keyword || "").trim().toLowerCase();
-  return normalized
-    ? state.templates.filter((item) => item.name.toLowerCase().includes(normalized))
-    : state.templates;
+  const normalized = String(keyword || "")
+    .trim()
+    .toLowerCase();
+  return normalized ? state.templates.filter((item) => item.name.toLowerCase().includes(normalized)) : state.templates;
 };

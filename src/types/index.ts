@@ -177,10 +177,12 @@ export const NodeDataSchema = z.union([
   CircleTableDataSchema,
   CircleChairDataSchema,
   SpaceElementDataSchema,
-  z.object({
-    nodeType: NodeTypeSchema,
-    // 允许其他扩展字段
-  }).passthrough(),
+  z
+    .object({
+      nodeType: NodeTypeSchema,
+      // 允许其他扩展字段
+    })
+    .passthrough(),
 ]);
 export type NodeData = z.infer<typeof NodeDataSchema>;
 
@@ -188,89 +190,107 @@ export type NodeData = z.infer<typeof NodeDataSchema>;
 // 节点 Schema
 // ============================================================================
 
-export const NodeAttributeSchema = z.object({
-  // 文本属性
-  text: z.object({
-    text: z.string().optional(),
-    fill: z.string().optional(),
-    fontSize: z.number().optional(),
-    fontFamily: z.string().optional(),
-    fontWeight: z.string().optional(),
-    fontStyle: z.string().optional(),
-    textAnchor: z.string().optional(),
-    textVerticalAnchor: z.string().optional(),
-  }).optional(),
-  
-  // 主体属性
-  body: z.object({
-    fill: z.string().optional(),
-    stroke: z.string().optional(),
-    strokeWidth: z.number().optional(),
-    rx: z.number().optional(),
-    ry: z.number().optional(),
-  }).optional(),
-  
-  // SVG 属性
-  svg: z.object({
-    fill: z.string().optional(),
-    width: z.number().optional(),
-    height: z.number().optional(),
-    x: z.number().optional(),
-    y: z.number().optional(),
-    style: z.string().optional(),
-  }).optional(),
-  
-  // 图片属性
-  image: z.object({
-    width: z.number().optional(),
-    height: z.number().optional(),
-    x: z.number().optional(),
-    y: z.number().optional(),
-    style: z.string().optional(),
-    "xlink:href": z.string().optional(),
-  }).optional(),
-  
-  // 标签属性
-  label: z.object({
-    text: z.string().optional(),
-    fill: z.string().optional(),
-    refY: z.number().optional(),
-  }).optional(),
-  
-  // 圆桌特殊属性
-  circle: z.object({}).optional(),
-  text1: z.object({
-    text: z.string().optional(),
-    fontSize: z.number().optional(),
-    fill: z.string().optional(),
-    fontFamily: z.string().optional(),
-    fontWeight: z.number().optional(),
-    width: z.number().optional(),
-    height: z.number().optional(),
-    letterSpacing: z.number().optional(),
-  }).optional(),
-  text2: z.object({
-    text: z.string().optional(),
-    fontSize: z.number().optional(),
-    fill: z.string().optional(),
-    y: z.number().optional(),
-  }).optional(),
-  
-  // XNode 属性（人员信息）
-  xnode: z.object({
-    key: z.string(),
-    title: z.string(),
-    subTitle: z.string().optional(),
-    otherName: z.string().optional(),
-    orgType: z.string().optional(),
-    row: z.number().optional(),
-    column: z.number().optional(),
-    circleChairName: z.string().optional(),
-    circleChairNameEn: z.string().optional(),
-  }).optional(),
-  
-  // 允许其他扩展属性
-}).passthrough();
+export const NodeAttributeSchema = z
+  .object({
+    // 文本属性
+    text: z
+      .object({
+        text: z.string().optional(),
+        fill: z.string().optional(),
+        fontSize: z.number().optional(),
+        fontFamily: z.string().optional(),
+        fontWeight: z.string().optional(),
+        fontStyle: z.string().optional(),
+        textAnchor: z.string().optional(),
+        textVerticalAnchor: z.string().optional(),
+      })
+      .optional(),
+
+    // 主体属性
+    body: z
+      .object({
+        fill: z.string().optional(),
+        stroke: z.string().optional(),
+        strokeWidth: z.number().optional(),
+        rx: z.number().optional(),
+        ry: z.number().optional(),
+      })
+      .optional(),
+
+    // SVG 属性
+    svg: z
+      .object({
+        fill: z.string().optional(),
+        width: z.number().optional(),
+        height: z.number().optional(),
+        x: z.number().optional(),
+        y: z.number().optional(),
+        style: z.string().optional(),
+      })
+      .optional(),
+
+    // 图片属性
+    image: z
+      .object({
+        width: z.number().optional(),
+        height: z.number().optional(),
+        x: z.number().optional(),
+        y: z.number().optional(),
+        style: z.string().optional(),
+        "xlink:href": z.string().optional(),
+      })
+      .optional(),
+
+    // 标签属性
+    label: z
+      .object({
+        text: z.string().optional(),
+        fill: z.string().optional(),
+        refY: z.number().optional(),
+      })
+      .optional(),
+
+    // 圆桌特殊属性
+    circle: z.object({}).optional(),
+    text1: z
+      .object({
+        text: z.string().optional(),
+        fontSize: z.number().optional(),
+        fill: z.string().optional(),
+        fontFamily: z.string().optional(),
+        fontWeight: z.number().optional(),
+        width: z.number().optional(),
+        height: z.number().optional(),
+        letterSpacing: z.number().optional(),
+      })
+      .optional(),
+    text2: z
+      .object({
+        text: z.string().optional(),
+        fontSize: z.number().optional(),
+        fill: z.string().optional(),
+        y: z.number().optional(),
+      })
+      .optional(),
+
+    // XNode 属性（人员信息）
+    xnode: z
+      .object({
+        key: z.string(),
+        title: z.string(),
+        subTitle: z.string().optional(),
+        otherName: z.string().optional(),
+        orgType: z.string().optional(),
+        row: z.number().optional(),
+        column: z.number().optional(),
+        circleChairName: z.string().optional(),
+        circleChairNameEn: z.string().optional(),
+      })
+      .optional(),
+
+    // 允许其他扩展属性
+  })
+  .passthrough();
 
 export const BaseNodeSchema = z.object({
   id: NodeIdSchema,

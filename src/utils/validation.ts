@@ -18,11 +18,7 @@ import {
 /**
  * 安全解析数据，返回解析结果或默认值
  */
-export function safeParse<T>(
-  schema: z.ZodType<T>,
-  data: unknown,
-  defaultValue: T
-): T {
+export function safeParse<T>(schema: z.ZodType<T>, data: unknown, defaultValue: T): T {
   const result = schema.safeParse(data);
   return result.success ? result.data : defaultValue;
 }
@@ -30,14 +26,10 @@ export function safeParse<T>(
 /**
  * 安全解析数据，返回解析结果或抛出详细错误
  */
-export function strictParse<T>(
-  schema: z.ZodType<T>,
-  data: unknown,
-  context: string = "Data validation"
-): T {
+export function strictParse<T>(schema: z.ZodType<T>, data: unknown, context: string = "Data validation"): T {
   const result = schema.safeParse(data);
   if (!result.success) {
-    const errors = result.error.errors.map(e => e.path.join('.') + ': ' + e.message).join('; ');
+    const errors = result.error.errors.map((e) => e.path.join(".") + ": " + e.message).join("; ");
     throw new Error(context + " failed: " + errors);
   }
   return result.data;
@@ -61,20 +53,20 @@ export function validateNodeType(type: unknown): boolean {
  * 验证椅子 ID 格式，返回行和列索引
  */
 export function parseChairIdt(idt: string): { row: number; column: number } | null {
-  if (!idt || typeof idt !== 'string') {
-    console.warn('Invalid chair idt: ' + idt + ', expected string');
+  if (!idt || typeof idt !== "string") {
+    console.warn("Invalid chair idt: " + idt + ", expected string");
     return null;
   }
 
-  const parts = idt.split('-');
+  const parts = idt.split("-");
   if (parts.length !== 2) {
-    console.warn('Invalid chair idt format: ' + idt + ", expected 'row-column'");
+    console.warn("Invalid chair idt format: " + idt + ", expected 'row-column'");
     return null;
   }
 
   const validFormat = /^\d+-\d+$/.test(idt);
   if (!validFormat) {
-    console.warn('Invalid chair idt format: ' + idt + ', must be digits separated by -');
+    console.warn("Invalid chair idt format: " + idt + ", must be digits separated by -");
     return null;
   }
 
@@ -83,7 +75,7 @@ export function parseChairIdt(idt: string): { row: number; column: number } | nu
   const column = parseInt(columnStr, 10);
 
   if (isNaN(row) || isNaN(column)) {
-    console.warn('Invalid chair idt numbers: ' + idt);
+    console.warn("Invalid chair idt numbers: " + idt);
     return null;
   }
 
@@ -91,7 +83,7 @@ export function parseChairIdt(idt: string): { row: number; column: number } | nu
     ChairIdtSchema.parse(idt);
     return { row, column };
   } catch (error) {
-    console.warn('Chair idt validation failed: ' + idt, error);
+    console.warn("Chair idt validation failed: " + idt, error);
     return null;
   }
 }
@@ -99,11 +91,13 @@ export function parseChairIdt(idt: string): { row: number; column: number } | nu
 /**
  * 验证并提取椅子行列信息
  */
-export function extractChairIndices(node: { data?: { idt?: string } }): { rowIndex: number; columnIndex: number } | null {
+export function extractChairIndices(node: {
+  data?: { idt?: string };
+}): { rowIndex: number; columnIndex: number } | null {
   const idt = node?.data?.idt;
-  const parsed = parseChairIdt(idt || '');
+  const parsed = parseChairIdt(idt || "");
   if (!parsed) return null;
-  
+
   return {
     rowIndex: parsed.row,
     columnIndex: parsed.column,
@@ -134,13 +128,9 @@ export function validateCircleChairData(data: unknown): boolean {
 /**
  * 验证 API 响应
  */
-export function validateAPIResponse<T>(
-  response: unknown,
-  schema: z.ZodType<T>,
-  context: string = "API response"
-): T {
+export function validateAPIResponse<T>(response: unknown, schema: z.ZodType<T>, context: string = "API response"): T {
   const basicResponse = safeParse(ResponseTypeSchema, response, { code: 500, message: "Invalid response" });
-  
+
   if (basicResponse.code && basicResponse.code !== 200) {
     throw new Error("API error [" + basicResponse.code + "]: " + basicResponse.message);
   }
@@ -164,7 +154,7 @@ export function validatePerson(data: unknown): boolean {
  */
 export function safeGet<T>(obj: any, path: string, defaultValue: T): T {
   try {
-    const value = path.split('.').reduce((acc, key) => acc?.[key], obj);
+    const value = path.split(".").reduce((acc, key) => acc?.[key], obj);
     return value !== undefined ? value : defaultValue;
   } catch {
     return defaultValue;
@@ -174,11 +164,7 @@ export function safeGet<T>(obj: any, path: string, defaultValue: T): T {
 /**
  * 批量验证数据数组
  */
-export function validateArray<T>(
-  schema: z.ZodType<T>,
-  items: unknown[],
-  context: string = "Array validation"
-): T[] {
+export function validateArray<T>(schema: z.ZodType<T>, items: unknown[], context: string = "Array validation"): T[] {
   const validItems: T[] = [];
   const errors: string[] = [];
 
@@ -187,13 +173,13 @@ export function validateArray<T>(
     if (result.success) {
       validItems.push(result.data);
     } else {
-      const error = result.error.errors.map(e => e.message).join(', ');
-      errors.push('[' + index + ']: ' + error);
+      const error = result.error.errors.map((e) => e.message).join(", ");
+      errors.push("[" + index + "]: " + error);
     }
   });
 
   if (errors.length > 0) {
-    console.warn(context + ' - Failed items:\n' + errors.join('\n'));
+    console.warn(context + " - Failed items:\n" + errors.join("\n"));
   }
 
   return validItems;
@@ -220,14 +206,14 @@ export function validatePosition(data: unknown): { x: number; y: number } | null
   });
 
   const result = schema.safeParse(data);
-  
+
   if (!result.success) {
     return null;
   }
 
   const { x, y } = result.data;
   // 确保返回非可选的类型
-  if (typeof x !== 'number' || typeof y !== 'number') {
+  if (typeof x !== "number" || typeof y !== "number") {
     return null;
   }
 
@@ -244,14 +230,14 @@ export function validateSize(data: unknown): { width: number; height: number } |
   });
 
   const result = schema.safeParse(data);
-  
+
   if (!result.success) {
     return null;
   }
 
   const { width, height } = result.data;
   // 确保返回非可选的类型
-  if (typeof width !== 'number' || typeof height !== 'number') {
+  if (typeof width !== "number" || typeof height !== "number") {
     return null;
   }
 
@@ -262,14 +248,14 @@ export function validateSize(data: unknown): { width: number; height: number } |
  * 类型守卫：检查是否为 X6 节点
  */
 export function isX6Node(obj: any): obj is { id: string; getData(): unknown } {
-  return typeof obj?.id === 'string' && typeof obj?.getData === 'function';
+  return typeof obj?.id === "string" && typeof obj?.getData === "function";
 }
 
 /**
  * 类型守卫：检查是否为 X6 图
  */
 export function isX6Graph(obj: any): obj is { getNodes(): any[]; getCells(): any[] } {
-  return typeof obj?.getNodes === 'function' && typeof obj?.getCells === 'function';
+  return typeof obj?.getNodes === "function" && typeof obj?.getCells === "function";
 }
 
 /**
@@ -280,7 +266,7 @@ export function generateValidationReport<T>(
   data: unknown
 ): { valid: boolean; data: T | null; errors: string[] } {
   const result = schema.safeParse(data);
-  
+
   if (result.success) {
     return {
       valid: true,
@@ -292,6 +278,6 @@ export function generateValidationReport<T>(
   return {
     valid: false,
     data: null,
-    errors: result.error.errors.map(e => e.path.join('.') + ': ' + e.message),
+    errors: result.error.errors.map((e) => e.path.join(".") + ": " + e.message),
   };
 }

@@ -35,14 +35,8 @@ interface IMyProps {
 const DragItem: React.FC<IMyProps> = ({ child }) => {
   const dragRef = useRef(null);
 
-  const { modalRef: matrixModalRef, FormModal: MatrixFormModal } = useFormModal(
-    { title: "矩阵配置" },
-    InitMatrixForm
-  );
-  const { modalRef: circleModalRef, FormModal: CircleFormModal } = useFormModal(
-    { title: "圆桌配置" },
-    InitCircleForm
-  );
+  const { modalRef: matrixModalRef, FormModal: MatrixFormModal } = useFormModal({ title: "矩阵配置" }, InitMatrixForm);
+  const { modalRef: circleModalRef, FormModal: CircleFormModal } = useFormModal({ title: "圆桌配置" }, InitCircleForm);
 
   useDrag(child, dragRef, {
     onDragStart: (e) => {
@@ -71,9 +65,7 @@ const DragItem: React.FC<IMyProps> = ({ child }) => {
           y <= stageRect.bottom
       );
 
-      if (
-        !inStage
-      ) {
+      if (!inStage) {
         return;
       }
 

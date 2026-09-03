@@ -102,9 +102,7 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
               message.warning("椅子至少一个!");
               return;
             } else {
-              const circleChairs = getNodeChildren(node).filter(
-                (child) => child.data?.nodeType === "circleChair"
-              );
+              const circleChairs = getNodeChildren(node).filter((child) => child.data?.nodeType === "circleChair");
               const lastChildren = circleChairs[circleChairs.length - 1];
               if (!lastChildren) {
                 return;

@@ -50,9 +50,7 @@ const baseProps = {
 };
 
 const iconMap: Record<IconName, React.ReactNode> = {
-  arrowLeft: (
-    <path {...baseProps} d="M14.5 12H4.5m0 0 4-4m-4 4 4 4" />
-  ),
+  arrowLeft: <path {...baseProps} d="M14.5 12H4.5m0 0 4-4m-4 4 4 4" />,
   statusReady: (
     <>
       <circle {...baseProps} cx="12" cy="12" r="8.5" />
@@ -98,7 +96,10 @@ const iconMap: Record<IconName, React.ReactNode> = {
   ),
   importTemplate: (
     <>
-      <path {...baseProps} d="M5.5 7.5a2.5 2.5 0 0 1 2.5-2.5h8a2.5 2.5 0 0 1 2.5 2.5v9a2.5 2.5 0 0 1-2.5 2.5h-8a2.5 2.5 0 0 1-2.5-2.5Z" />
+      <path
+        {...baseProps}
+        d="M5.5 7.5a2.5 2.5 0 0 1 2.5-2.5h8a2.5 2.5 0 0 1 2.5 2.5v9a2.5 2.5 0 0 1-2.5 2.5h-8a2.5 2.5 0 0 1-2.5-2.5Z"
+      />
       <path {...baseProps} d="m12 8 3 3-3 3m3-3H8" />
     </>
   ),
@@ -135,7 +136,10 @@ const iconMap: Record<IconName, React.ReactNode> = {
   ),
   palette: (
     <>
-      <path {...baseProps} d="M12 4.5c-4.7 0-8.5 3.2-8.5 7.8 0 3.8 2.9 6.7 6.6 6.7h1.4c1 0 1.8-.8 1.8-1.8 0-.5-.2-.9-.5-1.3-.2-.3-.3-.5-.3-.8 0-1 .8-1.8 1.8-1.8h1.7c3 0 5.5-2.3 5.5-5.2 0-4.7-4.5-8.2-9.5-8.2Z" />
+      <path
+        {...baseProps}
+        d="M12 4.5c-4.7 0-8.5 3.2-8.5 7.8 0 3.8 2.9 6.7 6.6 6.7h1.4c1 0 1.8-.8 1.8-1.8 0-.5-.2-.9-.5-1.3-.2-.3-.3-.5-.3-.8 0-1 .8-1.8 1.8-1.8h1.7c3 0 5.5-2.3 5.5-5.2 0-4.7-4.5-8.2-9.5-8.2Z"
+      />
       <circle {...baseProps} cx="8" cy="10" r="1" />
       <circle {...baseProps} cx="11" cy="8" r="1" />
       <circle {...baseProps} cx="15" cy="9" r="1" />
@@ -199,7 +203,10 @@ const iconMap: Record<IconName, React.ReactNode> = {
   ),
   sparkle: (
     <>
-      <path {...baseProps} d="m12 4.5 1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6Zm5 10 1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1Zm-9 2 1.1 2.8 2.8 1.1-2.8 1.1L8 24.2l-1.1-2.8-2.8-1.1 2.8-1.1Z" />
+      <path
+        {...baseProps}
+        d="m12 4.5 1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6Zm5 10 1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1Zm-9 2 1.1 2.8 2.8 1.1-2.8 1.1L8 24.2l-1.1-2.8-2.8-1.1 2.8-1.1Z"
+      />
     </>
   ),
   chevronRight: <path {...baseProps} d="m9 6 6 6-6 6" />,
@@ -253,7 +260,10 @@ const iconMap: Record<IconName, React.ReactNode> = {
   ),
   drag: (
     <>
-      <path {...baseProps} d="M12 4.5v15m-4.5-11.5L12 4.5 16.5 8m-9 8L12 19.5 16.5 16M4.5 12h15m-11.5-4.5L4.5 12 8 16.5m8-9L19.5 12 16 16.5" />
+      <path
+        {...baseProps}
+        d="M12 4.5v15m-4.5-11.5L12 4.5 16.5 8m-9 8L12 19.5 16.5 16M4.5 12h15m-11.5-4.5L4.5 12 8 16.5m8-9L19.5 12 16 16.5"
+      />
     </>
   ),
 };

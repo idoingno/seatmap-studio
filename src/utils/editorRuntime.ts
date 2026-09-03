@@ -66,23 +66,23 @@ export const ensureEditorInteractionRuntime = async (graph: Graph) => {
   );
 
   const selection = new Selection({
-      enabled: true,
-      filter(node: any) {
-        return (
-          node.data &&
-          ((node.data.nodeType === "matrixChair" && node.data.visible) ||
-            (node.data.nodeType === "circleChair" && node.data.visible))
-        );
-      },
-      multiple: true,
-      modifiers: ["ctrl", "meta"],
-      multipleSelectionModifiers: ["ctrl", "meta"],
-      strict: true,
-      pointerEvents: "none",
-      rubberband: true,
-      movable: true,
-      showNodeSelectionBox: true,
-    });
+    enabled: true,
+    filter(node: any) {
+      return (
+        node.data &&
+        ((node.data.nodeType === "matrixChair" && node.data.visible) ||
+          (node.data.nodeType === "circleChair" && node.data.visible))
+      );
+    },
+    multiple: true,
+    modifiers: ["ctrl", "meta"],
+    multipleSelectionModifiers: ["ctrl", "meta"],
+    strict: true,
+    pointerEvents: "none",
+    rubberband: true,
+    movable: true,
+    showNodeSelectionBox: true,
+  });
 
   graph.use(selection);
 

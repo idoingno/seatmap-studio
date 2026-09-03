@@ -15,8 +15,8 @@ const resolveHost = () =>
   window.location.pathname === "/"
     ? "/"
     : /\/$/.test(window.location.pathname)
-      ? window.location.pathname
-      : `${window.location.pathname}/`;
+    ? window.location.pathname
+    : `${window.location.pathname}/`;
 
 const getUrl = () => window.localStorage.getItem("seatmap-api-url") || `${resolveHost()}api/seatmap/invoke`;
 

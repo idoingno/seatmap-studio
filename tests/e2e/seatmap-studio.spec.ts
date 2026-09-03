@@ -53,7 +53,8 @@ test.describe("Seatmap Studio", () => {
         bottom: rect.bottom,
         width: rect.width,
         height: rect.height,
-        withinViewport: rect.top >= 0 && rect.left >= 0 && rect.right <= window.innerWidth && rect.bottom <= window.innerHeight,
+        withinViewport:
+          rect.top >= 0 && rect.left >= 0 && rect.right <= window.innerWidth && rect.bottom <= window.innerHeight,
       };
     }, text);
   };
@@ -61,7 +62,9 @@ test.describe("Seatmap Studio", () => {
   const createMatrix = async (page: Page, rows: string, columns: string) => {
     await expect(page.getByText("已同步到最新版本")).toBeVisible();
     await page.waitForFunction(
-      () => Boolean((window as any).__SEATMAP_STUDIO_GRAPH__) && typeof (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__ === "function",
+      () =>
+        Boolean((window as any).__SEATMAP_STUDIO_GRAPH__) &&
+        typeof (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__ === "function",
       undefined,
       { timeout: 30_000 }
     );
@@ -151,7 +154,11 @@ test.describe("Seatmap Studio", () => {
 
     await page.getByRole("button", { name: /上传座位配置/ }).click();
     await expect(page.getByText("上传配置")).toBeVisible();
-    await page.locator(".ant-modal").filter({ hasText: "上传配置" }).getByRole("button", { name: /提\s*交/ }).click();
+    await page
+      .locator(".ant-modal")
+      .filter({ hasText: "上传配置" })
+      .getByRole("button", { name: /提\s*交/ })
+      .click();
 
     await expect(page.getByText("请上传文件")).toBeVisible();
   });
@@ -164,7 +171,11 @@ test.describe("Seatmap Studio", () => {
     await expect(page.getByText("模板选择")).toBeVisible();
 
     await page.getByRole("button", { name: /Boardroom Demo/ }).click();
-    await page.locator(".ant-modal").filter({ hasText: "模板选择" }).getByRole("button", { name: /提\s*交/ }).click();
+    await page
+      .locator(".ant-modal")
+      .filter({ hasText: "模板选择" })
+      .getByRole("button", { name: /提\s*交/ })
+      .click();
     await expect(page.getByText("操作完成~")).toBeVisible();
 
     await page.getByText("上传座位配置").click();
@@ -174,7 +185,11 @@ test.describe("Seatmap Studio", () => {
       .filter({ hasText: "上传配置" })
       .locator('input[type="file"]')
       .setInputFiles(workbookPath);
-    await page.locator(".ant-modal").filter({ hasText: "上传配置" }).getByRole("button", { name: /提\s*交/ }).click();
+    await page
+      .locator(".ant-modal")
+      .filter({ hasText: "上传配置" })
+      .getByRole("button", { name: /提\s*交/ })
+      .click();
 
     await expect(page.getByText("操作完成~")).toBeVisible();
     await expect(page.getByText("上传配置")).not.toBeVisible();
@@ -215,7 +230,11 @@ test.describe("Seatmap Studio", () => {
     await expect(page.getByText("模板选择")).toBeVisible();
 
     await page.getByRole("button", { name: /Boardroom Demo/ }).click();
-    await page.locator(".ant-modal").filter({ hasText: "模板选择" }).getByRole("button", { name: /提\s*交/ }).click();
+    await page
+      .locator(".ant-modal")
+      .filter({ hasText: "模板选择" })
+      .getByRole("button", { name: /提\s*交/ })
+      .click();
 
     await expect(page.getByText("操作完成~")).toBeVisible();
     await expect(page.getByText("模板选择")).not.toBeVisible();
@@ -368,11 +387,19 @@ test.describe("Seatmap Studio", () => {
     await page.locator("header .middle").getByText("清空画布").click();
     await expect(page.getByText("清空配置")).toBeVisible();
     await page.getByRole("button", { name: "清空布局" }).click();
-    await page.locator(".ant-modal").filter({ hasText: "清空配置" }).getByRole("button", { name: /提\s*交/ }).click();
+    await page
+      .locator(".ant-modal")
+      .filter({ hasText: "清空配置" })
+      .getByRole("button", { name: /提\s*交/ })
+      .click();
 
-    await page.waitForFunction(() => ((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().length ?? 0) === 0, undefined, {
-      timeout: 15_000,
-    });
+    await page.waitForFunction(
+      () => ((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().length ?? 0) === 0,
+      undefined,
+      {
+        timeout: 15_000,
+      }
+    );
     await expect(page.getByText("第1排")).not.toBeVisible();
   });
 

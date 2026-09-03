@@ -82,13 +82,13 @@ const ColorPanel: React.FC<ColorPanelProps> = ({ setColorObj }) => {
 
         nodes &&
           nodes.forEach((element: any) => {
-            element.setData({ region: '--', color: 'A' });
+            element.setData({ region: "--", color: "A" });
           });
 
         newNodes.push({
           nodes,
-          s_region: '--',
-          s_color: 'A',
+          s_region: "--",
+          s_color: "A",
         });
 
         // 更新区域
@@ -103,7 +103,13 @@ const ColorPanel: React.FC<ColorPanelProps> = ({ setColorObj }) => {
 
       setColorData(newColorData);
 
-      setColorObj({ org: "", type: "edit", color: item.color === "#FFFFFF" ? "transparent" : item.color, name: item.name, sel: cellsIds });
+      setColorObj({
+        org: "",
+        type: "edit",
+        color: item.color === "#FFFFFF" ? "transparent" : item.color,
+        name: item.name,
+        sel: cellsIds,
+      });
 
       setLoading(false);
     }, 600);
@@ -129,7 +135,9 @@ const ColorPanel: React.FC<ColorPanelProps> = ({ setColorObj }) => {
                   type="button"
                   key={item.color}
                   onClick={() => changeCurColor(item)}
-                  className={`color-swatch${item.selected ? " is-selected" : ""}${item.color === "#FFFFFF" ? " is-empty" : ""}`}
+                  className={`color-swatch${item.selected ? " is-selected" : ""}${
+                    item.color === "#FFFFFF" ? " is-empty" : ""
+                  }`}
                   aria-label={item.name === "A" ? "清除座位背景色" : `应用区域颜色 ${item.name}`}
                   aria-pressed={Boolean(item.selected)}
                   style={{

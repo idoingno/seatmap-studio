@@ -11,11 +11,7 @@ import type { Graph } from "@antv/x6";
 import { CellView, Node, NodeView } from "@antv/x6";
 import { chairSvg } from "../config/Markup/chair";
 
-import {
-  matrixPreComputed,
-  parentParams,
-  parentProps,
-} from "./paramsComputed";
+import { matrixPreComputed, parentParams, parentProps } from "./paramsComputed";
 import { getGraph } from "../config/graphInstance";
 import store from "../store";
 import { runtimeActions } from "../store/runtimeSlice";
@@ -51,7 +47,13 @@ const CHAIR_MARKUP = [
   },
 ];
 
-const createMatrixChildren = (graph: Graph, groupData: parentProps, parentId: string, rows: number, columns: number) => {
+const createMatrixChildren = (
+  graph: Graph,
+  groupData: parentProps,
+  parentId: string,
+  rows: number,
+  columns: number
+) => {
   const children: Node[] = [];
   const chairBaseX = groupData.x + SPACE_SIZE + PARENTLEFTANDRIGHTSPACE;
   const rowTextX = groupData.x + SPACE_SIZE / 2;
@@ -276,7 +278,10 @@ const clampMatrixOrigin = (graph: Graph, x: number, y: number, width: number, he
     if (size + MATRIX_VIEWPORT_MARGIN * 2 >= areaSize) {
       return areaStart;
     }
-    return Math.min(Math.max(value, areaStart + MATRIX_VIEWPORT_MARGIN), areaStart + areaSize - size - MATRIX_VIEWPORT_MARGIN);
+    return Math.min(
+      Math.max(value, areaStart + MATRIX_VIEWPORT_MARGIN),
+      areaStart + areaSize - size - MATRIX_VIEWPORT_MARGIN
+    );
   };
 
   return {

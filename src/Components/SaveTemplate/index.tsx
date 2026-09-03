@@ -36,8 +36,7 @@ const SaveTemplate = ({ showTemplate }: SaveTemplateProps) => {
     setShow(false);
   };
 
-  const onFinish = (values: any) => {
-  };
+  const onFinish = (values: any) => {};
 
   return (
     <Modal

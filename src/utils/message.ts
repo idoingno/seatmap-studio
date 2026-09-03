@@ -36,8 +36,7 @@ const TOAST_ICONS: Record<MessageType, string> = {
     '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="#e25b5b"/><path d="M5.7 5.7l4.6 4.6M10.3 5.7l-4.6 4.6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>',
   warning:
     '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="#dfa32c"/><path d="M8 4.6v3.9" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="11" r="0.95" fill="#fff"/></svg>',
-  info:
-    '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="#4f85ff"/><circle cx="8" cy="5" r="0.95" fill="#fff"/><path d="M8 7.4v4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  info: '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="#4f85ff"/><circle cx="8" cy="5" r="0.95" fill="#fff"/><path d="M8 7.4v4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>',
 };
 
 const showToast = (type: MessageType, content: string, duration = DEFAULT_DURATION) => {

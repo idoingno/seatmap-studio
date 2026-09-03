@@ -21,7 +21,9 @@ const createMatrix = async (page: Page, rows = 3, columns = 4) => {
   );
   await page.waitForFunction(
     () =>
-      (window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().some((node: any) => node?.data?.nodeType === "matrixContainer"),
+      (window as any).__SEATMAP_STUDIO_GRAPH__
+        ?.getNodes?.()
+        .some((node: any) => node?.data?.nodeType === "matrixContainer"),
     undefined,
     { timeout: 30_000 }
   );
@@ -32,7 +34,9 @@ const createMatrix = async (page: Page, rows = 3, columns = 4) => {
 const matrixContainerExists = (page: Page) =>
   page.waitForFunction(
     () =>
-      (window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().some((node: any) => node?.data?.nodeType === "matrixContainer"),
+      (window as any).__SEATMAP_STUDIO_GRAPH__
+        ?.getNodes?.()
+        .some((node: any) => node?.data?.nodeType === "matrixContainer"),
     undefined,
     { timeout: 30_000 }
   );
@@ -71,16 +75,26 @@ test.describe("Storage adapters", () => {
     const exported = JSON.parse(await fs.readFile(downloadPath as string, "utf8"));
     expect(Array.isArray(exported.schema)).toBe(true);
     expect(exported.schema.length).toBeGreaterThan(0);
-    expect(exported.schema.every((item: any) => typeof item.id === "string" && typeof item.type === "string")).toBe(true);
+    expect(exported.schema.every((item: any) => typeof item.id === "string" && typeof item.type === "string")).toBe(
+      true
+    );
 
     // 清空画布
     await page.locator("header .middle").getByText("清空画布").click();
     await expect(page.getByText("清空配置")).toBeVisible();
     await page.getByRole("button", { name: "清空布局" }).click();
-    await page.locator(".ant-modal").filter({ hasText: "清空配置" }).getByRole("button", { name: /提\s*交/ }).click();
-    await page.waitForFunction(() => ((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().length ?? 0) === 0, undefined, {
-      timeout: 15_000,
-    });
+    await page
+      .locator(".ant-modal")
+      .filter({ hasText: "清空配置" })
+      .getByRole("button", { name: /提\s*交/ })
+      .click();
+    await page.waitForFunction(
+      () => ((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().length ?? 0) === 0,
+      undefined,
+      {
+        timeout: 15_000,
+      }
+    );
 
     // 导入刚导出的文件
     await page.getByTestId("import-layout-input").setInputFiles(downloadPath as string);
@@ -108,8 +122,12 @@ test.describe("Storage adapters", () => {
     // mock 后端不持久化：刷新后回到空画布（与历史 mockRequest 行为一致）
     await page.reload();
     await expect(page.getByText("已同步到最新版本")).toBeVisible();
-    await page.waitForFunction(() => ((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().length ?? 0) === 0, undefined, {
-      timeout: 30_000,
-    });
+    await page.waitForFunction(
+      () => ((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().length ?? 0) === 0,
+      undefined,
+      {
+        timeout: 30_000,
+      }
+    );
   });
 });

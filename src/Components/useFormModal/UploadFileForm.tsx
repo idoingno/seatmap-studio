@@ -160,11 +160,7 @@ const UploadFileForm = (
                     setSelectedFile(nextFile);
                   }}
                 />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="studio-upload-button"
-                >
+                <button type="button" onClick={() => fileInputRef.current?.click()} className="studio-upload-button">
                   <UploadOutlined style={{ marginRight: 6 }} />
                   {selectedFile ? "重新选择文件" : "上传座位"}
                 </button>

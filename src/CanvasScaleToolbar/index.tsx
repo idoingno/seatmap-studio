@@ -58,8 +58,7 @@ const CanvasScaleToolbar: React.FC<CanvasScaleToolbarProps> = ({ graph }) => {
 
     const syncStatus = () => {
       const nextZoom = typeof graph.zoom === "function" ? Math.round(graph.zoom() * 100) : 100;
-      const nextSelection =
-        typeof graph.getSelectedCells === "function" ? graph.getSelectedCells().length : 0;
+      const nextSelection = typeof graph.getSelectedCells === "function" ? graph.getSelectedCells().length : 0;
 
       setZoom(nextZoom);
       setSelectedCount(nextSelection);
@@ -104,7 +103,6 @@ const CanvasScaleToolbar: React.FC<CanvasScaleToolbarProps> = ({ graph }) => {
       default:
         break;
     }
-
   };
 
   return (

@@ -33,7 +33,7 @@ const defaultState = {
     nodeType: "",
   },
   isLoad: false,
-  showFullScreenLoading: false
+  showFullScreenLoading: false,
 };
 
 function reducer(state = defaultState, action: { type: string; val: any }) {
@@ -53,12 +53,12 @@ function reducer(state = defaultState, action: { type: string; val: any }) {
       // newState.isLoad = action.val;
       // break;
       return Object.assign({}, newState, {
-        isLoad: action.val
-      })
+        isLoad: action.val,
+      });
     case SHOW_FULL_SCREEN_LOADING:
       return Object.assign({}, newState, {
-        showFullScreenLoading: action.val
-      })
+        showFullScreenLoading: action.val,
+      });
 
     default:
       break;

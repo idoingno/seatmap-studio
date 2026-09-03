@@ -6,7 +6,8 @@ import { Graph } from "@antv/x6";
 import { CHAIR_SIZE, PARENTTOPANDBOTTOMHEIGHT, SPACE_SIZE } from "../../GlobalVar";
 import { patternSeat } from "../../assets";
 
-const NODE_FONT_FAMILY = '"Helvetica Neue", "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
+const NODE_FONT_FAMILY =
+  '"Helvetica Neue", "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
 // import type { CellView } from "@antv/x6";
 
 // const SyncNode = memo(() => {

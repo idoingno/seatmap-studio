@@ -3,12 +3,7 @@ import React, { useEffect, useImperativeHandle, useState } from "react";
 import "./index.less";
 import { tabItems, tabItems2 } from "./data";
 import type { CheckboxChangeEvent } from "antd/es/checkbox";
-import {
-  computePersonObj,
-  filterTree,
-  hasDuplicates,
-  personDataMap,
-} from "./treeData";
+import { computePersonObj, filterTree, hasDuplicates, personDataMap } from "./treeData";
 import type { ItemType, OrgInfoProps, TreeDataType } from "./types";
 import { isOutChair, setChairPerson } from "../../utils/util";
 import { getGraph } from "../../config/graphInstance";

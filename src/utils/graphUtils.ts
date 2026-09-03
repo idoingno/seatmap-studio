@@ -22,7 +22,8 @@ const martixParentAttrs = {
   },
 };
 
-const TEXT_FONT_FAMILY = '"Helvetica Neue", "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
+const TEXT_FONT_FAMILY =
+  '"Helvetica Neue", "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
 
 const STAGE_BODY_ATTRS = {
   stroke: "rgba(25, 118, 111, 0.34)",

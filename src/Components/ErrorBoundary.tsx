@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from "react";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -34,8 +34,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+
     // 记录到错误监控服务（如果可用）
     if (window.navigator.sendBeacon) {
       const errorData = JSON.stringify({
@@ -44,11 +44,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         componentStack: errorInfo.componentStack,
         timestamp: new Date().toISOString(),
       });
-      
+
       try {
-        window.navigator.sendBeacon('/api/errors', errorData);
+        window.navigator.sendBeacon("/api/errors", errorData);
       } catch (e) {
-        console.warn('Failed to send error to server:', e);
+        console.warn("Failed to send error to server:", e);
       }
     }
 
@@ -79,46 +79,46 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       // 默认错误 UI
       return (
-        <div style={{
-          padding: '20px',
-          margin: '20px',
-          border: '2px solid #ff4d4f',
-          borderRadius: '8px',
-          backgroundColor: '#fff2f0',
-          textAlign: 'center',
-        }}>
-          <h2 style={{ color: '#cf1322', margin: '0 0 10px 0' }}>
-            ⚠️ something went wrong
-          </h2>
-          <p style={{ color: '#555', margin: '0 0 10px 0' }}>
-            The application encountered an unexpected error.
-          </p>
+        <div
+          style={{
+            padding: "20px",
+            margin: "20px",
+            border: "2px solid #ff4d4f",
+            borderRadius: "8px",
+            backgroundColor: "#fff2f0",
+            textAlign: "center",
+          }}
+        >
+          <h2 style={{ color: "#cf1322", margin: "0 0 10px 0" }}>⚠️ something went wrong</h2>
+          <p style={{ color: "#555", margin: "0 0 10px 0" }}>The application encountered an unexpected error.</p>
           {this.state.error && (
-            <div style={{
-              padding: '10px',
-              margin: '10px 0',
-              backgroundColor: '#fff',
-              border: '1px solid #ffa39e',
-              borderRadius: '4px',
-              textAlign: 'left',
-              fontFamily: 'monospace',
-              fontSize: '12px',
-              overflow: 'auto',
-              maxHeight: '200px',
-            }}>
+            <div
+              style={{
+                padding: "10px",
+                margin: "10px 0",
+                backgroundColor: "#fff",
+                border: "1px solid #ffa39e",
+                borderRadius: "4px",
+                textAlign: "left",
+                fontFamily: "monospace",
+                fontSize: "12px",
+                overflow: "auto",
+                maxHeight: "200px",
+              }}
+            >
               <strong>Error:</strong> {this.state.error.message}
             </div>
           )}
           <button
             onClick={this.handleReset}
             style={{
-              padding: '8px 16px',
-              fontSize: '14px',
-              cursor: 'pointer',
-              backgroundColor: '#1890ff',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
+              padding: "8px 16px",
+              fontSize: "14px",
+              cursor: "pointer",
+              backgroundColor: "#1890ff",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
             }}
           >
             Try Again

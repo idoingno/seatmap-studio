@@ -9,7 +9,13 @@ import { getGraph } from "../../config/graphInstance";
 import store from "../../store";
 import { runtimeActions } from "../../store/runtimeSlice";
 import type { Node } from "@antv/x6";
-import { buildMatrixMenuIndex, getNodeChildren, resizeProscenium, resizeWindow, setAllCorridorColumnH } from "../../utils/util";
+import {
+  buildMatrixMenuIndex,
+  getNodeChildren,
+  resizeProscenium,
+  resizeWindow,
+  setAllCorridorColumnH,
+} from "../../utils/util";
 import AppIcon from "../../Components/AppIcon";
 import { delNode } from "../../utils/apiParams";
 import { handleCpApi } from "../../api";
@@ -294,82 +300,82 @@ export const MinusMenuNode = memo(() => {
   };
 
   const removeRightColumn = async () => {
-      // 获取场次Id
-      const sessionId = store.getState().runtime.sessionId;
+    // 获取场次Id
+    const sessionId = store.getState().runtime.sessionId;
 
-      const graph = getGraph();
+    const graph = getGraph();
 
-      // 获取所有节点
-      const nodes = graph.getNodes();
-      const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
-      const matrixIndex = buildMatrixMenuIndex(parent);
-      // 获取所有列
-      const columns = parent.data.columns;
-      markLocalGraphMutation();
+    // 获取所有节点
+    const nodes = graph.getNodes();
+    const parent = nodes.filter((ite: Node) => ite.data.nodeType === "matrixContainer")[0];
+    const matrixIndex = buildMatrixMenuIndex(parent);
+    // 获取所有列
+    const columns = parent.data.columns;
+    markLocalGraphMutation();
 
-      if (!validateRemoveOperation(columns, 2, "column")) return;
+    if (!validateRemoveOperation(columns, 2, "column")) return;
 
-      const lastColumns = matrixIndex.rowEnNodes;
-      const lastColumnsTopText = [matrixIndex.columnTopTextByIdx.get(columns - 1)].filter(Boolean) as Node[];
-      const lastColumnsBottomText = [matrixIndex.columnBottomTextByIdx.get(columns - 1)].filter(Boolean) as Node[];
-      const lastRowChair = matrixIndex.chairsByColumn.get(columns - 1) ?? [];
-      const lastRowSpace = [matrixIndex.columnSpaceByIdx.get(columns - 2)].filter(Boolean) as Node[];
+    const lastColumns = matrixIndex.rowEnNodes;
+    const lastColumnsTopText = [matrixIndex.columnTopTextByIdx.get(columns - 1)].filter(Boolean) as Node[];
+    const lastColumnsBottomText = [matrixIndex.columnBottomTextByIdx.get(columns - 1)].filter(Boolean) as Node[];
+    const lastRowChair = matrixIndex.chairsByColumn.get(columns - 1) ?? [];
+    const lastRowSpace = [matrixIndex.columnSpaceByIdx.get(columns - 2)].filter(Boolean) as Node[];
 
-      if (!hasAllMatrixAnchors(lastColumns, lastColumnsTopText, lastColumnsBottomText, lastRowChair)) {
-        return;
+    if (!hasAllMatrixAnchors(lastColumns, lastColumnsTopText, lastColumnsBottomText, lastRowChair)) {
+      return;
+    }
+    // 过滤出添加过人的节点
+    const hasPeronArr = matrixIndex.allChildren.filter(
+      (item) =>
+        item.attrs.xnode &&
+        item.data.nodeType === "matrixChair" &&
+        item.data.idt.split("-")[1] === (columns - 1).toString()
+    );
+
+    const removeArr = [...lastColumnsTopText, ...lastColumnsBottomText, ...lastRowChair, ...lastRowSpace];
+    const fs = lastRowSpace[0]?.size?.();
+    const offset = fs && fs.width > 6 ? MATRIX_OFFSET_SIZE_DISTANCE : MATRIX_OFFSET_DISTANCE;
+
+    runGraphBatch(graph, "matrix-remove-column-right", () => {
+      for (let i = 0; i < removeArr.length; i++) {
+        const element = removeArr[i];
+        parent.removeChild(element);
       }
-      // 过滤出添加过人的节点
-      const hasPeronArr = matrixIndex.allChildren.filter(
-        (item) =>
-          item.attrs.xnode &&
-          item.data.nodeType === "matrixChair" &&
-          item.data.idt.split("-")[1] === (columns - 1).toString()
-      );
 
-      const removeArr = [...lastColumnsTopText, ...lastColumnsBottomText, ...lastRowChair, ...lastRowSpace];
-      const fs = lastRowSpace[0]?.size?.();
-      const offset = fs && fs.width > 6 ? MATRIX_OFFSET_SIZE_DISTANCE : MATRIX_OFFSET_DISTANCE;
-
-      runGraphBatch(graph, "matrix-remove-column-right", () => {
-        for (let i = 0; i < removeArr.length; i++) {
-          const element = removeArr[i];
-          parent.removeChild(element);
-        }
-
-        const { width, height } = parent.size();
-        const pWidth = width - offset;
-        parent.setProp({
-          size: {
-            width: pWidth,
-            height: height,
-          },
-        });
-
-        store.dispatch(runtimeActions.setMatrixWidth(pWidth));
-        setAllCorridorColumnH(nodes, "aisleRowSpace", pWidth);
-
-        lastColumns.forEach((element) => {
-          const { x, y } = element.getPosition();
-          element.position(x - offset, y);
-        });
-
-        parent.setData({ columns: columns - 1 });
+      const { width, height } = parent.size();
+      const pWidth = width - offset;
+      parent.setProp({
+        size: {
+          width: pWidth,
+          height: height,
+        },
       });
-      syncGraphPerformanceMode(graph);
 
-      await updateGraphicsForParent(parent, sessionId);
+      store.dispatch(runtimeActions.setMatrixWidth(pWidth));
+      setAllCorridorColumnH(nodes, "aisleRowSpace", pWidth);
 
-      await updateNodesForParent(getNodeChildren(parent), sessionId, parent);
+      lastColumns.forEach((element) => {
+        const { x, y } = element.getPosition();
+        element.position(x - offset, y);
+      });
 
-      const delNodeParams = delNode(removeArr, sessionId);
-      await handleCpApi({ params: delNodeParams, code: "seat" }, true);
+      parent.setData({ columns: columns - 1 });
+    });
+    syncGraphPerformanceMode(graph);
 
-      if (hasPeronArr && hasPeronArr.length > 0) {
-        for (let i = 0; i < hasPeronArr.length; i++) {
-          const element: any = hasPeronArr[i];
-          store.dispatch(subAction(element.attrs.xnode.key));
-        }
+    await updateGraphicsForParent(parent, sessionId);
+
+    await updateNodesForParent(getNodeChildren(parent), sessionId, parent);
+
+    const delNodeParams = delNode(removeArr, sessionId);
+    await handleCpApi({ params: delNodeParams, code: "seat" }, true);
+
+    if (hasPeronArr && hasPeronArr.length > 0) {
+      for (let i = 0; i < hasPeronArr.length; i++) {
+        const element: any = hasPeronArr[i];
+        store.dispatch(subAction(element.attrs.xnode.key));
       }
+    }
   };
 
   useLayoutEffect(() => {

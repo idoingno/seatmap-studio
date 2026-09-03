@@ -52,15 +52,15 @@ export const getNodeChildren = (parent: Node | null | undefined): Node[] => {
   }
 
   const allChildren = new Map<string, Node>();
-  const directChildren = ((parent as Node & { children?: Node[] } | null | undefined)?.children ?? []).filter(
+  const directChildren = ((parent as (Node & { children?: Node[] }) | null | undefined)?.children ?? []).filter(
     Boolean
   ) as Node[];
-  const nestedChildren = (((parent.getChildren() as unknown as Node[] | null) ?? []).filter(Boolean) as Node[]);
+  const nestedChildren = ((parent.getChildren() as unknown as Node[] | null) ?? []).filter(Boolean) as Node[];
   const scannedChildren = getGraph()
     .getNodes()
     .filter((node) => {
       const currentNode = node as Node;
-      const currentParent = currentNode.getParent?.() ?? ((currentNode as Node & { parent?: Node }).parent ?? null);
+      const currentParent = currentNode.getParent?.() ?? (currentNode as Node & { parent?: Node }).parent ?? null;
       return currentParent?.id === parent.id;
     }) as Node[];
 
@@ -208,7 +208,7 @@ export const sliceText = (str: string) => {
 
 export const isOutChair = (p1: pProps, chairArr: any) => {
   if (!Array.isArray(chairArr)) {
-    console.warn('isOutChair: chairArr is not an array');
+    console.warn("isOutChair: chairArr is not an array");
     return { flag: false, element: null };
   }
 
@@ -243,9 +243,9 @@ export const setChairPerson = (node: any, item: any) => {
     const getAttr = () => {
       if (nodeType === "matrixChair") {
         const { idt } = node.data;
-        const parsed = parseChairIdt(idt || '');
+        const parsed = parseChairIdt(idt || "");
         if (!parsed) {
-          console.warn('Invalid chair idt in setChairPerson:', idt);
+          console.warn("Invalid chair idt in setChairPerson:", idt);
           return { row: 1, column: 1 };
         }
         return {
@@ -500,8 +500,8 @@ export function time(time = +new Date()) {
 }
 
 export const findColor = (name: string) => {
-  const color = ColorArr.find((item) => item.name === name)
-  return name === 'A' ? 'transparent' : color.color || ''
+  const color = ColorArr.find((item) => item.name === name);
+  return name === "A" ? "transparent" : color.color || "";
 };
 
 export const base64ToFile = (urlData: string) => {

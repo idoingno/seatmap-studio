@@ -188,7 +188,6 @@ const App = ({ closeApp }: AppProps) => {
     customNodeCollapsePanelRef.current?.getData?.();
   }, []);
 
-
   useEffect(() => {
     const graph = graphInstance;
     if (!graph) {
@@ -239,7 +238,12 @@ const App = ({ closeApp }: AppProps) => {
 
   return (
     <div className={`${prefixCls} seatmap-studio-shell`}>
-      <Spin spinning={loading} delay={500} wrapperClassName="spin-wrap seatmap-studio-spin" tip="Seatmap Studio 正在装载工作台...">
+      <Spin
+        spinning={loading}
+        delay={500}
+        wrapperClassName="spin-wrap seatmap-studio-spin"
+        tip="Seatmap Studio 正在装载工作台..."
+      >
         <div className="seatmap-studio-frame">
           <Suspense fallback={<div className="seatmap-header-skeleton" />}>
             <CustomNodeHeader

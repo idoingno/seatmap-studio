@@ -48,7 +48,6 @@ export const showFullScreenLoadingAction = (val: boolean) => ({
   val,
 });
 
-
 export const showTimeAction = (val: string) => ({
   type: SHOW_TIME,
   val,

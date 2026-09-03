@@ -145,11 +145,7 @@ const ensureMenuHook = async (page, shape, hookName) => {
     { nextShape: shape }
   );
 
-  await page.waitForFunction(
-    (nextHookName) => typeof window[nextHookName] === "function",
-    hookName,
-    { timeout: 5000 }
-  );
+  await page.waitForFunction((nextHookName) => typeof window[nextHookName] === "function", hookName, { timeout: 5000 });
 };
 
 const measureScenario = async (page, scenario) => {
@@ -262,7 +258,9 @@ const assertScenario = (result, scenario) => {
   if (result.removeRowTopDurationMs >= scenario.maxRemoveRowTopDurationMs)
     failures.push(`removeRowTopDurationMs ${result.removeRowTopDurationMs} >= ${scenario.maxRemoveRowTopDurationMs}`);
   if (result.addColumnLeftDurationMs >= scenario.maxAddColumnLeftDurationMs)
-    failures.push(`addColumnLeftDurationMs ${result.addColumnLeftDurationMs} >= ${scenario.maxAddColumnLeftDurationMs}`);
+    failures.push(
+      `addColumnLeftDurationMs ${result.addColumnLeftDurationMs} >= ${scenario.maxAddColumnLeftDurationMs}`
+    );
   if (result.removeColumnLeftDurationMs >= scenario.maxRemoveColumnLeftDurationMs)
     failures.push(
       `removeColumnLeftDurationMs ${result.removeColumnLeftDurationMs} >= ${scenario.maxRemoveColumnLeftDurationMs}`

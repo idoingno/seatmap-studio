@@ -57,10 +57,7 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
     UploadFileForm
   );
 
-  const { modalRef: UserModalRef, FormModal: UserModal } = useFormModal(
-    { title: "模板配置" },
-    UserForm
-  );
+  const { modalRef: UserModalRef, FormModal: UserModal } = useFormModal({ title: "模板配置" }, UserForm);
 
   const toEmpty = () => {
     LayoutClearModalRef.current.open();
@@ -436,13 +433,13 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
             <span className="action-text-group">
               <span className="action-eyebrow">Export</span>
               <span className="action-label">
-            {imgLoading ? (
-              <>
+                {imgLoading ? (
+                  <>
                     <LoadingOutlined style={{ marginRight: "5px" }} /> 导出中...
-              </>
-            ) : (
-                    <span>导出座位图</span>
-            )}
+                  </>
+                ) : (
+                  <span>导出座位图</span>
+                )}
               </span>
             </span>
           </button>
@@ -451,13 +448,13 @@ const CustomNodeHeader: React.FC<PageLoadingProps> = ({
             <span className="action-text-group">
               <span className="action-eyebrow">Template</span>
               <span className="action-label">
-            {templateLoading ? (
-              <>
+                {templateLoading ? (
+                  <>
                     <LoadingOutlined style={{ marginRight: "5px" }} /> 获取图像...
-              </>
-            ) : (
-                    <span>另存为模板</span>
-            )}
+                  </>
+                ) : (
+                  <span>另存为模板</span>
+                )}
               </span>
             </span>
           </button>

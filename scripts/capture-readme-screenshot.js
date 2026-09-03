@@ -61,7 +61,11 @@ const run = async () => {
     await page.getByText("引入模板").click();
     await page.getByText("模板选择").waitFor();
     await page.getByRole("button", { name: /Boardroom Demo/ }).click();
-    await page.locator(".ant-modal").filter({ hasText: "模板选择" }).getByRole("button", { name: /提\s*交/ }).click();
+    await page
+      .locator(".ant-modal")
+      .filter({ hasText: "模板选择" })
+      .getByRole("button", { name: /提\s*交/ })
+      .click();
     await page.getByText("操作完成~").waitFor();
     await page.waitForTimeout(900);
 

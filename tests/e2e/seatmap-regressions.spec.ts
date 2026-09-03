@@ -3,13 +3,19 @@ import { expect, Page, test } from "@playwright/test";
 const createMatrix = async (page: Page, rows: number, columns: number, x = 240, y = 120) => {
   await expect(page.getByText("已同步到最新版本")).toBeVisible();
   await page.waitForFunction(
-    () => Boolean((window as any).__SEATMAP_STUDIO_GRAPH__) && typeof (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__ === "function",
+    () =>
+      Boolean((window as any).__SEATMAP_STUDIO_GRAPH__) &&
+      typeof (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__ === "function",
     undefined,
     { timeout: 30_000 }
   );
-  await page.waitForFunction(() => ((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().length ?? 0) === 0, undefined, {
-    timeout: 30_000,
-  });
+  await page.waitForFunction(
+    () => ((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().length ?? 0) === 0,
+    undefined,
+    {
+      timeout: 30_000,
+    }
+  );
 
   await page.evaluate(
     async ({ expectedRows, expectedColumns, matrixX, matrixY }) => {
@@ -43,7 +49,11 @@ const loadTemplate = async (page: Page, templateName: string) => {
   await page.getByText("引入模板").click();
   await expect(page.getByText("模板选择")).toBeVisible();
   await page.getByRole("button", { name: new RegExp(templateName) }).click();
-  await page.locator(".ant-modal").filter({ hasText: "模板选择" }).getByRole("button", { name: /提\s*交/ }).click();
+  await page
+    .locator(".ant-modal")
+    .filter({ hasText: "模板选择" })
+    .getByRole("button", { name: /提\s*交/ })
+    .click();
   await expect(page.getByText("操作完成~")).toBeVisible();
   await expect(page.getByText("模板选择")).not.toBeVisible();
   await expect(page.getByText("第1排")).toBeVisible();
@@ -58,12 +68,7 @@ const capturePageErrors = (page: Page) => {
   return pageErrors;
 };
 
-const openMatrixMenu = async (
-  page: Page,
-  shape: "add-menu-react-node" | "minus-menu-react-node",
-  x = 320,
-  y = 160
-) => {
+const openMatrixMenu = async (page: Page, shape: "add-menu-react-node" | "minus-menu-react-node", x = 320, y = 160) => {
   const anchor = await page.evaluate(
     ({ menuShape, localX, localY }) => {
       const graph = (window as any).__SEATMAP_STUDIO_GRAPH__;
@@ -336,7 +341,9 @@ test.describe("Seatmap Studio regressions", () => {
     });
 
     // 菜单稳定在点击点附近，且之后不因画布交互“跳位”（就是用户看到的不显示/延迟）。
-    expect(Math.abs(settle.after.x - settle.before.x) + Math.abs(settle.after.y - settle.before.y)).toBeLessThanOrEqual(4);
+    expect(Math.abs(settle.after.x - settle.before.x) + Math.abs(settle.after.y - settle.before.y)).toBeLessThanOrEqual(
+      4
+    );
     expect(Math.abs(settle.after.x - tool.x)).toBeLessThanOrEqual(90);
     expect(Math.abs(settle.after.y - tool.y)).toBeLessThanOrEqual(90);
   });
@@ -386,9 +393,7 @@ test.describe("Seatmap Studio regressions", () => {
       const parent = graph.getNodes().find((node: any) => node?.data?.nodeType === "matrixContainer");
       const children = parent
         .getChildren()
-        .filter((node: any) =>
-          ["matrixChair", "matrixRows", "matrixColumnTopNum"].includes(node?.data?.nodeType)
-        )
+        .filter((node: any) => ["matrixChair", "matrixRows", "matrixColumnTopNum"].includes(node?.data?.nodeType))
         .slice(0, 6);
       const parentPosition = parent.getPosition();
       const parentBox = parent.getBBox();
@@ -432,8 +437,7 @@ test.describe("Seatmap Studio regressions", () => {
     expect(movement.parent.dy).toBeGreaterThan(50);
     expect(
       movement.children.every(
-        (child: { dx: number; dy: number }) =>
-          child.dx === movement.parent.dx && child.dy === movement.parent.dy
+        (child: { dx: number; dy: number }) => child.dx === movement.parent.dx && child.dy === movement.parent.dy
       )
     ).toBe(true);
     expect(pageErrors).toEqual([]);
@@ -528,19 +532,13 @@ test.describe("Seatmap Studio regressions", () => {
         .getNodes()
         .find(
           (node: any) =>
-            node?.data?.nodeType === "matrixChair" &&
-            node.id !== sourceId &&
-            node?.data?.visible &&
-            !node?.attrs?.xnode
+            node?.data?.nodeType === "matrixChair" && node.id !== sourceId && node?.data?.visible && !node?.attrs?.xnode
         );
       const sourceBox = source.getBBox();
       const destinationBox = destination.getBBox();
       return {
         destinationId: destination.id,
-        sourcePoint: graph.localToClient(
-          sourceBox.x + sourceBox.width / 2,
-          sourceBox.y + sourceBox.height / 2
-        ),
+        sourcePoint: graph.localToClient(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2),
         destinationPoint: graph.localToClient(
           destinationBox.x + destinationBox.width / 2,
           destinationBox.y + destinationBox.height / 2
@@ -667,9 +665,7 @@ test.describe("Seatmap Studio regressions", () => {
     expect(movement.delta.y).toBeGreaterThan(40);
     expect(
       movement.childDeltas.every(
-        (child: any) =>
-          Math.abs(child.x - movement.delta.x) < 0.01 &&
-          Math.abs(child.y - movement.delta.y) < 0.01
+        (child: any) => Math.abs(child.x - movement.delta.x) < 0.01 && Math.abs(child.y - movement.delta.y) < 0.01
       )
     ).toBe(true);
 
@@ -835,10 +831,7 @@ test.describe("Seatmap Studio regressions", () => {
     const removeTool = page.locator('[data-tool-name="button-remove"]');
     await expect(removeTool).toBeVisible();
     await removeTool.click();
-    await page.waitForFunction(
-      (id) => !(window as any).__SEATMAP_STUDIO_GRAPH__?.getCellById?.(id),
-      stageNode.id
-    );
+    await page.waitForFunction((id) => !(window as any).__SEATMAP_STUDIO_GRAPH__?.getCellById?.(id), stageNode.id);
 
     expect(pageErrors).toEqual([]);
   });
@@ -916,9 +909,13 @@ test.describe("Seatmap Studio regressions", () => {
 
     await page.goto("/");
     await expect(page.getByText("已同步到最新版本")).toBeVisible();
-    await page.waitForFunction(() => ((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().length ?? 0) === 0, undefined, {
-      timeout: 30_000,
-    });
+    await page.waitForFunction(
+      () => ((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().length ?? 0) === 0,
+      undefined,
+      {
+        timeout: 30_000,
+      }
+    );
 
     const graphBox = await page.locator(".x6-graph").boundingBox();
     expect(graphBox).not.toBeNull();
@@ -953,13 +950,19 @@ test.describe("Seatmap Studio regressions", () => {
     await page.goto("/");
     await expect(page.getByText("已同步到最新版本")).toBeVisible();
     await page.waitForFunction(
-      () => Boolean((window as any).__SEATMAP_STUDIO_GRAPH__) && typeof (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__ === "function",
+      () =>
+        Boolean((window as any).__SEATMAP_STUDIO_GRAPH__) &&
+        typeof (window as any).__SEATMAP_STUDIO_CREATE_MATRIX__ === "function",
       undefined,
       { timeout: 30_000 }
     );
-    await page.waitForFunction(() => ((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().length ?? 0) === 0, undefined, {
-      timeout: 30_000,
-    });
+    await page.waitForFunction(
+      () => ((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().length ?? 0) === 0,
+      undefined,
+      {
+        timeout: 30_000,
+      }
+    );
 
     const area = await page.evaluate(() => {
       const graphArea = (window as any).__SEATMAP_STUDIO_GRAPH__.getGraphArea();
@@ -969,7 +972,12 @@ test.describe("Seatmap Studio regressions", () => {
     await createMatrix(page, 4, 8, area.x + area.width - 12, area.y + area.height - 12);
 
     await page.waitForFunction(
-      () => Boolean((window as any).__SEATMAP_STUDIO_GRAPH__?.getNodes?.().find((node: any) => node?.data?.nodeType === "matrixContainer")),
+      () =>
+        Boolean(
+          (window as any).__SEATMAP_STUDIO_GRAPH__
+            ?.getNodes?.()
+            .find((node: any) => node?.data?.nodeType === "matrixContainer")
+        ),
       undefined,
       { timeout: 30_000 }
     );
