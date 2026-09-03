@@ -7,6 +7,13 @@ import { ErrorBoundary } from "./Components/ErrorBoundary";
 
 const App = React.lazy(() => import("./App"));
 
+// 本地联调/ e2e 用：仅在 localhost 暴露 store 与 runtimeActions，
+// 供宿主注入演示场次、驱动 session 切换类回归用例。
+if (typeof window !== "undefined" && ["127.0.0.1", "localhost"].includes(window.location.hostname)) {
+  (window as any).__SEATMAP_STUDIO_STORE__ = store;
+  (window as any).__SEATMAP_STUDIO_RUNTIME_ACTIONS__ = runtimeActions;
+}
+
 store.dispatch(runtimeActions.setSessionId("demo-session"));
 store.dispatch(runtimeActions.setHallId("demo-hall"));
 store.dispatch(

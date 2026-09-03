@@ -1,7 +1,7 @@
 import { expect, Page, test } from "@playwright/test";
 
 const createMatrix = async (page: Page, rows: number, columns: number, x = 240, y = 120) => {
-  await expect(page.getByText("已同步到最新版本")).toBeVisible();
+  await expect(page.getByText(/已同步到最新版本|已保存 /)).toBeVisible();
   await page.waitForFunction(
     () =>
       Boolean((window as any).__SEATMAP_STUDIO_GRAPH__) &&
@@ -993,6 +993,83 @@ test.describe("Seatmap Studio regressions", () => {
     expect(bbox.y).toBeGreaterThanOrEqual(area.y - 1);
     expect(bbox.right).toBeLessThanOrEqual(area.x + area.width + 1);
     expect(bbox.bottom).toBeLessThanOrEqual(area.y + area.height + 1);
+
+    expect(pageErrors).toEqual([]);
+  });
+
+  test("rebinds graph event handlers to the new session after a host session switch", async ({ page }) => {
+    const pageErrors = capturePageErrors(page);
+
+    // 本地存储后端只有一个布局桶，sessionId 不参与寻址;
+    // 事件处理器闭包的 sessionId 只在发给远端网关的请求里可观察——
+    // 因此本用例切到 remote 模式并拦截网关请求，断言写请求所携带的场次。
+    const seen: { type: string; sessionId: string }[] = [];
+
+    await page.addInitScript(() => {
+      window.localStorage.setItem("seatmap-api-mode", "remote");
+      window.localStorage.setItem("seatmap-api-url", `${window.location.origin}/api/seatmap/invoke`);
+      window.localStorage.setItem("seatmap-api-codes", JSON.stringify({ seat: "S", person: "P", template: "T" }));
+    });
+
+    await page.route("**/api/seatmap/invoke", async (route) => {
+      const body = JSON.parse(route.request().postData() ?? "{}");
+      const params: any = body?.invokeParam ?? {};
+      seen.push({ type: params.type ?? "", sessionId: params.sessionId ?? "" });
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({
+          code: 200,
+          subMsgType: "success",
+          // 超集响应形状，覆盖所有消费方的取值路径
+          data: { response: { schema: [], result: [], subList: [], dataList: [], total: 0 } },
+        }),
+      });
+    });
+
+    await page.goto("/");
+    await expect(page.getByText(/已同步到最新版本|已保存 /)).toBeVisible();
+
+    // 场次 A（demo-session）：写入请求应带 demo-session
+    await createMatrix(page, 3, 4, 240, 120);
+    await expect.poll(() => seen.filter((r) => r.type === "graph").length, { timeout: 30_000 }).toBeGreaterThan(0);
+    const writesAfterA = seen.filter((r) => r.type === "graph");
+    expect(writesAfterA[writesAfterA.length - 1].sessionId).toBe("demo-session");
+
+    // 宿主切换场次：B 的查询应到达网关；B 空布局先把画布清空（create 内部会等这一清空发生）
+    await page.evaluate(() =>
+      (window as any).__SEATMAP_STUDIO_STORE__.dispatch(
+        (window as any).__SEATMAP_STUDIO_RUNTIME_ACTIONS__.setSessionId("e2e-session-b")
+      )
+    );
+    await expect
+      .poll(() => seen.some((r) => r.type === "query" && r.sessionId === "e2e-session-b"), { timeout: 30_000 })
+      .toBe(true);
+
+    // 场次 B 建阵后用真实鼠标拖拽移动矩阵：node:moved 只在用户拖拽时触发，
+    // 走 GraphBehavior 的事件处理器——useEffect([graphInstance, sessionId]) 重绑闭包后，
+    // 写请求必须沿用 e2e-session-b；若仍是旧闭包则会以 demo-session 写入（核心断言，见 a66b1ad）
+    await createMatrix(page, 3, 4, 240, 120);
+    const writesBeforeMove = seen.length;
+    const dragOrigin = await page.evaluate(() => {
+      const graph = (window as any).__SEATMAP_STUDIO_GRAPH__;
+      const container = graph.getNodes().find((node: any) => node?.data?.nodeType === "matrixContainer");
+      const { x, y } = container.position();
+      // 位置靠容器内边缘上方内边距区，避免落在座位/行标签子节点上
+      const point = graph.localToClient(x + 12, y + 12);
+      return { x: point.x, y: point.y };
+    });
+    await page.mouse.move(dragOrigin.x, dragOrigin.y);
+    await page.mouse.down();
+    await page.mouse.move(dragOrigin.x + 160, dragOrigin.y + 120, { steps: 8 });
+    await page.mouse.up();
+    await expect
+      .poll(() => seen.slice(writesBeforeMove).filter((r) => r.type === "graph").length, { timeout: 30_000 })
+      .toBeGreaterThan(0);
+
+    const moveWrites = seen.slice(writesBeforeMove).filter((r) => r.type === "graph");
+    expect(moveWrites.some((r) => r.sessionId === "e2e-session-b")).toBe(true);
+    // 回归点：重绑失效的旧实现会把移动写进宿主切换前的场次
+    expect(moveWrites.some((r) => r.sessionId === "demo-session")).toBe(false);
 
     expect(pageErrors).toEqual([]);
   });
