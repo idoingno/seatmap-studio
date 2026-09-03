@@ -5,10 +5,9 @@ import { Graph } from "x6-graph/react";
 import { GraphBehavior } from "./GraphBehavior";
 import CanvasScaleToolbar from "./CanvasScaleToolbar";
 import { scaling, mousewheel, panning, interacting, background, translating, embedding } from "./config/graphOptions";
-import { setGraphs } from "./config/graphInstance";
+import { setGraph as installSharedGraph } from "./config/graphInstance";
 import toDrop from "./toDrop";
 
-// import "./style.less";
 import { querySeatInfo } from "./utils/apiParams";
 import { ResponseType, handleCpApi } from "./api";
 import { renderGraph } from "./utils/graphUtils";
@@ -196,7 +195,7 @@ const App = ({ closeApp }: AppProps) => {
     let cancelled = false;
     let interactionTimer: number | undefined;
 
-    setGraphs(graph);
+    installSharedGraph(graph);
 
     (async () => {
       try {

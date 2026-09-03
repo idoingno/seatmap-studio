@@ -7,7 +7,7 @@ import type { Graph } from "@antv/x6";
 
 let graph: Graph = null;
 
-export function setGraphs(val: any) {
+export function setGraph(val: any) {
   graph = val;
   if (typeof window !== "undefined" && ["127.0.0.1", "localhost"].includes(window.location.hostname)) {
     (window as any).__SEATMAP_STUDIO_GRAPH__ = val;
