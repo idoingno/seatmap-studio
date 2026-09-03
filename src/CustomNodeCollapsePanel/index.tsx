@@ -2,8 +2,6 @@ import React, { Suspense, useEffect, useImperativeHandle, useRef, useState } fro
 import DragMaterial from "./DragMaterial";
 import { materialsForDragState, panelType } from "../config/materials";
 import "./index.less";
-import store from "../store";
-import { addDargAction } from "../store/actionCreators";
 import { useSelector } from "react-redux";
 import { EventEmitter } from "ahooks/lib/useEventEmitter";
 import useFormModal from "../Components/useFormModal";

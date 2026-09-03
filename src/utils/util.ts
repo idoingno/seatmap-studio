@@ -1,16 +1,9 @@
-import { Graph, Node } from "@antv/x6";
+import { Node } from "@antv/x6";
 import { ColorArr } from "../config/constants";
 import { getGraph } from "../config/graphInstance";
 import store from "../store";
 import { runtimeActions } from "../store/runtimeSlice";
-import {
-  AISLE_DEFAULT_SIZE,
-  AISLE_SIZE,
-  CHAIR_SIZE,
-  MATRIX_OFFSET_DISTANCE,
-  MATRIX_OFFSET_SIZE_DISTANCE,
-  SPACE_SIZE,
-} from "../GlobalVar";
+import { AISLE_DEFAULT_SIZE, MATRIX_OFFSET_DISTANCE, MATRIX_OFFSET_SIZE_DISTANCE } from "../GlobalVar";
 
 import { updateGraphics } from "./apiParams";
 import { parseChairIdt } from "./validation";
@@ -379,7 +372,7 @@ export const parentAddChair = (data: Node[], row: number, direction: string) => 
 
 export const parentAddRoworColumn = (params: ParamsProps) => {
   const graph = getGraph();
-  const { data, shape, label, idt, idx, direction } = params;
+  const { data, shape, idt, idx, direction } = params;
   const element = data[0];
   const { x, y } = element.getPosition();
   const parent = element.getParent();

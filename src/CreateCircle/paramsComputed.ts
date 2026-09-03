@@ -1,7 +1,5 @@
 import { CHAIR_SIZE, PARENT_EXTRA_SPACE } from "../GlobalVar";
-import { patternSeat } from "../assets";
 import store from "../store";
-import { chairSvg } from "../config/Markup/chair";
 
 interface ParentDataType {
   width?: number;
@@ -18,12 +16,6 @@ interface circleDataType {
   tableRealIdx?: number;
   chairIds?: number;
 }
-
-const matrixCircle = () => {
-  const nums = 26;
-  const rows = Math.floor(nums / 10);
-  const columns = nums % 10;
-};
 
 // 圆桌数据计算
 export const CirclePreComputed = (x: number, y: number, i: number) => {

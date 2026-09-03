@@ -1,4 +1,4 @@
-import { Cell, CellView, Graph, Node, NodeView } from "@antv/x6";
+import { CellView, Graph, Node, NodeView } from "@antv/x6";
 import { getGraph } from "../graphInstance";
 import { Modal } from "antd";
 import { CHAIR_SIZE, PARENT_EXTRA_SPACE } from "../../GlobalVar";
@@ -73,7 +73,7 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
 
           if (e.target.innerHTML === "+") {
             markLocalGraphMutation();
-            let { tableName, tablezIndex, circleChairNum, tableNameIdx, tableRealIdx } = node.data;
+            let { circleChairNum } = node.data;
             if (circleChairNum >= 30) {
               message.warning("椅子最多30个");
               return;
@@ -97,7 +97,7 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
             markLocalGraphMutation();
             // let { x, y } = node.getPosition();
 
-            let { tableName, tablezIndex, circleChairNum, tableNameIdx, tableRealIdx } = node.data;
+            let { circleChairNum } = node.data;
             if (circleChairNum == 1) {
               message.warning("椅子至少一个!");
               return;
@@ -132,7 +132,7 @@ const circleToolsConfig = ({ e, node, view, cell }: ConfigProps) => {
             }
           } else if (e.target.innerHTML === "✕") {
             markLocalGraphMutation();
-            let { tableName, tablezIndex, circleChairNum, tableNameIdx, tableRealIdx } = node.data;
+            let { tableName } = node.data;
 
             let modal = Modal.confirm({
               content: `确认删除${tableName}`,
@@ -244,7 +244,7 @@ const computeCirclePosition = (graph: Graph, node: Node, type: string, circleCha
     },
   ]);
 
-  const { width, height } = findTable.size();
+  const { width } = findTable.size();
   const { x: fx, y: fy } = findTable.position();
 
   const CHAIR_ANGLE_STEP = 360 / curremtCircleChairNum;

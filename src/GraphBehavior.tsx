@@ -1,4 +1,4 @@
-import { Cell, CellView, Node, NodeView } from "@antv/x6";
+import { CellView, Node, NodeView } from "@antv/x6";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useGraphInstance } from "x6-graph/react";
@@ -387,7 +387,7 @@ export const GraphBehavior = (): any => {
 
     const nodeMouseenter = ({ e, node, view, cell }: C) => {
       if (!node || !node.data) return;
-      const { nodeType, visible } = node.data;
+      const { nodeType } = node.data;
       matrixToolsConfig({ e, node, view, cell });
       removeToolsConfig({ e, node, view, cell });
       circleToolsConfig({ e, node, view, cell });

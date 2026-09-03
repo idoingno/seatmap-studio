@@ -144,7 +144,7 @@ const removeToolsConfig = ({ e, node }: ConfigProps) => {
           offset: { x: -10, y: 10 },
           onClick({ view, e }: any) {
             const node = view.cell;
-            const { width, height } = node.size();
+            const { height } = node.size();
             node.setProp({
               size: {
                 width: 6,
@@ -176,7 +176,7 @@ const removeToolsConfig = ({ e, node }: ConfigProps) => {
           offset: { x: -10, y: 10 },
           onClick({ view, e }: any) {
             const node = view.cell;
-            const { width, height } = node.size();
+            const { width } = node.size();
             node.setProp({
               size: {
                 width: width,

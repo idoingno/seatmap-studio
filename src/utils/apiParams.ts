@@ -1,4 +1,4 @@
-import { Cell, CellView, Node } from "@antv/x6";
+import { Cell, Node } from "@antv/x6";
 
 // 防御：所有批处理入口要求数组入参，非数组时返回空并告警，避免运行时抛错
 // 返回值保持 any[]，与本文件既有的 `Node[] | any[]` 宽松签名保持一致
@@ -41,7 +41,6 @@ export const generateNode = (nodes: Node[] | any[], sessionId: string, parent: N
   const newNodes = asArray(nodes, "generateNode").map((node) => {
     const { x, y } = node.getPosition();
     const { width, height } = node.size();
-    const mitrixSeat = node.data.nodeType === "matrixChair" ? node.data.idt.split("-") : "";
     return {
       update: {
         id: node.id,
@@ -130,7 +129,6 @@ export const updateNodeRegion = (regionArr: Node[] | any[], sessionId: string, a
     newNodes = item.nodes.map((node: Node | any) => {
       const { x, y } = node.getPosition();
       const { width, height } = node.size();
-      const mitrixSeat = node.data.nodeType === "matrixChair" ? node.data.idt.split("-") : "";
       return {
         query: { id: node.id },
         update: {

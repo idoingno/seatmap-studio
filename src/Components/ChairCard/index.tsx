@@ -1,7 +1,5 @@
-import { useClickAway, useHover, useSafeState } from "ahooks";
-import React, { memo, useEffect, useRef, useState } from "react";
-import { register } from "x6-html-shape";
-import createRender from "x6-html-shape/dist/react17";
+import { useHover, useSafeState } from "ahooks";
+import React, { useEffect, useRef, useState } from "react";
 import "./index.less";
 
 export let showCard: any;

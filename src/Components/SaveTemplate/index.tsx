@@ -1,6 +1,6 @@
 import { useSafeState, useUpdateEffect } from "ahooks";
 import { Form, Input, Modal } from "antd";
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 
 interface SaveTemplateProps {
   showTemplate: boolean;
@@ -11,7 +11,7 @@ interface SaveTemplateProps {
 const SaveTemplate = ({ showTemplate }: SaveTemplateProps) => {
   const [show, setShow] = useSafeState<boolean>(false);
   const formRef = useRef(null);
-  const [formData, setFormData] = useSafeState(null);
+  const [formData] = useSafeState(null);
 
   const layout = {
     labelCol: { span: 7 },

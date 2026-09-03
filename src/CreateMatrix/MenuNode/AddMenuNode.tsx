@@ -14,8 +14,6 @@ import {
   parentAddChair,
   parentAddRoworColumn,
   parentAddText,
-  resizeProscenium,
-  resizeWindow,
   setAllCorridorColumnH,
 } from "../../utils/util";
 import { runGraphBatch } from "../../utils/graphBatch";

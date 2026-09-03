@@ -16,7 +16,7 @@ import { Spin } from "antd";
 import store from "./store";
 import { addDargAction, emptyAction, isLoadAction } from "./store/actionCreators";
 import type { ColorItemType } from "./Components/ColorPanel/ColorEdit";
-import { useEventEmitter, useUpdateEffect } from "ahooks";
+import { useEventEmitter } from "ahooks";
 import { useSelector } from "react-redux";
 import { runGraphBatch } from "./utils/graphBatch";
 import { syncGraphPerformanceMode } from "./utils/graphPerformance";
@@ -47,7 +47,7 @@ const App = ({ closeApp }: AppProps) => {
 
   const sessionId = useSelector((state: any) => state.runtime.sessionId);
 
-  const { nodes, setNodes, edges, setEdges, graph: gRef, setGraph } = useGraphState();
+  const { graph: gRef, setGraph } = useGraphState();
   const [graphInstance, setGraphInstance] = useState<any>(null);
 
   const [loading, setLoading] = useState<boolean>(true);

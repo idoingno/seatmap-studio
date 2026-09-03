@@ -1,5 +1,4 @@
 import { normalSitOut, partnerSitOut, patternSeat } from "../assets";
-import { ColorArr } from "../config/constants";
 import store from "../store";
 // import { chairSvg } from "../config/Markup/chair";
 import { syncSvg } from "../config/Markup/syncIcon";
@@ -93,17 +92,6 @@ const circleTableMarkup = (item: any, name: string) => {
     },
   ];
 };
-
-interface ShapeType {
-  matrixContainer: string;
-  matrixRows: string;
-  matrixRowsEn: string;
-  matrixChair: string;
-  aisleRowSpace: string;
-  matrixColumnTopNum: string;
-  matrixColumnBottomNum: string;
-  corridorColumnSpace: string;
-}
 
 interface ItemType {
   position: {
@@ -437,17 +425,5 @@ const getImg = (orgType: string, isAttend: boolean) => {
     return patternSeat;
   } else if (orgType === "pattern" && !isAttend) {
     return partnerSitOut;
-  }
-};
-
-const getStyleShow = (orgType: string, isAttend: boolean) => {
-  if (orgType === "org" && !isAttend) {
-    return true;
-  } else if (orgType === "pattern" && isAttend) {
-    return true;
-  } else if (orgType === "pattern" && !isAttend) {
-    return true;
-  } else {
-    false;
   }
 };

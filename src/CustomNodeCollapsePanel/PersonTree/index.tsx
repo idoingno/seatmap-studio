@@ -264,7 +264,7 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
         return;
       }
 
-      const { flag, element }: any = isOutChair(p1, seatArr);
+      const { flag }: any = isOutChair(p1, seatArr);
 
       if (flag) {
         const newPersonArr: any[] = [];
@@ -275,8 +275,8 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
 
           let arr = newSeatArr
             .sort((a, b) => {
-              const { x: ax, y: ay } = a.getPosition();
-              const { x: bx, y: by } = b.getPosition();
+              const { x: ax } = a.getPosition();
+              const { x: bx } = b.getPosition();
               if (ax > bx) {
                 return 1;
               } else {

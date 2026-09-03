@@ -1,4 +1,4 @@
-import { useSafeState, useUpdateEffect } from "ahooks";
+import { useSafeState } from "ahooks";
 import React, { useEffect, useState } from "react";
 import "./index.less";
 import { ColorArr } from "../../config/constants";

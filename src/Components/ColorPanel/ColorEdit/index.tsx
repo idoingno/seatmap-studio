@@ -1,13 +1,12 @@
 import { useSafeState, useUpdateEffect } from "ahooks";
 import { Input, Spin } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./index.less";
 import { getGraph } from "../../../config/graphInstance";
 import { updateNodeRegion } from "../../../utils/apiParams";
 import { handleCpApi } from "../../../api";
 import store from "../../../store";
 import { findColor } from "../../../utils/util";
-import { addDargAction } from "../../../store/actionCreators";
 import { useSelector } from "react-redux";
 
 export interface ColorItemType {

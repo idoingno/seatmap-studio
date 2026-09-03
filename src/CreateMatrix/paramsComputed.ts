@@ -59,7 +59,7 @@ export const matrixPreComputed = (x: number, y: number, parentWidth: number, par
 
 // 组节点参数
 export const parentParams = (parentData: any) => {
-  let { x, y, width, height, rowSpaceArr, columnSpaceArr, rows, columns } = parentData;
+  let { x, y, width, height, rows, columns } = parentData;
   return {
     x: x,
     y: y,
@@ -321,7 +321,6 @@ export const rowTextNodeParams = (parentData: parentProps, moreAisleNum: number,
 };
 
 export const rowTextEnNodeParams = (parentData: parentProps, i: number) => {
-  const rows = store.getState().runtime.matrixAllRows;
   const columns = store.getState().runtime.matrixAllColumns;
 
   let { x, y } = parentData;

@@ -1,7 +1,5 @@
 import { ADD_SEAT, ADDS_SEAT, DEL_SEAT, EMPTY_SEAT, SHOW_LOADING, SHOW_TIME } from "./constants";
 
-const set = new Set();
-
 const defaultState = {
   //   seatSet: [] as string[],
   seatSet: [] as string[],

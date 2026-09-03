@@ -1,18 +1,10 @@
-import { useDrop, useDrag } from "ahooks";
-import React, { useEffect, useRef, useState } from "react";
-import {
-  initMatrix,
-  handleOffsetCorridor,
-  handleOffsetAisle,
-  initProscenium,
-  initWindow,
-  initDoor,
-} from "../../CreateMatrix";
+import { useDrag } from "ahooks";
+import React, { useRef } from "react";
+import { handleOffsetCorridor, handleOffsetAisle, initProscenium, initWindow, initDoor } from "../../CreateMatrix";
 import { getGraph } from "../../config/graphInstance";
 import { panelType } from "../../config/materials";
 import store from "../../store";
 import { runtimeActions } from "../../store/runtimeSlice";
-import { addDargAction } from "../../store/actionCreators";
 import useFormModal from "../../Components/useFormModal";
 import { lazyForm } from "../../Components/useFormModal/lazyForm";
 import AppIcon from "../../Components/AppIcon";

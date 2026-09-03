@@ -9,13 +9,7 @@ import { getGraph } from "../../config/graphInstance";
 import store from "../../store";
 import { runtimeActions } from "../../store/runtimeSlice";
 import type { Node } from "@antv/x6";
-import {
-  buildMatrixMenuIndex,
-  getNodeChildren,
-  resizeProscenium,
-  resizeWindow,
-  setAllCorridorColumnH,
-} from "../../utils/util";
+import { buildMatrixMenuIndex, getNodeChildren, setAllCorridorColumnH } from "../../utils/util";
 import AppIcon from "../../Components/AppIcon";
 import { delNode } from "../../utils/apiParams";
 import { handleCpApi } from "../../api";

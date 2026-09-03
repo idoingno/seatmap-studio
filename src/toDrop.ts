@@ -9,7 +9,7 @@ const toDrop = (dropRef: any) => {
     onDom: (content: any) => {
       const graph = getGraph();
       const nodes = graph.getNodes() as any;
-      const { currentColumn, currentRow, dragNodeType } = store.getState().runtime;
+      const { currentColumn, currentRow } = store.getState().runtime;
 
       if (content.nodeType === "Corridor") {
         const corridorColumnspaceArr = nodes.filter(

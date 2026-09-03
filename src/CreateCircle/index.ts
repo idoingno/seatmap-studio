@@ -28,25 +28,6 @@ function getCircleMaxTableOrder() {
     return 0;
   }
 }
-function getCircleMaxTableRealOrder() {
-  let graph = getGraph();
-  let cells: any[] = graph.getCells();
-  cells = cells
-    .filter((ite) => {
-      return ite.data && ite.data.nodeType === "circleContainer";
-    })
-    .map((ite) => {
-      const idx = Number(ite.data?.tableRealIdx);
-      return isNaN(idx) ? 0 : idx;
-    });
-  if (cells && cells.length) {
-    let maxTableRealOrder = Math.max(...cells);
-    return maxTableRealOrder;
-  } else {
-    return 0;
-  }
-}
-
 export const initCircle = (x: number, y: number, graph: Graph) => {
   markLocalGraphMutation();
   const chairCount = store.getState().runtime.circleChairCount;

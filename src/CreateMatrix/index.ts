@@ -8,7 +8,7 @@ import {
 } from "../GlobalVar";
 
 import type { Graph } from "@antv/x6";
-import { CellView, Node, NodeView } from "@antv/x6";
+import { Node } from "@antv/x6";
 import { chairSvg } from "../config/Markup/chair";
 
 import { matrixPreComputed, parentParams, parentProps } from "./paramsComputed";
@@ -17,7 +17,7 @@ import store from "../store";
 import { runtimeActions } from "../store/runtimeSlice";
 // import { resizeProscenium, resizeWindow } from "../utils/util";
 import { generateGraphics, generateNode, updateGraphics, updateNode } from "../utils/apiParams";
-import { ResponseType, handleCpApi } from "../api";
+import { handleCpApi } from "../api";
 import { runGraphBatch } from "../utils/graphBatch";
 import { syncGraphPerformanceMode } from "../utils/graphPerformance";
 import { getNodeChildren } from "../utils/util";
@@ -324,8 +324,6 @@ const reDrawMatrix = async (groupData: parentProps, parent: Node, graph: Graph) 
   //   0
   // );
 
-  const pcLength = groupData.columnSpaceArr.length;
-  const prLength = groupData.rowSpaceArr.length;
   let createdChildCount = 0;
   let createdChildren: Node[] = [];
 

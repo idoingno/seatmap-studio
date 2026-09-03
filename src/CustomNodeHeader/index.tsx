@@ -1,13 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 import "./index.less";
-import { AlphabeticSerialNumber } from "../config/constants";
 import { getGraph } from "../config/graphInstance";
 import store from "../store";
-// import { emptyGraph } from "../utils/apiParams";
-import { Graph, Node } from "@antv/x6";
-import { sortCompareFn3 } from "../utils/util";
-// import { time } from "../utils/util";
+import { Graph } from "@antv/x6";
 import useFormModal from "../Components/useFormModal";
 import { useSelector } from "react-redux";
 import { useCallbackState } from "../hooks/useCallbackState";
