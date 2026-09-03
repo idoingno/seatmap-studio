@@ -11,10 +11,10 @@ interface UserFormPropsType {
 }
 const UserForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?: React.ForwardedRef<FormInstance>) => {
   const [form] = Form.useForm();
-  // 获取场次Id
-  const sessionId = store.getState().runtime.sessionId;
 
   const onSubmit = async (values: any) => {
+    // 提交时刻读取场次Id，与宿主注入时序解耦
+    const sessionId = store.getState().runtime.sessionId;
     props.beforeSubmit?.(values);
     const params = { type: "save", sessionId, hallMap: props.mapUrl, name: values.templateName };
     const { code, subMsgType }: ResponseType = await handleCpApi({ params: params, code: "template" });

@@ -1,5 +1,6 @@
 import { Cell, CellView, Node, NodeView } from "@antv/x6";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useGraphInstance } from "x6-graph/react";
 import matrixToolsConfig from "./config/Tools/matrixToolsConfig";
 import removeToolsConfig from "./config/Tools/removeToolsConfig";
@@ -93,8 +94,8 @@ const buildMatrixNodeIndex = (parent: Node | null | undefined): MatrixNodeIndex 
 
 export const GraphBehavior = (): any => {
   const graph = useGraphInstance();
-  // 获取场次Id
-  const sessionId = store.getState().runtime.sessionId;
+  // 获取场次Id（响应式订阅：宿主切换场次时下方 effect 会随依赖重绑事件）
+  const sessionId = useSelector((state: any) => state.runtime.sessionId);
 
   // TODO 这里拿到graph对象处理自己的逻辑（例如使用后端数据初始化画布，增加事件监听...）
   useEffect(() => {
@@ -620,6 +621,6 @@ export const GraphBehavior = (): any => {
       graph.off("node:dblclick", nodeDblClick);
       graph.off("node:resized", nodeResized);
     };
-  }, []);
+  }, [sessionId]);
   return null;
 };

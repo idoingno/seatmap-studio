@@ -45,7 +45,7 @@ const App = ({ closeApp }: AppProps) => {
   // store.dispatch(runtimeActions.setSessionId(context.dataId));
   // store.dispatch(runtimeActions.setCpForm(form));
 
-  const sessionId = store.getState().runtime.sessionId;
+  const sessionId = useSelector((state: any) => state.runtime.sessionId);
 
   const { nodes, setNodes, edges, setEdges, graph: gRef, setGraph } = useGraphState();
   const [graphInstance, setGraphInstance] = useState<any>(null);

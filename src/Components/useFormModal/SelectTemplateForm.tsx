@@ -22,9 +22,6 @@ const SelectTemplateForm = (
   const [form] = Form.useForm();
   const pageSize = 9;
 
-  // 获取场次Id
-  const sessionId = store.getState().runtime.sessionId;
-
   const [data, setData] = useState([]);
   const [templateId, setTemplateId] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -43,6 +40,8 @@ const SelectTemplateForm = (
       return;
     }
     props.beforeSubmit?.(values);
+    // 提交时刻读取场次Id
+    const sessionId = store.getState().runtime.sessionId;
     const params = {
       type: "choose",
       sessionId,

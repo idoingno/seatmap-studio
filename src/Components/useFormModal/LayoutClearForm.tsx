@@ -16,8 +16,6 @@ interface UserFormPropsType {
 }
 const LayoutClearForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?: React.ForwardedRef<FormInstance>) => {
   const [form] = Form.useForm();
-  // 获取场次Id
-  const sessionId = store.getState().runtime.sessionId;
 
   const [value, setValue] = useState<number | undefined>();
 
@@ -26,6 +24,8 @@ const LayoutClearForm = (props: React.PropsWithChildren<UserFormPropsType>, ref?
       message.error("请选择选项");
       return;
     }
+    // 提交时刻读取场次Id
+    const sessionId = store.getState().runtime.sessionId;
 
     props.beforeSubmit?.(values);
     store.dispatch(emptyAction());
