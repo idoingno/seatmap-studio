@@ -13,6 +13,7 @@ declare module "*.jpeg";
 declare module "*.gif";
 declare module "*.bmp";
 declare module "*.tiff";
+declare module "*.less";
 declare module "x6-html-shape/dist/react17";
 declare module "x6-html-shape";
 declare module "@antv/x6-plugin-transform";
