@@ -32,8 +32,6 @@ export type PersonRecord = {
   s_field_hhac39dspg: string;
   s_field_mi16acq0er: string;
   s_field_xxu9wjskm8: string;
-  s_field_f39ex5pcvp: boolean;
-  s_whether_to_attend: boolean;
   s_node_id?: string;
   s_node_name?: string;
   s_seat?: string;
@@ -272,8 +270,6 @@ export const peopleSeed: PersonRecord[] = [
     s_field_hhac39dspg: "Product Designer",
     s_field_mi16acq0er: "ADA",
     s_field_xxu9wjskm8: "design",
-    s_field_f39ex5pcvp: false,
-    s_whether_to_attend: true,
   },
   {
     id: "person-ben",
@@ -281,8 +277,6 @@ export const peopleSeed: PersonRecord[] = [
     s_field_hhac39dspg: "Frontend Engineer",
     s_field_mi16acq0er: "BEN",
     s_field_xxu9wjskm8: "frontend",
-    s_field_f39ex5pcvp: false,
-    s_whether_to_attend: true,
   },
   {
     id: "person-claire",
@@ -290,8 +284,6 @@ export const peopleSeed: PersonRecord[] = [
     s_field_hhac39dspg: "Research Lead",
     s_field_mi16acq0er: "CLAIRE",
     s_field_xxu9wjskm8: "research",
-    s_field_f39ex5pcvp: false,
-    s_whether_to_attend: true,
   },
   {
     id: "person-devon",
@@ -299,8 +291,6 @@ export const peopleSeed: PersonRecord[] = [
     s_field_hhac39dspg: "Platform Engineer",
     s_field_mi16acq0er: "DEVON",
     s_field_xxu9wjskm8: "platform",
-    s_field_f39ex5pcvp: false,
-    s_whether_to_attend: true,
   },
   {
     id: "guest-lee",
@@ -308,8 +298,6 @@ export const peopleSeed: PersonRecord[] = [
     s_field_hhac39dspg: "Guest Speaker",
     s_field_mi16acq0er: "LEE",
     s_field_xxu9wjskm8: "guests",
-    s_field_f39ex5pcvp: true,
-    s_whether_to_attend: true,
   },
   {
     id: "guest-morgan",
@@ -317,8 +305,6 @@ export const peopleSeed: PersonRecord[] = [
     s_field_hhac39dspg: "Guest",
     s_field_mi16acq0er: "MORGAN",
     s_field_xxu9wjskm8: "guests",
-    s_field_f39ex5pcvp: true,
-    s_whether_to_attend: false,
   },
 ];
 

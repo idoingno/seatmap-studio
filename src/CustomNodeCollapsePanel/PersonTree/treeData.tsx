@@ -11,13 +11,11 @@ export const personDataMap = (data: any) => {
       nodeType: "Tree",
       otherName: ite.s_field_mi16acq0er,
       hasSeat: !!ite.s_seat,
-      orgType: ite.s_field_f39ex5pcvp ? "pattern" : "org",
       id: ite.id,
       key: ite.id,
       pid: ite.s_field_xxu9wjskm8,
       hasChildOrg: true,
       checked: false,
-      isAttend: ite.s_whether_to_attend === undefined || ite.s_whether_to_attend ? true : false,
       nodeId: ite.s_node_id,
       nodeName: ite.s_node_name,
       s_seat: ite.s_seat,
@@ -26,26 +24,26 @@ export const personDataMap = (data: any) => {
   });
 };
 
-const personDataHandle = (data: any[], arrangeKey: string, orgKey: string) => {
+const personDataHandle = (data: any[]) => {
   return data.map((item) => {
     return {
       ...item,
-      titleDv: getPersonNode(item, arrangeKey, orgKey),
+      titleDv: getPersonNode(item),
     };
   });
 };
 
-const personDataFilter = (data: any[], id: string, arrangeKey: string, orgKey: string) => {
-  const hdata = personDataHandle(data, arrangeKey, orgKey);
+const personDataFilter = (data: any[], id: string) => {
+  const hdata = personDataHandle(data);
   return hdata.filter((item: any) => item.pid === id);
 };
 
-export const computePersonObj = (list: OrgInfoProps[], personInfo: any, arrangeKey: string, orgKey: string) => {
+export const computePersonObj = (list: OrgInfoProps[], personInfo: any) => {
   let arr: TreeDataType[] = [];
   for (let i = 0; i < list.length; i++) {
     let obj = {};
     const org = list[i];
-    const filterData = personDataFilter(personInfo, org.id, arrangeKey, orgKey);
+    const filterData = personDataFilter(personInfo, org.id);
     obj = {
       children: filterData,
       fullPath: org.fullPath,
@@ -57,7 +55,7 @@ export const computePersonObj = (list: OrgInfoProps[], personInfo: any, arrangeK
       key: org.id,
       title: org.name,
       checked: false,
-      titleDv: getPersonLevel1Node(org.name, org, arrangeKey),
+      titleDv: getPersonLevel1Node(org.name),
       checkedHalf: false,
       hasChildOrg: org.subList || filterData.length > 0 ? true : false,
     };
@@ -67,7 +65,7 @@ export const computePersonObj = (list: OrgInfoProps[], personInfo: any, arrangeK
       for (let j = 0; j < org.subList.length; j++) {
         let objs = {};
         const sub = org.subList[j];
-        const subfilterData = personDataFilter(personInfo, sub.id, arrangeKey, orgKey);
+        const subfilterData = personDataFilter(personInfo, sub.id);
 
         objs = {
           children: subfilterData,
@@ -80,7 +78,7 @@ export const computePersonObj = (list: OrgInfoProps[], personInfo: any, arrangeK
           key: sub.id,
           title: sub.name,
           checked: false,
-          titleDv: getPersonLevel1Node(sub.name, sub, arrangeKey),
+          titleDv: getPersonLevel1Node(sub.name),
           checkedHalf: false,
           hasChildOrg: subfilterData.length > 0 ? true : false,
         };

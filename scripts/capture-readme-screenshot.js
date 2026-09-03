@@ -55,7 +55,7 @@ const run = async () => {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 
     await page.goto(`${baseUrl}/`);
-    await page.getByRole("button", { name: /所属组织/ }).waitFor({ timeout: 30000 });
+    await page.getByRole("button", { name: /未排座/ }).waitFor({ timeout: 30000 });
 
     // 载入示例模板，让截图里的画布有真实内容
     await page.getByText("引入模板").click();

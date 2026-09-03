@@ -10,13 +10,8 @@ export {
 } from "./materialArtwork";
 // export { default as img_square_layout } from "./images/img_square_layout.png";
 
-export { default as sitOutAvatar } from "./images/sitOutAvatar.png";
-export { default as patternSitOutAvatar } from "./images/patternSitOutAvatar.png";
-export { default as patternPerson } from "./images/patternPerson.png";
 export { default as defaultAvatar } from "./images/defaultAvatar.png";
 export { default as patternSeat } from "./images/patternSeat.png";
-export { default as normalSitOut } from "./images/normalSitOut.png";
-export { default as partnerSitOut } from "./images/partnerSitOut.png";
 
 // export { default as img_max } from "./images/img_max.png";
 // export { default as img_min } from "./images/img_min.png";

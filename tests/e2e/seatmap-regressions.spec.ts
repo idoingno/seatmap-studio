@@ -512,7 +512,7 @@ test.describe("Seatmap Studio regressions", () => {
       title: "Ada Chen",
       text: "en",
     });
-    await expect(page.getByText("全部(3)")).toBeVisible();
+    await expect(page.getByText("全部(5)")).toBeVisible();
 
     await page.mouse.click(target.point.x, target.point.y);
     const chairCard = page.locator(".ChairCard");
@@ -840,7 +840,7 @@ test.describe("Seatmap Studio regressions", () => {
     const pageErrors = capturePageErrors(page);
 
     await page.goto("/");
-    await expect(page.getByRole("button", { name: "所属组织(4)" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "未排座" })).toBeVisible();
 
     const layoutSection = page.getByRole("button", { name: /^布局素材$/ });
     const peopleSection = page.getByRole("button", { name: /^人员与座位$/ });
@@ -866,11 +866,11 @@ test.describe("Seatmap Studio regressions", () => {
     expect(pageErrors).toEqual([]);
   });
 
-  test("filters the roster by search, person type, and attendance state", async ({ page }) => {
+  test("filters the roster by search and seat state", async ({ page }) => {
     const pageErrors = capturePageErrors(page);
 
     await page.goto("/");
-    await expect(page.getByRole("button", { name: "所属组织(4)" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "未排座" })).toBeVisible();
 
     const search = page.getByPlaceholder("搜索");
     await search.fill("Ada");
@@ -886,20 +886,18 @@ test.describe("Seatmap Studio regressions", () => {
     await expect(page.getByText("当前筛选无人员")).toBeVisible();
 
     await search.fill("");
-    await page.getByRole("button", { name: "全球合伙人(2)" }).click();
     const guestsNode = page.locator(".ant-tree-treenode").filter({ hasText: "Guests" }).first();
     await guestsNode.locator(".ant-tree-switcher").click();
     await expect(page.getByText("Lee Park", { exact: true })).toBeVisible();
-    await expect(page.getByText("Morgan Yu", { exact: true })).not.toBeVisible();
-
-    await page.getByRole("button", { name: "不参加" }).click();
-    const absentGuestsNode = page.locator(".ant-tree-treenode").filter({ hasText: "Guests" }).first();
-    await absentGuestsNode.locator(".ant-tree-switcher").click();
     await expect(page.getByText("Morgan Yu", { exact: true })).toBeVisible();
-    await expect(page.getByText("Lee Park", { exact: true })).not.toBeVisible();
 
     await page.getByRole("button", { name: "已排座" }).click();
     await expect(page.getByText("当前筛选无人员")).toBeVisible();
+
+    await page.getByRole("button", { name: "未排座" }).click();
+    const guestsAgainNode = page.locator(".ant-tree-treenode").filter({ hasText: "Guests" }).first();
+    await guestsAgainNode.locator(".ant-tree-switcher").click();
+    await expect(page.getByText("Lee Park", { exact: true })).toBeVisible();
 
     expect(pageErrors).toEqual([]);
   });

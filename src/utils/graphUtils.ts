@@ -1,4 +1,4 @@
-import { normalSitOut, partnerSitOut, patternSeat } from "../assets";
+import { patternSeat } from "../assets";
 import { getRuntime } from "../store/accessors";
 // import { chairSvg } from "../config/Markup/chair";
 import { syncSvg } from "../config/Markup/syncIcon";
@@ -372,23 +372,20 @@ const getChairAttrs = (flag: boolean, personByNodeId: Map<string, any>, item: an
           x: 3,
           y: 3,
           fill: colors.accent,
-          // style: "display:block",
-          style: person.orgType === "org" && person.isAttend ? "display:block" : "display:none",
+          style: "display:block",
         },
         image: {
           width: 40,
           height: 40,
           y: 3,
-          // style: "display:none",
-          style: person.orgType === "org" && person.isAttend ? "display:none" : "display:block",
-          "xlink:href": getImg(person.orgType, person.isAttend),
+          style: "display:none",
+          "xlink:href": patternSeat,
         },
         xnode: {
           key: person.id,
           title: person.title,
           subTitle: person.subTitle,
           otherName: person.otherName || "",
-          orgType: person.orgType,
           row: parsedIdt ? parsedIdt.row + 1 : "",
           column: parsedIdt ? parsedIdt.column + 1 : "",
           s_seat: person.s_seat,
@@ -416,14 +413,4 @@ const getCircleTableAttrs = (item: any) => {
       fontFamily: TEXT_FONT_FAMILY,
     },
   };
-};
-
-const getImg = (orgType: string, isAttend: boolean) => {
-  if (orgType === "org" && !isAttend) {
-    return normalSitOut;
-  } else if (orgType === "pattern" && isAttend) {
-    return patternSeat;
-  } else if (orgType === "pattern" && !isAttend) {
-    return partnerSitOut;
-  }
 };

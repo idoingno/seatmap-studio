@@ -133,8 +133,8 @@ test.describe("Seatmap Studio", () => {
     await expect(page).toHaveTitle(/Seatmap Studio/);
     await expect(page.getByText("会议室布局")).toBeVisible();
     await expect(page.getByText("已同步到最新版本")).toBeVisible();
-    await expect(page.getByText("所属组织(4)")).toBeVisible();
-    await expect(page.getByText("全球合伙人(2)")).toBeVisible();
+    await expect(page.getByRole("button", { name: "未排座" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "已排座" })).toBeVisible();
     await expect(page.getByText("Product")).toBeVisible();
     await expect(page.getByText("Engineering")).toBeVisible();
 
@@ -209,7 +209,7 @@ test.describe("Seatmap Studio", () => {
     });
 
     expect(assignedPeople).toEqual(["Ada Chen", "Ben Lin"]);
-    await expect(page.getByText("全部(2)")).toBeVisible();
+    await expect(page.getByText("全部(4)")).toBeVisible();
   });
 
   test("opens the mock template chooser", async ({ page }) => {

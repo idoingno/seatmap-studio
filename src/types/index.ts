@@ -280,7 +280,6 @@ export const NodeAttributeSchema = z
         title: z.string(),
         subTitle: z.string().optional(),
         otherName: z.string().optional(),
-        orgType: z.string().optional(),
         row: z.number().optional(),
         column: z.number().optional(),
         circleChairName: z.string().optional(),
@@ -331,31 +330,9 @@ export type Pagination = z.infer<typeof PaginationSchema>;
 // ============================================================================
 // 人员 Schema
 // ============================================================================
-
-export const PersonSchema = z.object({
-  id: z.string(),
-  nodeId: z.string().optional(),
-  title: z.string(),
-  subTitle: z.string().optional(),
-  otherName: z.string().optional(),
-  orgType: z.enum(["org", "pattern"]),
-  avatar: z.string().optional(),
-  color: z.string().optional(),
-  status: z.enum(["未排座", "已排座", "不参加"]).default("未排座"),
-  seatName: z.string().optional(),
-  seatNameEn: z.string().optional(),
-});
-export type Person = z.infer<typeof PersonSchema>;
-
-export const PersonTreeItemSchema: any = z.object({
-  id: z.string(),
-  title: z.string(),
-  key: z.string(),
-  children: z.lazy(() => z.array(z.any())).optional(),
-  isLeaf: z.boolean().optional(),
-  person: PersonSchema.optional(),
-});
-export type PersonTreeItem = z.infer<typeof PersonTreeItemSchema>;
+//
+// 人员面板只维护 hasSeat 一个状态维度（未排座/已排座），
+// 人员出参在 PersonTree/treeData.tsx 中按后端字段直接映射。
 
 // ============================================================================
 // API 请求 Schema

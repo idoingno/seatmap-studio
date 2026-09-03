@@ -12,7 +12,6 @@ export interface ItemType {
   dataType: string;
   otherName: string;
   hasSeat: boolean;
-  orgType: string;
   id: string;
   key: string;
   pid: string;
@@ -32,7 +31,6 @@ export interface TreeDataType {
   titleDv?: Element | React.ReactNode;
   subOrg?: any;
   checked?: boolean;
-  orgType?: string;
   checkedHalf?: boolean;
   hasSeat?: boolean;
   s_seat?: boolean;

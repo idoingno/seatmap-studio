@@ -1,7 +1,7 @@
 import { Checkbox, Input, Tree } from "antd";
 import React, { useEffect, useImperativeHandle, useState } from "react";
 import "./index.less";
-import { tabItems, tabItems2 } from "./data";
+import { tabItems } from "./data";
 import type { CheckboxChangeEvent } from "antd/es/checkbox";
 import { computePersonObj, filterTree, hasDuplicates, personDataMap } from "./treeData";
 import type { ItemType, OrgInfoProps, TreeDataType } from "./types";
@@ -22,18 +22,7 @@ import { useSelector } from "react-redux";
 import { EventEmitter } from "ahooks/lib/useEventEmitter";
 import { message } from "../../utils/message";
 
-const getArrangeSeat = (item: any, key: string) => {
-  if (key === "hasArrange") {
-    // 已排座 确认参加/或者未响应
-    return item.hasSeat;
-  } else if (key === "unArrange") {
-    // 未排座 确认参加/或者未响应
-    return !item.hasSeat && item.isAttend;
-  } else {
-    // 未参加
-    return !item.isAttend;
-  }
-};
+const matchesArrange = (item: any, key: string) => (key === "hasArrange" ? item.hasSeat : !item.hasSeat);
 
 interface PersonTreeType {
   onRef: any;
@@ -44,7 +33,6 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
   // const PersonTree = forwardRef((props) => {
   const [treeData, setTreeData] = useState([]);
   const [arrangeKey, setArrangeKey] = useState<string>("unArrange");
-  const [orgKey, setOrgKey] = useState<string>("org");
   const [checkedList, setCheckedList] = useState<string[]>([]);
   const [indeterminate, setIndeterminate] = useState<boolean>(false);
   const [checkAll, setCheckAll] = useState<boolean>(false);
@@ -63,7 +51,7 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
   useEffect(() => {
     // const newPersonList = personList.filter((item: ItemType) => !item.hasSeat);
     if (orgList.length > 0) {
-      const data = computePersonObj(orgList, personList, arrangeKey, orgKey);
+      const data = computePersonObj(orgList, personList);
       const filterData = filterTree(data);
       setTreeData(filterData);
     }
@@ -72,11 +60,10 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
   // 监听过滤条件
   useEffect(() => {
     const filterArr = allList.filter(
-      (item: any) =>
-        item.orgType === orgKey && getArrangeSeat(item, arrangeKey) && item.title.includes(inputSearchValue)
+      (item: any) => matchesArrange(item, arrangeKey) && item.title.includes(inputSearchValue)
     );
     setPersonList(filterArr);
-  }, [arrangeKey, orgKey, inputSearchValue]);
+  }, [arrangeKey, inputSearchValue]);
 
   const selectSeat = useSelector((state: any) => state.seater.seatSet);
 
@@ -121,18 +108,12 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
       };
     });
 
-    const newPersonList = newData.filter(
-      (item: ItemType) => item.orgType === orgKey && getArrangeSeat(item, arrangeKey)
-    );
+    const newPersonList = newData.filter((item: ItemType) => matchesArrange(item, arrangeKey));
 
     setPersonList(newPersonList);
     setAllList([...newData]);
     setIndeterminate(false);
     setCheckAll(false);
-  };
-
-  const getPersonCount = (data: any[], key: string) => {
-    return data.filter((item) => item.orgType === key).length;
   };
 
   const queryPersonInfo = async (refreshGraph = false) => {
@@ -145,7 +126,7 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
       if (code === 200 && subMsgType === "success") {
         const result = data.response.result;
         const handleData = personDataMap(result);
-        const initData = handleData.filter((item: any) => item.orgType === orgKey && getArrangeSeat(item, arrangeKey));
+        const initData = handleData.filter((item: any) => matchesArrange(item, arrangeKey));
         setPersonList(initData);
         setAllList([...handleData]);
 
@@ -163,7 +144,7 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
   };
 
   const queryOrgInfo = async () => {
-    const params = { pid: "K139686" };
+    const params = { pid: "root" };
     const { code, data, subMsgType }: ResponseType = await handleCpApi({ params, code: "org" });
     if (code === 200 && subMsgType === "success") {
       const orgList = data.response.subList;
@@ -173,22 +154,13 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
     }
   };
 
-  const orgOnChange = (key: string) => {
-    setCheckedListLength(0);
-    setCheckedList([]);
-    setIndeterminate(false);
-    setCheckAll(false);
-    setOrgKey(key);
-  };
-
   const arrangeSeatOnChange = (key: string) => {
     setArrangeKey(key);
   };
 
   const allCheckboxOnChange = (e: CheckboxChangeEvent) => {
     const filterList = personList.filter(
-      (item: any) =>
-        item.orgType === orgKey && getArrangeSeat(item, "unArrange") && item.title.includes(inputSearchValue)
+      (item: any) => matchesArrange(item, "unArrange") && item.title.includes(inputSearchValue)
     );
 
     const allId: any = filterList.map((item: ItemType) => item.id);
@@ -235,7 +207,7 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
     // const list = personDataMap(personInfo);
     let selectPersonArr: any = [];
     allList.forEach((ite: any) => {
-      if (ite.checked && getArrangeSeat(ite, "unArrange") && orgKey === ite.orgType) {
+      if (ite.checked && matchesArrange(ite, "unArrange")) {
         selectPersonArr.push({ ...ite, avatar: defaultAvatar });
       }
     });
@@ -386,25 +358,8 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
         }
         placeholder="搜索"
       />
-      <div className="tab-dv org-tab-row" role="tablist" aria-label="人员类型">
-        {tabItems(
-          peopleLoading ? "…" : getPersonCount(allList, "org"),
-          peopleLoading ? "…" : getPersonCount(allList, "pattern")
-        ).map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            className={orgKey === item.key ? "active" : ""}
-            onClick={() => orgOnChange(item.key)}
-            aria-pressed={orgKey === item.key}
-            disabled={peopleLoading}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
       <div className="tab-dv seat-tab-row" role="tablist" aria-label="排座状态">
-        {tabItems2.map((item) => (
+        {tabItems.map((item) => (
           <button
             key={item.key}
             type="button"

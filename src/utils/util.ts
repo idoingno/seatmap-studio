@@ -260,7 +260,6 @@ export const setChairPerson = (node: any, item: any) => {
         title: item.title,
         subTitle: item.subTitle,
         otherName: item.otherName || "",
-        orgType: item.orgType,
         ...getAttr(),
       },
       text: {
@@ -273,10 +272,10 @@ export const setChairPerson = (node: any, item: any) => {
       // },
       svg: {
         fill: colors.seatOccupied,
-        style: item.orgType === "pattern" ? "display:none" : "display:block",
+        style: "display:block",
       },
       image: {
-        style: item.orgType === "pattern" ? "display:block" : "display:none",
+        style: "display:none",
       },
     });
   }
@@ -296,10 +295,10 @@ export const changeSeatChair = (node: any, xnode: any) => {
       // },
       svg: {
         fill: colors.seatOccupied,
-        style: xnode.orgType === "pattern" ? "display:none" : "display:block",
+        style: "display:block",
       },
       image: {
-        style: xnode.orgType === "pattern" ? "display:block" : "display:none",
+        style: "display:none",
       },
     });
   }

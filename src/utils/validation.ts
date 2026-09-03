@@ -12,7 +12,6 @@ import {
   MatrixChairDataSchema,
   CircleChairDataSchema,
   ResponseTypeSchema,
-  PersonSchema,
 } from "../types";
 
 /**
@@ -140,13 +139,6 @@ export function validateAPIResponse<T>(response: unknown, schema: z.ZodType<T>, 
   }
 
   throw new Error(context + ": No data in response");
-}
-
-/**
- * 验证人员数据
- */
-export function validatePerson(data: unknown): boolean {
-  return PersonSchema.safeParse(data).success;
 }
 
 /**
