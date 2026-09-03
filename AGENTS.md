@@ -18,6 +18,8 @@ Use `pnpm` (pinned to 9.0.0, Node >= 18).
 - `pnpm install --frozen-lockfile` - install dependencies (matches CI).
 - `pnpm start` / `pnpm serve` - run webpack-dev-server locally.
 - `pnpm build` - production build to `dist/`; `pnpm build:dev` for a development build.
+- `pnpm lint` - ESLint over `src/**/*.{ts,tsx}` and `tests/**/*.ts`.
+- `pnpm typecheck` - `tsc --noEmit` (includes the `noUnusedLocals` guard).
 - `pnpm test:e2e` - run the Playwright suite (starts its own dev server on port 18180).
 - `pnpm test:perf` - run the seatmap performance benchmark.
 - `pnpm serve:dist` - serve the already-built `dist/` for manual verification.
@@ -25,7 +27,7 @@ Use `pnpm` (pinned to 9.0.0, Node >= 18).
 ## Coding Style & Naming Conventions
 
 - TypeScript with `jsx: react`, `noImplicitAny`, ES5 target; some legacy JS remains - match the style of surrounding code.
-- 2-space indentation; Prettier 2.4 is in devDependencies, but there is no ESLint config - type safety comes from `typescript` via `ts-loader`.
+- 2-space indentation. Prettier 2.8 (`.prettierrc`) is the repo-wide formatter; ESLint 8 (`.eslintrc.json`, parser-only, core rule `no-duplicate-imports`) plus `tsc noUnusedLocals` keep dead code out. The husky pre-commit hook runs lint-staged (prettier + `eslint --fix`) and `pnpm typecheck` - do not bypass it.
 - Components and files use PascalCase (`ErrorBoundary.tsx`, `GraphBehavior.tsx`); hooks use `useX` (`useFormModal`); utilities and config use camelCase as already present.
 - Import antd via `babel-plugin-import`; avoid heavy new dependencies without discussion (bundle size is a tracked concern).
 
@@ -34,6 +36,7 @@ Use `pnpm` (pinned to 9.0.0, Node >= 18).
 - E2E only, via Playwright (`@playwright/test`, Chromium desktop project). No unit-test framework is configured.
 - Name specs `*.spec.ts` under `tests/e2e/` (e.g. `seatmap-regressions.spec.ts`).
 - Add a regression spec for every interaction fix. CI runs the full suite with retries and 1 worker.
+- The pre-commit hook deliberately does not run e2e; run `pnpm test:e2e` manually before committing behavior changes and let CI enforce it.
 
 ## Commit & Pull Request Guidelines
 

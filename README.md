@@ -49,10 +49,14 @@ pnpm build
 ## 验证
 
 ```bash
-pnpm exec tsc --noEmit
-pnpm run test:e2e
-pnpm run build
+pnpm typecheck   # tsc --noEmit（含 noUnusedLocals 死代码守卫）
+pnpm lint        # ESLint（@typescript-eslint/parser + no-duplicate-imports）
+pnpm build
+pnpm test:e2e    # Playwright 全量回归（35 条）
 ```
+
+提交时 husky pre-commit 会自动跑 lint-staged（Prettier + `eslint --fix`）与 `pnpm typecheck`；e2e 不进钩子，留 CI 与手工验证。
+全仓遵循 Prettier 统一格式（`.prettierrc`：120 列、双引号、分号）。
 
 ## Demo Data
 
@@ -74,6 +78,22 @@ Both local stores share identical operation semantics via `src/storage/stateCore
 
 Use **导出布局 / 导入布局** in the toolbar to round-trip a layout as a `.seatmap.json` file (server schema format — the same shape returned by the storage `query` operation, so exports can double as templates). Files validate on import; the canvas is emptied before an imported layout replaces it.
 
+## 嵌入宿主（低代码 / 微前端）
+
+编辑器可作为组件嵌入宿主应用，宿主通过 Redux 注入运行时上下文：
+
+```ts
+import store from "./store";
+import { runtimeActions } from "./store/runtimeSlice";
+
+store.dispatch(runtimeActions.setSessionId(context.dataId)); // 场次
+store.dispatch(runtimeActions.setCpForm(form)); // 配置表单
+```
+
+运行时数据（场次、矩阵行列、拖拽类型等）住在 `state.runtime.*`（`src/store/runtimeSlice.ts`）；X6 Graph 实例不可序列化，留在 `src/config/graphInstance.ts` 单例。事件回调里的读取统一走 `src/store/accessors.ts` 的 `getRuntime()`；React 渲染侧用 `useSelector`。宿主换场次时画布与事件处理器会按新 sessionId 自动重载、重绑（有专用 e2e 回归）。
+
+画布浮层 z-index 采用相对标度（`src/styles/tokens.js` 的 `overlay`：工具条 99 / 浮层 1000 / toast 1060），Modal 与 message 走 antd 原生层级，`!important` 全局覆盖已被移除。
+
 ## 技术栈
 
 - React 18
@@ -82,3 +102,4 @@ Use **导出布局 / 导入布局** in the toolbar to round-trip a layout as a `
 - Ant Design 4
 - AntV X6
 - Redux Toolkit
+- Prettier / ESLint / Husky / lint-staged / Playwright
