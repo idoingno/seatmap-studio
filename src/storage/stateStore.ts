@@ -6,8 +6,7 @@
  */
 
 import type { ResponseType } from "../api";
-import type { SeatmapRequest, SeatmapStore } from "./types";
-import { success } from "./types";
+import { type SeatmapRequest, type SeatmapStore, success } from "./types";
 import {
   SeatmapState,
   addTemplate,

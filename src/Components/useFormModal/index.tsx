@@ -90,7 +90,6 @@ const useFormModal = function <T>(modalProps: Partial<ModalProps>, Slot: React.C
   return {
     FormModal: useCallback((props: PropsWithoutRef<T>) => {
       return <FormModal ref={modalRef} {...props} />;
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
     modalRef,
   };

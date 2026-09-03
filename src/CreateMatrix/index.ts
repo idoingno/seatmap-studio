@@ -7,8 +7,7 @@ import {
   AISLE_DEFAULT_SIZE,
 } from "../GlobalVar";
 
-import type { Graph } from "@antv/x6";
-import { Node } from "@antv/x6";
+import { type Graph, Node } from "@antv/x6";
 import { chairSvg } from "../config/Markup/chair";
 
 import { matrixPreComputed, parentParams, parentProps } from "./paramsComputed";
