@@ -298,13 +298,10 @@ const PersonTree: React.FC<PersonTreeType> = ({ onRef, loadTree$ }) => {
         setCheckedListLength(0);
         setCheckedList([]);
         setIndeterminate(false);
-        const newData = allList.map((item: ItemType) => {
-          return {
-            ...item,
-            checked: false,
-          };
-        });
-        setAllList([...newData]);
+        // 必须用函数式更新：await handleCpApi 期间 useUpdateEffect 已把这批人的
+        // hasSeat 写进 allList，拿拖拽开始时的旧 allList 闭包直接 map 会把它覆盖回去，
+        // 导致刚排座的人在「已排座」里消失（回归见 e2e：多选拖拽入座用例）。
+        setAllList((prev: any[]) => prev.map((item: ItemType) => ({ ...item, checked: false })));
       }
     } else if (node.dataType === "person" && personArr.length === 0) {
       const nodes = graph.getNodes();

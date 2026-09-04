@@ -564,6 +564,77 @@ test.describe("Seatmap Studio regressions", () => {
     expect(pageErrors).toEqual([]);
   });
 
+  test("assigns multiple checked people by dragging onto selected seats", async ({ page }) => {
+    const pageErrors = capturePageErrors(page);
+
+    await page.goto("/");
+    await loadTemplate(page, "Boardroom Demo");
+
+    const productNode = page.locator(".ant-tree-treenode").filter({ hasText: "Product" }).first();
+    await productNode.locator(".ant-tree-switcher").click();
+    await expect(page.locator(".ant-tree-treenode-motion")).toHaveCount(0);
+    for (const name of ["Design", "Research"]) {
+      const levelNode = page.locator(".ant-tree-treenode:visible").filter({ hasText: name }).first();
+      await levelNode.locator(".ant-tree-switcher").click();
+      await expect(page.locator(".ant-tree-treenode-motion")).toHaveCount(0);
+    }
+
+    const adaNode = page.locator(".ant-tree-treenode:visible").filter({
+      has: page.locator('[data-name="Ada Chen"]'),
+    });
+    const claireNode = page.locator(".ant-tree-treenode:visible").filter({
+      has: page.locator('[data-name="Claire Zhou"]'),
+    });
+    await adaNode.locator(".ant-tree-checkbox").click();
+    await claireNode.locator(".ant-tree-checkbox").click();
+    await expect(page.getByText("已选 2")).toBeVisible();
+
+    const target = await page.evaluate(() => {
+      const graph = (window as any).__SEATMAP_STUDIO_GRAPH__;
+      const chairs = (graph?.getNodes?.() ?? [])
+        .filter((node: any) => node?.data?.nodeType === "matrixChair" && node?.data?.visible && !node?.attrs?.xnode)
+        .sort((a: any, b: any) => String(a.data?.idt).localeCompare(String(b.data?.idt)))
+        .slice(0, 2);
+      const selection = graph.getPlugin("selection");
+      selection.clean();
+      selection.select(chairs);
+      const box = chairs[0].getBBox();
+      return {
+        chairIds: chairs.map((chair: any) => chair.id),
+        point: graph.localToClient(box.x + box.width / 2, box.y + box.height / 2),
+      };
+    });
+
+    const graphBox = await page.locator(".x6-graph").boundingBox();
+    expect(graphBox).not.toBeNull();
+    await adaNode.dragTo(page.locator(".x6-graph"), {
+      targetPosition: {
+        x: target.point.x - graphBox!.x,
+        y: target.point.y - graphBox!.y,
+      },
+    });
+
+    await page.waitForFunction(
+      (ids: string[]) => {
+        const graph = (window as any).__SEATMAP_STUDIO_GRAPH__;
+        const titles = new Set(ids.map((id) => graph?.getCellById?.(id)?.attrs?.xnode?.title));
+        return titles.has("Ada Chen") && titles.has("Claire Zhou");
+      },
+      target.chairIds,
+      { timeout: 15_000 }
+    );
+    await expect(page.getByText("全部(4)")).toBeVisible();
+
+    await page.getByRole("button", { name: "已排座" }).click();
+    await expect(page.getByText("Ada Chen", { exact: true })).toBeVisible();
+    await expect(page.getByText("Claire Zhou", { exact: true })).toBeVisible();
+
+    await page.getByRole("button", { name: "未排座" }).click();
+    await expect(page.getByText("Ada Chen", { exact: true })).not.toBeVisible();
+
+    expect(pageErrors).toEqual([]);
+  });
+
   test("keeps round tables and room objects visually and structurally intact", async ({ page }) => {
     const pageErrors = capturePageErrors(page);
 
